@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:date_format/date_format.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
@@ -27,7 +28,9 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class AllocationDetail extends StatefulWidget {
   var FBillNo;
-  AllocationDetail({Key ?key, @required this.FBillNo}) : super(key: key);
+
+  AllocationDetail({Key? key, @required this.FBillNo}) : super(key: key);
+
   @override
   _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo);
 }
@@ -39,13 +42,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   final _textNumber = TextEditingController();
   var checkItem;
   String FBillNo = '';
-  String FSaleOrderNo = '';
-  String cusName = '';
+  String keyWord = '';
   String FName = '';
   String FNumber = '';
   String FDate = '';
-  var customerName;
-  var customerNumber;
   var isSubmit = false;
   var show = false;
   var isScanWork = false;
@@ -55,10 +55,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   var selectData = {
     DateMode.YMD: '',
   };
-  var customerList = [];
-  List<dynamic> customerListObj = [];
+  var fBarCodeList;
   var stockList = [];
   List<dynamic> stockListObj = [];
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
   List<dynamic> orderDate = [];
   List<dynamic> materialDate = [];
   final divider = Divider(height: 1, indent: 20);
@@ -66,21 +67,35 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription ?_subscription;
+  StreamSubscription? _subscription;
   var _code;
   var _FNumber;
   var fBillNo;
-
+  var organizationsName1;
+  var organizationsNumber1;
+  var organizationsName2;
+  var organizationsNumber2;
+  final controller = TextEditingController();
   _RetrievalDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
-      this.getOrderList();
+      this.getOrderList("");
       isScanWork = true;
     } else {
       isScanWork = false;
       this.fBillNo = '';
-      /*getCustomer();
-      getStockList();*/
+      DateTime dateTime = DateTime.now();
+      FDate =
+      "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+      selectData[DateMode.YMD] = formatDate(DateTime.now(), [
+        yyyy,
+        "-",
+        mm,
+        "-",
+        dd,
+      ]);
+      getStockList();
+      getOrganizationsList();
     }
   }
 
@@ -97,37 +112,45 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     EasyLoading.dismiss();
   }
 
-  //获取客户
-  getCustomer() async {
-    Map<String, dynamic> userMap = Map();
-    userMap['FormId'] = 'BD_Customer';
-    userMap['FieldKeys'] = 'FCUSTID,FName,FNumber';
-    Map<String, dynamic> dataMap = Map();
-    dataMap['data'] = userMap;
-    String res = await CurrencyEntity.polling(dataMap);
-    customerListObj = jsonDecode(res);
-    customerListObj.forEach((element) {
-      customerList.add(element[1]);
-    });
-  }
   //获取仓库
   getStockList() async {
+    stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    if(fOrgID == null){
+    if (fOrgID == null) {
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ="+fOrgID.toString();
+    if(this.organizationsNumber2 != null){
+      userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber="+this.organizationsNumber2.toString();
+    }else{
+      userMap['FilterString'] = "FForbidStatus = 'A'";
+    }
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
     stockListObj.forEach((element) {
       stockList.add(element[1]);
+    });
+    print(stockList);
+  }
+
+  //获取组织
+  getOrganizationsList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber,FDocumentStatus';
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
     });
   }
 
@@ -158,21 +181,82 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   // 查询数据集合
   List hobby = [];
   List fNumber = [];
-  getOrderList() async {
-    EasyLoading.show(status: 'loading...');
+  getInventoryList() async{
     Map<String, dynamic> userMap = Map();
-    print(fBillNo);
-    userMap['FilterString'] = "fBillNo='$fBillNo'";
-    userMap['FormId'] = 'SAL_DELIVERYNOTICE';
-    userMap['OrderString'] = 'FMaterialId.FNumber ASC';
+    if(this.keyWord != '' && this.organizationsNumber1 != null){
+      userMap['FilterString'] =
+          "FMaterialId.FNumber='"+this.keyWord+"' and FBaseQty >0 and FStockOrgId.FNumber="+this.organizationsNumber1.toString();
+    }else{
+      if(this.keyWord == ""){
+        ToastUtil.showInfo('请输入查询信息');
+        return;
+      }
+      if(this.organizationsNumber1 == null){
+        ToastUtil.showInfo('请选择调出货主');
+        return;
+      }
+    }
+    userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,F_PIWG_Text1,F_PIWG_Text11,F_PIWG_Text111,FTaxPrice,FEntryTaxRate,F_PIWG_Text';
-    Map<String, dynamic> dataMap = Map();
-    dataMap['data'] = userMap;
-    String order = await CurrencyEntity.polling(dataMap);
-    orderDate = [];
-    orderDate = jsonDecode(order);
-    DateTime dateTime = DateTime.now();
+    'FStockOrgId.FNumber,FStockId.FNumber';
+    Map<String, dynamic> stockMap = Map();
+    stockMap['data'] = userMap;
+    String stockRes = await CurrencyEntity.polling(stockMap);
+    var stockFlex = jsonDecode(stockRes);
+    String order = "";
+    if (stockFlex.length > 0) {
+      List stockFlexRes = [];
+      for(var item in stockFlex){
+        Map<String, dynamic> stockMap = Map();
+        stockMap['FormId'] = 'BD_STOCK';
+        stockMap['FieldKeys'] =
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        stockMap['FilterString'] = "FNumber = '" +
+            item[1] +
+            "' and FUseOrgId.FNumber = '" +
+            item[0] +
+            "'";
+        Map<String, dynamic> stockDataMap = Map();
+        stockDataMap['data'] = stockMap;
+        String res = await CurrencyEntity.polling(stockDataMap);
+        if (jsonDecode(res).length > 0) {
+          stockFlexRes.addAll(jsonDecode(res));
+        }
+      }
+      print(stockFlexRes);
+      List stockData = [];
+      for(var item in stockFlexRes){
+        if(item[4] != null){
+          userMap['FieldKeys'] ='FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FStockId.FNumber,FStockLocId.'+item[4] +'.FName,FBaseUnitId.FNumber,FBaseUnitId.FName,FBaseQty,FLot.FNumber,FOwnerId.FNumber,FMaterialId.FIsBatchManage,FProduceDate,FExpiryDate,FMaterialId.FIsKFPeriod,FID';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          order = await CurrencyEntity.polling(dataMap);
+          var orderRes = jsonDecode(order);
+          if (orderRes.length > 0) {
+            for(var flexItem in orderRes){
+              flexItem.add(item[4]);
+            }
+            stockData.addAll(orderRes);
+          }
+        }
+      }
+      setState(() {
+        EasyLoading.dismiss();
+      });
+      if(stockData.length>0){
+        await _showMultiChoiceModalBottomSheet(context, stockData);
+      }else{
+        ToastUtil.showInfo('无库存数量');
+      }
+    } else {
+      setState(() {
+        EasyLoading.dismiss();
+      });
+      ToastUtil.showInfo('无数据');
+    }
+  }
+  getOrderList(data) async {
+    EasyLoading.show(status: 'loading...');
     FDate = formatDate(DateTime.now(), [
       yyyy,
       "-",
@@ -187,90 +271,99 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       "-",
       dd,
     ]);
-    if (orderDate.length > 0) {
-      this.FBillNo = orderDate[0][0];
-      this.cusName = orderDate[0][17];
-      this.fOrgID = orderDate[0][8];
+    if (data.length > 0) {
+      this.fOrgID = data[0][10];
       hobby = [];
-      orderDate.forEach((value) {
+      data.forEach((value) {
         List arr = [];
-        arr.add({
-          "title": "单据编号",
-          "name": "FBillNo",
-          "isHide": true,
-          "value": {"label": value[0], "value": value[0]}
-        });
-        arr.add({
-          "title": "销售组织",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
-        });
-        arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
-          "isHide": true,
-          "value": {"label": value[17], "value": value[16]}
-        });
-        arr.add({
-          "title": "单据日期",
-          "name": "FDate",
-          "isHide": true,
-          "value": {"label": value[3], "value": value[3]}
-        });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": []}
+          "value": {
+            "label": value[1] + "- (" + value[0] + ")",
+            "value": value[0],
+            "fid": value[16],
+            "barcode": []
+          }
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": value[2], "value": value[2]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {"label": value[7], "value": value[6]}
         });
         arr.add({
-          "title": "未出库数量",
-          "name": "FRemainOutQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
-        });
-        arr.add({
-          "title": "数量",
+          "title": "调拨数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": "0", "value": "0"}
         });
         arr.add({
-          "title": "要货日期",
-          "name": "FDeliveryDate",
+          "title": "申请数量",
+          "name": "FRemainOutQty",
           "isHide": true,
-          "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockId",
-          "isHide": false,
-          "value": {"label": value[18], "value": value[19]}
+          "value": {"label": "0", "value": "0"}
         });
         arr.add({
           "title": "批号",
           "name": "FLot",
-          "isHide": value[22] != true,
-          "value": {"label": value[20], "value": value[20]}
+          "isHide": value[11] != true,
+          "value": {"label": value[9], "value": value[9]}
         });
         arr.add({
-          "title": "仓位",
+          "title": "调出仓库",
+          "name": "FStockId",
+          "isHide": false,
+          "value": {"label": value[3], "value": value[4], 'dimension': value[16]}
+        });
+        arr.add({
+          "title": "调出仓位",
           "name": "FStockLocID",
           "isHide": false,
-          "value": {"label": "", "value": "","hide": value[21]}
+          "value": {"label": value[5], "value": value[5]}
+        });
+        arr.add({
+          "title": "调入仓库",
+          "name": "FStockId",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "调入仓位",
+          "name": "FStockLocID",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": true,
+          "value": {"label": "0", "value": "0"}
+        });
+        arr.add({
+          "title": "生产日期",
+          "name": "FProduceDate",
+          "isHide": value[14] != true,
+          "value": {
+            "label": value[12] == null ? '' : value[12].substring(0, 10),
+            "value": value[12] == null ? '' : value[12].substring(0, 10)
+          }
+        });
+        arr.add({
+          "title": "有效期至",
+          "name": "FExpiryDate",
+          "isHide": value[14] != true,
+          "value": {
+            "label": value[13] == null ? '' : value[13].substring(0, 10),
+            "value": value[13] == null ? '' : value[13].substring(0, 10)
+          }
         });
         arr.add({
           "title": "操作",
@@ -291,15 +384,78 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    getStockList();
+
   }
 
   void _onEvent(event) async {
-    /*  setState(() {*/
-    _code = event;
-    this.getMaterialList();
+    if (checkItem == 'FLoc') {
+      _FNumber = event.trim();
+      this._textNumber.value = _textNumber.value.copyWith(
+        text: event.trim(),
+      );
+    } else {
+      SharedPreferences sharedPreferences =
+      await SharedPreferences.getInstance();
+      var deptData = sharedPreferences.getString('menuList');
+      var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+      fBarCodeList = menuList['FBarCodeList'];
+      if (event == "") {
+        return;
+      }
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          print(fNumber);
+          for (var value in orderDate) {
+            print(value[7]);
+            print(barcodeData[0][8]);
+            if (value[5] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
+              }
+            } else {
+              msg = '条码不在单据物料中';
+            }
+            orderIndex++;
+          }
+          ;
+          if (msg == "") {
+            _code = event;
+            this.fOrgID = barcodeData[0][15];
+            this.getMaterialList(
+                barcodeData,
+                barcodeData[0][10],
+                barcodeData[0][11],
+                barcodeData[0][12].substring(0, 10),
+                barcodeData[0][13].substring(0, 10),
+                barcodeData[0][14],
+                barcodeData[0][7]);
+            print("ChannelPage: $event");
+          } else {
+            ToastUtil.showInfo(msg);
+          }
+        } else {
+          ToastUtil.showInfo('条码不在条码清单中');
+        }
+      } else {
+        _code = event;
+        this.getMaterialList("", _code, '', '', '', '', '');
+        print("ChannelPage: $event");
+      }
+    }
+    checkItem = '';
     print("ChannelPage: $event");
-    /*});*/
   }
 
   void _onError(Object error) {
@@ -308,164 +464,697 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     });
   }
 
-  getMaterialList() async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fBatchNo, fLoc) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(",");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
-    userMap['FormId'] = 'BD_MATERIAL';
+    var scanCode = _code.split(";");
+    Map<String, dynamic> stockMap = Map();
+    stockMap['FormId'] = 'BD_STOCK';
+    stockMap['FieldKeys'] =
+    'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+    stockMap['FilterString'] = "FNumber = '" +
+        barcodeData[0][6].split('/')[0] +
+        "' and FUseOrgId.FNumber = '" +
+        barcodeData[0][15] +
+        "'";
+    Map<String, dynamic> stockDataMap = Map();
+    stockDataMap['data'] = stockMap;
+    String res = await CurrencyEntity.polling(stockDataMap);
+    var stocks = jsonDecode(res);
+    if (stocks.length > 0) {
+      if (stocks[0][4] != null) {
+        userMap['FilterString'] = "FMaterialId.FNumber='" +
+            barcodeData[0][8] +
+            "' and FStockID.FNumber='" +
+            barcodeData[0][6].split('/')[0] +
+            "' and FStockLocId." +
+            stocks[0][4] +
+            ".FNumber = '" +
+            barcodeData[0][7] +
+            "' and FLot.FNumber = '" +
+            fBatchNo +
+            "' and FBaseQty > 0";
+      }else{
+        userMap['FilterString'] = "FMaterialId.FNumber='" +
+            barcodeData[0][8] +
+            "' and FStockID.FNumber='" +
+            barcodeData[0][6].split('/')[0] +
+            /*"' and FUseOrgId.FNumber = '" +
+            deptData[1] +*/
+            "' and FLot.FNumber = '" +
+            fBatchNo +
+            "' and FBaseQty > 0";
+      }
+    } else {
+      userMap['FilterString'] = "FMaterialId.FNumber='" +
+          barcodeData[0][8] +
+          "' and FStockID.FNumber='" +
+          barcodeData[0][6].split('/')[0] +
+          /*"' and FUseOrgId.FNumber = '" +
+          deptData[1] +*/
+          "' and FLot.FNumber = '" +
+          fBatchNo +
+          "' and FBaseQty > 0";
+    }
+    userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
+        'FMATERIALID.FName,FMATERIALID.FNumber,FMATERIALID.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FMATERIALID.FIsBatchManage,FLot.FNumber,FStockID.FNumber,FStockID.FName,FStockLocID,FStockLocID,FBaseQty,FProduceDate,FExpiryDate,FMATERIALID.FIsKFPeriod,FAuxPropId.FF100002.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     materialDate = [];
     materialDate = jsonDecode(order);
-    FDate = formatDate(DateTime.now(), [
-      yyyy,
-      "-",
-      mm,
-      "-",
-      dd,
-    ]);
-    selectData[DateMode.YMD] = formatDate(DateTime.now(), [
-      yyyy,
-      "-",
-      mm,
-      "-",
-      dd,
-    ]);
+
     if (materialDate.length > 0) {
       var number = 0;
+      var barCodeScan;
+      if (fBarCodeList == 1) {
+        barCodeScan = barcodeData[0];
+        barCodeScan[4] = barCodeScan[4].toString();
+      } else {
+        barCodeScan = scanCode;
+      }
+      var barcodeNum = scanCode[3];
+      var residue = double.parse(scanCode[3]);
+      var hobbyIndex = 0;
+      var errorTitle = "";
       for (var element in hobby) {
+        var residue = 0.0;
         //判断是否启用批号
-        if(element[11]['isHide']){//不启用
-          if(element[4]['value']['value'] == scanCode[0]){
-            if(element[4]['value']['barcode'].indexOf(_code) == -1){
-              element[4]['value']['barcode'].add(_code);
-              element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
-              element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
-              number++;
-              break;
-            }else{
+        if (element[5]['isHide']) {
+          //不启用
+          if (element[0]['value']['value'] == barcodeData[0][8]) {
+            if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              //判断是否启用保质期
+              if (!element[11]['isHide']) {
+                print(element[11]['value']['value'] != fProduceDate &&
+                    element[12]['value']['value'] != fExpiryDate);
+                if (element[11]['value']['value'] == fProduceDate &&
+                    element[12]['value']['value'] == fExpiryDate) {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "保质期不一致";
+                  continue;
+                }
+              }
+              //判断是否启用仓位
+              if (element[9]['value']['hide']) {
+                if (element[9]['value']['label'] == fLoc) {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "仓位不一致";
+                  continue;
+                }
+              }
+              if (scanCode[5] == "N") {
+                if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  element[3]['value']['label'] =
+                      (double.parse(element[3]['value']['label']) +
+                          double.parse(barcodeNum))
+                          .toString();
+                  element[3]['value']['value'] = element[3]['value']['label'];
+                  var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                  element[0]['value']['kingDeeCode'].add(item);
+                  element[0]['value']['scanCode'].add(code);
+                  element[10]['value']['label'] = barcodeNum.toString();
+                  element[10]['value']['value'] = barcodeNum.toString();
+                  barcodeNum =
+                      (double.parse(barcodeNum) - double.parse(barcodeNum))
+                          .toString();
+                  number++;
+                }
+                //判断是否可重复扫码
+                if (scanCode.length > 4) {
+                  element[0]['value']['barcode'].add(code);
+                }
+                break;
+              }
+              //判断条码数量
+              if ((double.parse(element[3]['value']['label']) +
+                  double.parse(barcodeNum)) >
+                  0 &&
+                  double.parse(barcodeNum) > 0) {
+                //判断物料是否重复 首个下标是否对应末尾下标
+                if (fNumber.indexOf(element[0]['value']['value']) ==
+                    fNumber.lastIndexOf(element[0]['value']['value'])) {
+                  if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                    element[3]['value']['label'] =
+                        (double.parse(element[3]['value']['label']) +
+                            double.parse(barcodeNum))
+                            .toString();
+                    element[3]['value']['value'] = element[3]['value']['label'];
+                    var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                    element[0]['value']['kingDeeCode'].add(item);
+                    element[0]['value']['scanCode'].add(code);
+                    element[10]['value']['label'] = barcodeNum.toString();
+                    element[10]['value']['value'] = barcodeNum.toString();
+                    barcodeNum =
+                        (double.parse(barcodeNum) - double.parse(barcodeNum))
+                            .toString();
+                    number++;
+                    print(2);
+                    print(element[0]['value']['kingDeeCode']);
+                  }
+                } else {
+                  if (this.isScanWork) {
+                    //判断扫描数量是否大于单据数量
+                    if (double.parse(element[3]['value']['label']) >=
+                        element[4]['value']['label']) {
+                      continue;
+                    } else {
+                      //判断二维码数量是否大于单据数量
+                      if ((double.parse(element[3]['value']['label']) +
+                          double.parse(barcodeNum)) >=
+                          element[4]['value']['label']) {
+                        //判断条码是否重复
+                        if (element[0]['value']['scanCode'].indexOf(code) ==
+                            -1) {
+                          var item = barCodeScan[0].toString() +
+                              "-" +
+                              (element[4]['value']['label'] -
+                                  double.parse(
+                                      element[3]['value']['label']))
+                                  .toString();
+                          element[10]['value']['label'] = (element[9]['value']
+                          ['label'] -
+                              double.parse(element[3]['value']['label']))
+                              .toString();
+                          element[10]['value']['value'] = (element[9]['value']
+                          ['label'] -
+                              double.parse(element[3]['value']['label']))
+                              .toString();
+                          barcodeNum = (double.parse(barcodeNum) -
+                              (element[4]['value']['label'] -
+                                  double.parse(
+                                      element[3]['value']['label'])))
+                              .toString();
+                          element[3]['value']['label'] =
+                              (double.parse(element[3]['value']['label']) +
+                                  (element[4]['value']['label'] -
+                                      double.parse(
+                                          element[3]['value']['label'])))
+                                  .toString();
+                          element[3]['value']['value'] =
+                          element[3]['value']['label'];
+                          residue = element[4]['value']['label'] -
+                              double.parse(element[3]['value']['label']);
+                          element[0]['value']['kingDeeCode'].add(item);
+                          element[0]['value']['scanCode'].add(code);
+                          number++;
+                          print(1);
+                          print(element[0]['value']['kingDeeCode']);
+                        }
+                      } else {
+                        //数量不超出
+                        //判断条码是否重复
+                        if (element[0]['value']['scanCode'].indexOf(code) ==
+                            -1) {
+                          element[3]['value']['label'] =
+                              (double.parse(element[3]['value']['label']) +
+                                  double.parse(barcodeNum))
+                                  .toString();
+                          element[3]['value']['value'] =
+                          element[3]['value']['label'];
+                          var item =
+                              barCodeScan[0].toString() + "-" + barcodeNum;
+                          element[10]['value']['label'] = barcodeNum.toString();
+                          element[10]['value']['value'] = barcodeNum.toString();
+                          element[0]['value']['kingDeeCode'].add(item);
+                          element[0]['value']['scanCode'].add(code);
+                          barcodeNum = (double.parse(barcodeNum) -
+                              double.parse(barcodeNum))
+                              .toString();
+                          number++;
+                          print(2);
+                          print(element[0]['value']['kingDeeCode']);
+                        }
+                      }
+                    }
+                  } else {
+                    //判断条码是否重复
+                    if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                      element[3]['value']['label'] =
+                          (double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum))
+                              .toString();
+                      element[3]['value']['value'] =
+                      element[3]['value']['label'];
+                      var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                      element[10]['value']['label'] = barcodeNum.toString();
+                      element[10]['value']['value'] = barcodeNum.toString();
+                      element[0]['value']['kingDeeCode'].add(item);
+                      element[0]['value']['scanCode'].add(code);
+                      barcodeNum =
+                          (double.parse(barcodeNum) - double.parse(barcodeNum))
+                              .toString();
+                      number++;
+                      print(2);
+                      print(element[0]['value']['kingDeeCode']);
+                    }
+                  }
+                }
+              }
+              //判断是否可重复扫码
+              if (scanCode.length > 4) {
+                element[0]['value']['barcode'].add(code);
+              }
+            } else {
               ToastUtil.showInfo('该标签已扫描');
-              number++;
               break;
             }
           }
-        }else{
-          if(element[4]['value']['value'] == scanCode[0]){
-            if(element[4]['value']['barcode'].indexOf(_code) == -1){
-              if(element[11]['value']['value'] == scanCode[1]){
-                element[4]['value']['barcode'].add(_code);
-                element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
-                element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
-                number++;
-                break;
-              }else{
-                if(element[11]['value']['value'] == "" || element[11]['value']['value'] == null){
-                  element[4]['value']['barcode'].add(_code);
-                  element[11]['value']['label'] = scanCode[1];
-                  element[11]['value']['value'] = scanCode[1];
-                  element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
-                  element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
-                  number++;
-                  break;
+        } else {
+          if (element[0]['value']['value'] == barcodeData[0][8]) {
+            if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              //判断是否启用保质期
+              if (!element[11]['isHide']) {
+                print(element[11]['value']['value'] != fProduceDate &&
+                    element[12]['value']['value'] != fExpiryDate);
+                if (element[11]['value']['value'] == fProduceDate &&
+                    element[12]['value']['value'] == fExpiryDate) {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "保质期不一致";
+                  continue;
                 }
               }
-            }else{
-              ToastUtil.showInfo('该标签已扫描');
+              //判断是否启用仓位
+              if (element[9]['value']['hide']) {
+                if (element[9]['value']['label'] == fLoc) {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "仓位不一致";
+                  continue;
+                }
+              }
+              //启用批号
+              if (scanCode[5] == "N") {
+                if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  if (element[5]['value']['value'] == "") {
+                    element[5]['value']['label'] = fBatchNo;
+                    element[5]['value']['value'] = fBatchNo;
+                  }
+                  element[3]['value']['label'] =
+                      (double.parse(element[3]['value']['label']) +
+                          double.parse(barcodeNum))
+                          .toString();
+                  element[3]['value']['value'] = element[3]['value']['label'];
+                  var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                  element[0]['value']['kingDeeCode'].add(item);
+                  element[0]['value']['scanCode'].add(code);
+                  element[10]['value']['label'] = barcodeNum.toString();
+                  element[10]['value']['value'] = barcodeNum.toString();
+                  barcodeNum =
+                      (double.parse(barcodeNum) - double.parse(barcodeNum))
+                          .toString();
+                  number++;
+                }
+                //判断是否可重复扫码
+                if (scanCode.length > 4) {
+                  element[0]['value']['barcode'].add(code);
+                }
+                break;
+              }
+              if (element[5]['value']['value'] == fBatchNo) {
+                //判断条码数量
+                if ((double.parse(element[3]['value']['label']) +
+                    double.parse(barcodeNum)) >
+                    0 &&
+                    double.parse(barcodeNum) > 0) {
+                  //判断物料是否重复 首个下标是否对应末尾下标
+                  if (fNumber.indexOf(element[0]['value']['value']) ==
+                      fNumber.lastIndexOf(element[0]['value']['value'])) {
+                    if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                      element[3]['value']['label'] =
+                          (double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum))
+                              .toString();
+                      element[3]['value']['value'] =
+                      element[3]['value']['label'];
+                      var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                      element[10]['value']['label'] = barcodeNum.toString();
+                      element[10]['value']['value'] = barcodeNum.toString();
+                      element[0]['value']['kingDeeCode'].add(item);
+                      element[0]['value']['scanCode'].add(code);
+                      barcodeNum =
+                          (double.parse(barcodeNum) - double.parse(barcodeNum))
+                              .toString();
+                      number++;
+                      print(2);
+                      print(element[0]['value']['kingDeeCode']);
+                    }
+                  } else {
+                    if (this.isScanWork) {
+                      //判断扫描数量是否大于单据数量
+                      if (double.parse(element[3]['value']['label']) >=
+                          element[4]['value']['label']) {
+                        continue;
+                      } else {
+                        //判断二维码数量是否大于单据数量
+                        if ((double.parse(element[3]['value']['label']) +
+                            double.parse(barcodeNum)) >=
+                            element[4]['value']['label']) {
+                          //判断条码是否重复
+                          if (element[0]['value']['scanCode'].indexOf(code) ==
+                              -1) {
+                            var item = barCodeScan[0].toString() +
+                                "-" +
+                                (element[4]['value']['label'] -
+                                    double.parse(
+                                        element[3]['value']['label']))
+                                    .toString();
+                            element[10]['value']['label'] = (element[9]['value']
+                            ['label'] -
+                                double.parse(element[3]['value']['label']))
+                                .toString();
+                            element[10]['value']['value'] = (element[9]['value']
+                            ['label'] -
+                                double.parse(element[3]['value']['label']))
+                                .toString();
+                            barcodeNum = (double.parse(barcodeNum) -
+                                (element[4]['value']['label'] -
+                                    double.parse(
+                                        element[3]['value']['label'])))
+                                .toString();
+                            element[3]['value']['label'] =
+                                (double.parse(element[3]['value']['label']) +
+                                    (element[4]['value']['label'] -
+                                        double.parse(
+                                            element[3]['value']['label'])))
+                                    .toString();
+                            element[3]['value']['value'] =
+                            element[3]['value']['label'];
+                            residue = element[4]['value']['label'] -
+                                double.parse(element[3]['value']['label']);
+                            element[0]['value']['kingDeeCode'].add(item);
+                            element[0]['value']['scanCode'].add(code);
+                            number++;
+                            print(1);
+                            print(element[0]['value']['kingDeeCode']);
+                          }
+                        } else {
+                          //数量不超出
+                          //判断条码是否重复
+                          if (element[0]['value']['scanCode'].indexOf(code) ==
+                              -1) {
+                            element[3]['value']['label'] =
+                                (double.parse(element[3]['value']['label']) +
+                                    double.parse(barcodeNum))
+                                    .toString();
+                            element[3]['value']['value'] =
+                            element[3]['value']['label'];
+                            var item =
+                                barCodeScan[0].toString() + "-" + barcodeNum;
+                            element[0]['value']['kingDeeCode'].add(item);
+                            element[0]['value']['scanCode'].add(code);
+                            barcodeNum = (double.parse(barcodeNum) -
+                                double.parse(barcodeNum))
+                                .toString();
+                            number++;
+                            print(2);
+                            print(element[0]['value']['kingDeeCode']);
+                          }
+                        }
+                      }
+                    } else {
+                      //判断条码是否重复
+                      if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        element[3]['value']['label'] =
+                            (double.parse(element[3]['value']['label']) +
+                                double.parse(barcodeNum))
+                                .toString();
+                        element[3]['value']['value'] =
+                        element[3]['value']['label'];
+                        var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                        element[10]['value']['label'] = barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        barcodeNum = (double.parse(barcodeNum) -
+                            double.parse(barcodeNum))
+                            .toString();
+                        number++;
+                        print(2);
+                        print(element[0]['value']['kingDeeCode']);
+                      }
+                    }
+                  }
+                }
+                //判断是否可重复扫码
+                if (scanCode.length > 4) {
+                  element[0]['value']['barcode'].add(code);
+                }
+              } else {
+                if (element[5]['value']['value'] == "") {
+                  element[5]['value']['label'] = fBatchNo;
+                  element[5]['value']['value'] = fBatchNo;
+                  //判断条码数量
+                  if ((double.parse(element[3]['value']['label']) +
+                      double.parse(barcodeNum)) >
+                      0 &&
+                      double.parse(barcodeNum) > 0) {
+                    //判断物料是否重复 首个下标是否对应末尾下标
+                    if (fNumber.indexOf(element[0]['value']['value']) ==
+                        fNumber.lastIndexOf(element[0]['value']['value'])) {
+                      if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        element[3]['value']['label'] =
+                            (double.parse(element[3]['value']['label']) +
+                                double.parse(barcodeNum))
+                                .toString();
+                        element[3]['value']['value'] =
+                        element[3]['value']['label'];
+                        var item = barCodeScan[0].toString() + "-" + barcodeNum;
+                        element[10]['value']['label'] = barcodeNum.toString();
+                        element[10]['value']['value'] = barcodeNum.toString();
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        barcodeNum = (double.parse(barcodeNum) -
+                            double.parse(barcodeNum))
+                            .toString();
+                        number++;
+                        print(2);
+                        print(element[0]['value']['kingDeeCode']);
+                      }
+                    } else {
+                      if (this.isScanWork) {
+                        //判断扫描数量是否大于单据数量
+                        if (double.parse(element[3]['value']['label']) >=
+                            element[4]['value']['label']) {
+                          continue;
+                        } else {
+                          //判断二维码数量是否大于单据数量
+                          if ((double.parse(element[3]['value']['label']) +
+                              double.parse(barcodeNum)) >=
+                              element[4]['value']['label']) {
+                            //判断条码是否重复
+                            if (element[0]['value']['scanCode'].indexOf(code) ==
+                                -1) {
+                              var item = barCodeScan[0].toString() +
+                                  "-" +
+                                  (element[4]['value']['label'] -
+                                      double.parse(
+                                          element[3]['value']['label']))
+                                      .toString();
+                              element[10]['value']['label'] = (element[9]
+                              ['value']['label'] -
+                                  double.parse(
+                                      element[3]['value']['label']))
+                                  .toString();
+                              element[10]['value']['value'] = (element[9]
+                              ['value']['label'] -
+                                  double.parse(
+                                      element[3]['value']['label']))
+                                  .toString();
+                              barcodeNum = (double.parse(barcodeNum) -
+                                  (element[4]['value']['label'] -
+                                      double.parse(
+                                          element[3]['value']['label'])))
+                                  .toString();
+                              element[3]['value']['label'] =
+                                  (double.parse(element[3]['value']['label']) +
+                                      (element[4]['value']['label'] -
+                                          double.parse(element[3]['value']
+                                          ['label'])))
+                                      .toString();
+                              element[3]['value']['value'] =
+                              element[3]['value']['label'];
+                              residue = element[4]['value']['label'] -
+                                  double.parse(element[3]['value']['label']);
+                              element[0]['value']['kingDeeCode'].add(item);
+                              element[0]['value']['scanCode'].add(code);
+                              number++;
+                              print(1);
+                              print(element[0]['value']['kingDeeCode']);
+                            }
+                          } else {
+                            //数量不超出
+                            //判断条码是否重复
+                            if (element[0]['value']['scanCode'].indexOf(code) ==
+                                -1) {
+                              element[3]['value']['label'] =
+                                  (double.parse(element[3]['value']['label']) +
+                                      double.parse(barcodeNum))
+                                      .toString();
+                              element[3]['value']['value'] =
+                              element[3]['value']['label'];
+                              var item =
+                                  barCodeScan[0].toString() + "-" + barcodeNum;
+                              element[10]['value']['label'] =
+                                  barcodeNum.toString();
+                              element[10]['value']['value'] =
+                                  barcodeNum.toString();
+                              element[0]['value']['kingDeeCode'].add(item);
+                              element[0]['value']['scanCode'].add(code);
+                              barcodeNum = (double.parse(barcodeNum) -
+                                  double.parse(barcodeNum))
+                                  .toString();
+                              number++;
+                              print(2);
+                              print(element[0]['value']['kingDeeCode']);
+                            }
+                          }
+                        }
+                      } else {
+                        //判断条码是否重复
+                        if (element[0]['value']['scanCode'].indexOf(code) ==
+                            -1) {
+                          element[3]['value']['label'] =
+                              (double.parse(element[3]['value']['label']) +
+                                  double.parse(barcodeNum))
+                                  .toString();
+                          element[3]['value']['value'] =
+                          element[3]['value']['label'];
+                          var item =
+                              barCodeScan[0].toString() + "-" + barcodeNum;
+                          element[10]['value']['label'] = barcodeNum.toString();
+                          element[10]['value']['value'] = barcodeNum.toString();
+                          element[0]['value']['kingDeeCode'].add(item);
+                          element[0]['value']['scanCode'].add(code);
+                          barcodeNum = (double.parse(barcodeNum) -
+                              double.parse(barcodeNum))
+                              .toString();
+                          number++;
+                          print(2);
+                          print(element[0]['value']['kingDeeCode']);
+                        }
+                      }
+                    }
+                  }
+                  //判断是否可重复扫码
+                  if (scanCode.length > 4) {
+                    element[0]['value']['barcode'].add(code);
+                  }
+                }
+              }
+            } else {
               number++;
+              ToastUtil.showInfo('该标签已扫描');
               break;
             }
           }
         }
-      };
-      if(number ==0 && this.fBillNo =="") {
-        materialDate.forEach((value) {
+      }
+      setState(() {
+        EasyLoading.dismiss();
+      });
+      if (number == 0 && this.fBillNo == "") {
+        for (var value in materialDate) {
           List arr = [];
-          arr.add({
-            "title": "单据编号",
-            "name": "FBillNo",
-            "isHide": true,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "销售组织",
-            "name": "FSaleOrgId",
-            "isHide": true,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "客户",
-            "name": "FSaleOrgId",
-            "isHide": true,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "单据日期",
-            "name": "FDate",
-            "isHide": true,
-            "value": {"label": "", "value": ""}
-          });
           arr.add({
             "title": "物料名称",
             "name": "FMaterial",
             "isHide": false,
-            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2], "barcode": [_code]}
+            "value": {
+              "label": value[0] + "- (" + value[1] + ")",
+              "value": value[1],
+              "barcode": [_code],
+              "kingDeeCode": [barCodeScan[0].toString() + "-" + barcodeNum],
+              "scanCode": [barCodeScan[0].toString() + "-" + barcodeNum],
+              "codeList": []
+            }
           });
           arr.add({
             "title": "规格型号",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": value[2], "value": value[2]}
           });
           arr.add({
             "title": "单位名称",
             "name": "FUnitId",
             "isHide": false,
-            "value": {"label": value[4], "value": value[5]}
+            "value": {"label": value[3], "value": value[4]}
           });
           arr.add({
-            "title": "出库数量",
-            "name": "FRealQty",
-            "isHide": false,
-            "value": {"label": "0", "value": "0"}
-          });
-          arr.add({
-            "title": "数量",
+            "title": "移库数量",
             "name": "FRemainOutQty",
             "isHide": false,
-            "value": {"label": "1", "value": "1"}
+            "value": {"label": barcodeNum, "value": barcodeNum}
           });
           arr.add({
-            "title": "要货日期",
-            "name": "FDeliveryDate",
+            "title": "申请数量",
+            "name": "FRealQty",
             "isHide": true,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "仓库",
-            "name": "FStockID",
-            "isHide": false,
-            "value": {"label": "", "value": ""}
+            "value": {"label": "0", "value": "0"}
           });
           arr.add({
             "title": "批号",
             "name": "FLot",
-            "isHide": value[6] != true,
+            "isHide": value[5] != true,
+            "value": {"label": value[6], "value": value[6]}
+          });
+          arr.add({
+            "title": "移出仓库",
+            "name": "FStockID",
+            "isHide": false,
+            "value": {"label": value[8], "value": value[7], 'dimension': ""}
+          });
+          arr.add({
+            "title": "移出仓位",
+            "name": "FStockLocID",
+            "isHide": true,
+            "value": {"label": value[9], "value": value[10], "hide": false}
+          });
+          arr.add({
+            "title": "移入仓库",
+            "name": "FStockID",
+            "isHide": false,
+            "value": {"label": "", "value": "", "dimension": stocks[0][4]}
+          });
+          arr.add({
+            "title": "移入仓位",
+            "name": "FStockLocID",
+            "isHide": true,
+            "value": {"label": "", "value": "", "hide": false}
+          });
+          arr.add({
+            "title": "最后扫描数量",
+            "name": "FLastQty",
+            "isHide": false,
             "value": {
-              "label": value[6]?(scanCode.length>1?scanCode[1]:''):'',
-              "value": value[6]?(scanCode.length>1?scanCode[1]:''):''
+              "label": barcodeNum.toString(),
+              "value": barcodeNum.toString()
             }
           });
           arr.add({
-            "title": "仓位",
-            "name": "FStockLocID",
-            "isHide": false,
-            "value": {"label": "", "value": "", "hide": false}
+            "title": "生产日期",
+            "name": "FProduceDate",
+            "isHide": value[14] != true,
+            "value": {
+              "label": value[12] == null ? '' : value[12].substring(0, 10),
+              "value": value[12] == null ? '' : value[12].substring(0, 10)
+            }
+          });
+          arr.add({
+            "title": "有效期至",
+            "name": "FExpiryDate",
+            "isHide": value[14] != true,
+            "value": {
+              "label": value[13] == null ? '' : value[13].substring(0, 10),
+              "value": value[13] == null ? '' : value[13].substring(0, 10)
+            }
           });
           arr.add({
             "title": "操作",
@@ -474,7 +1163,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "value": {"label": "", "value": ""}
           });
           hobby.add(arr);
-        });
+        };
       }
       setState(() {
         EasyLoading.dismiss();
@@ -489,7 +1178,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
   }
 
-  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String? label, var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -499,9 +1188,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
+            onTap: () => data.length > 0
+                ? _onClickItem(data, selectData, hobby,
+                label: label, stock: stock)
+                : {ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
+              MyText(selectData.toString() == "" ? '暂无' : selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -556,29 +1248,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() {
+        setState(() async {
           switch (model) {
             case DateMode.YMD:
-              selectData[model] = formatDate(
-                  DateFormat('yyyy-MM-dd')
-                      .parse('${p.year}-${p.month}-${p.day}'),
-                  [
-                    yyyy,
-                    "-",
-                    mm,
-                    "-",
-                    dd,
-                  ]);
-              FDate = formatDate(
-                  DateFormat('yyyy-MM-dd')
-                      .parse('${p.year}-${p.month}-${p.day}'),
-                  [
-                    yyyy,
-                    "-",
-                    mm,
-                    "-",
-                    dd,
-                  ]);
+              Map<String, dynamic> userMap = Map();
+              selectData[model] = '${p.year}-${p.month}-${p.day}';
+              FDate = '${p.year}-${p.month}-${p.day}';
               break;
           }
         });
@@ -587,7 +1262,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby,
+      {String? label, var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,
@@ -598,24 +1274,40 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
-          if (hobby == 'customer') {
-            customerName = p;
+          if (hobby == 'organizations1') {
+            organizationsName1 = p;
             var elementIndex = 0;
             data.forEach((element) {
               if (element == p) {
-                customerNumber = customerListObj[elementIndex][2];
+                organizationsNumber1 = organizationsListObj[elementIndex][2];
               }
               elementIndex++;
             });
+            print(1);
+            print(organizationsNumber1);
+          } else if (hobby == 'organizations2') {
+            organizationsName2 = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                organizationsNumber2 = organizationsListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
+            this.getStockList();
+            print(2);
+            print(organizationsNumber2);
           } else {
             setState(() {
               hobby['value']['label'] = p;
             });
             var elementIndex = 0;
+            print(data);
             data.forEach((element) {
               if (element == p) {
+                print(stockListObj[elementIndex]);
                 hobby['value']['value'] = stockListObj[elementIndex][2];
-                stock[12]['value']['hide'] = stockListObj[elementIndex][3];
+                hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -631,7 +1323,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 8 || j == 11) {
+          if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -667,18 +1359,19 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 divider,
               ]),
             );
-          } else if (j == 10) {
+          } else if (j == 8) {
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
-                  this.hobby[i][j],stock:this.hobby[i]),
+              _item('调入仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],
+                  stock: this.hobby[i]),
             );
-          }else if(j == 12){
+          } else if (j == 9) {
             comList.add(
               Visibility(
                 maintainSize: false,
                 maintainState: false,
                 maintainAnimation: false,
-                visible: this.hobby[i][j]["value"]["hide"],
+                visible: this.hobby[i][j]["value"]["label"] != null,
                 child: Column(children: [
                   Container(
                     color: Colors.white,
@@ -686,38 +1379,42 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
-                        trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                          IconButton(
-                            icon: new Icon(Icons.filter_center_focus),
-                            tooltip: '点击扫描',
-                            onPressed: () {
-                              this._textNumber.text =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              this._FNumber =
-                                  this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
-                              this.show = false;
-                              checkData = i;
-                              checkDataChild = j;
-                              scanDialog();
-                              print(this.hobby[i][j]["value"]["label"]);
-                              if (this.hobby[i][j]["value"]["label"] != 0) {
-                                this._textNumber.value = _textNumber.value.copyWith(
-                                  text:
-                                  this.hobby[i][j]["value"]["label"].toString(),
-                                );
-                              }
-                            },
-                          ),
-                        ])),
+                        trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: new Icon(Icons.filter_center_focus),
+                                tooltip: '点击扫描',
+                                onPressed: () {
+                                  this._textNumber.text = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  this._FNumber = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  checkItem = 'FLoc';
+                                  this.show = false;
+                                  checkData = i;
+                                  checkDataChild = j;
+                                  scanDialog();
+                                  print(this.hobby[i][j]["value"]["label"]);
+                                  if (this.hobby[i][j]["value"]["label"] != 0) {
+                                    this._textNumber.value =
+                                        _textNumber.value.copyWith(
+                                          text: this
+                                              .hobby[i][j]["value"]["label"]
+                                              .toString(),
+                                        );
+                                  }
+                                },
+                              ),
+                            ])),
                   ),
                   divider,
                 ]),
               ),
-
             );
-          }else if (j == 13) {
+          } else if (j == 13) {
             comList.add(
               Column(children: [
                 Container(
@@ -737,7 +1434,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                 this.hobby.removeAt(i);
                                 setState(() {});
                               },
-                            )
+                            ),
                           ])),
                 ),
                 divider,
@@ -766,7 +1463,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 6, width: 320, child: ColoredBox(color: Colors.grey)),
       );
       tempList.add(
         Column(
@@ -805,7 +1502,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.text,
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -844,6 +1541,137 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     });
   }
 
+  Widget _getModalSheetHeaderWithConfirm(String title,
+      {required Function onCancel, required Function onConfirm}) {
+    return SizedBox(
+      height: 50,
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              onCancel();
+            },
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+            ),
+          ),
+          IconButton(
+              icon: Icon(
+                Icons.check,
+                color: Colors.blue,
+              ),
+              onPressed: () {
+                onConfirm();
+              }),
+        ],
+      ),
+    );
+  }
+
+  Future<List<int>?> _showMultiChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options) async {
+    List selected = [];
+    var selectList = this.hobby;
+    for (var select in selectList) {
+      for(var item in options){
+        if (select[0]['fid'] == item[15]) {
+          selected.add(item);
+        } else {
+          selected.remove(item);
+        }
+      }
+    }
+    print(options);
+    print(selected);
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              _getModalSheetHeaderWithConfirm(
+                '商品选择',
+                onCancel: () {
+                  Navigator.of(context).pop();
+                },
+                onConfirm: () {
+                  var itemList = [];
+                  for (var select in selectList) {
+                    for(var item in selected){
+                      print(select[0]['fid'] == item[15]);
+                      if (select[0]['fid'] != item[15]) {
+                        itemList.add(item);
+                      }
+                    }
+                  }
+                  if(selectList.length == 0){
+                    this.getOrderList(selected);
+                  }else{
+                    this.getOrderList(itemList);
+                  }
+                  Navigator.of(context).pop();
+                },
+              ),
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      trailing: Icon(
+                          selected.contains(options[index])
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
+                          color: Theme.of(context).primaryColor),
+                      title: Text(options[index][1]+';仓库：'+options[index][3]+';仓位：'+(options[index][5]==null?'无':options[index][5])),
+                      onTap: () {
+                        setState(() {
+                          if (selected.contains(options[index])) {
+                            selected.remove(options[index]);
+                          } else {
+                            var number = 0;
+                            for (var element in hobby) {
+                              if (element[0]['fid'] == options[index][15]) {
+                                number++;
+                              }
+                            }
+                            if(number==0){
+                              selected.add(options[index]);
+                            }else{
+                              ToastUtil.showInfo('商品已存在');
+                            }
+                          }
+                          print(selected);
+                        });
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
+
   //保存
   saveOrder() async {
     if (this.hobby.length > 0) {
@@ -851,13 +1679,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         this.isSubmit = true;
       });
       Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'SAL_OUTSTOCK';
+      dataMap['formid'] = 'STK_TransferDirect';
       Map<String, dynamic> orderMap = Map();
-      orderMap['NeedReturnFields'] = [];
+      orderMap['NeedReturnFields'] = ['FBillNo'];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "CKD01_SYS"};
+      Model['FBillTypeID'] = {"FNUMBER": "ZJDB01_SYS"};
       Model['FDate'] = FDate;
       //获取登录信息
       SharedPreferences sharedPreferences =
@@ -867,52 +1695,77 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       //判断有源单 无源单
       if (this.isScanWork) {
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
-        Model['FSaleOrgId'] = {"FNumber": orderDate[0][1].toString()};
-        Model['FCustomerID'] = {"FNumber": orderDate[0][16].toString()};
-        Model['F_PIWG_Text1'] = orderDate[0][23];
-        Model['F_PIWG_Text11'] = orderDate[0][24];
-        Model['F_PIWG_Text111'] = orderDate[0][25];
-        Model['F_PIWG_Text'] = orderDate[0][28];
+        Model['FStockOutOrgId'] = {"FNumber": orderDate[0][8].toString()};
       } else {
-        if (this.customerNumber  == null) {
-          this.isSubmit = false;
-          ToastUtil.showInfo('请选择客户');
-          return;
-        }
         Model['FStockOrgId'] = {"FNumber": this.fOrgID};
-        Model['FSaleOrgId'] = {"FNumber": this.fOrgID};
-        Model['FCustomerID'] = {"FNumber": this.customerNumber};
+        Model['FStockOutOrgId'] = {"FNumber": this.fOrgID};
       }
+      Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
+      Model['FTransferBizType'] = "InnerOrgTransfer";
+      Model['FOwnerTypeOutIdHead'] = "BD_OwnerOrg";
+      Model['FTransferDirect'] = "GENERAL";
+      Model['FOwnerOutIdHead'] = {"FNumber": this.fOrgID};
+      Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (element[8]['value']['value'] != '0' &&
-            element[10]['value']['value'] != '') {
+        if (element[3]['value']['value'] != '0' && element[7]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
-          FEntityItem['FMaterialId'] = {
-            "FNumber": element[4]['value']['value']
-          };
-          FEntityItem['FTaxPrice'] = orderDate[hobbyIndex][26];
-          FEntityItem['FEntryTaxRate'] = orderDate[hobbyIndex][27];
-          FEntityItem['FUnitID'] = {"FNumber": element[6]['value']['value']};
+
           /*FEntityItem['FReturnType'] = 1;*/
-          FEntityItem['FLot'] = {"FNumber": element[11]['value']['value']};
-          FEntityItem['FStockID'] = {"FNumber": element[10]['value']['value']};
-          FEntityItem['FStockLocId'] = {
-            "FSTOCKLOCID__FF100011": {
-              "FNumber": element[13]['value']['value']
-            }
+          FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
+          FEntityItem['FOwnerId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FOwnerTypeOutId'] = "BD_OwnerOrg";
+          FEntityItem['FOwnerOutId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
+          FEntityItem['FKeeperId'] = {"FNumber": this.fOrgID};
+
+          FEntityItem['FMaterialId'] = {
+            "FNumber": element[0]['value']['value']
           };
-          FEntityItem['FRealQty'] = element[8]['value']['value'];
-          FEntityItem['FEntity_Link'] = [
+          FEntityItem['FKeeperTypeOutId'] = "BD_KeeperOrg";
+          FEntityItem['FKeeperOutId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
+          FEntityItem['FBaseUnitId'] = {
+            "FNumber": element[2]['value']['value']
+          };
+          FEntityItem['FSrcStockId'] = {
+            "FNumber": element[6]['value']['value']
+          };
+          if (element[6]['value']['dimension'] != null) {
+            FEntityItem['FSrcStockLocId'] = {
+              "FSRCSTOCKLOCID__" + element[6]['value']['dimension']: {
+                "FNumber": element[7]['value']['value']
+              }
+            };
+          }
+          FEntityItem['FDestStockId'] = {
+            "FNumber": element[8]['value']['value']
+          };
+          if (element[8]['value']['dimension'] != null) {
+            FEntityItem['FDestStockLocId'] = {
+              "FDESTSTOCKLOCID__" + element[8]['value']['dimension']: {
+                "FNumber": element[9]['value']['value']
+              }
+            };
+          }
+          FEntityItem['FAuxPropID'] = {
+            "FAUXPROPID__FF100002": {"FNumber": materialDate[hobbyIndex][15]}
+          };
+          FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
+          FEntityItem['FQty'] = element[3]['value']['value'];
+          FEntityItem['FBaseQty'] = element[3]['value']['value'];
+          FEntityItem['FProduceDate'] = element[11]['value']['value'];
+          FEntityItem['FExpiryDate'] = element[12]['value']['value'];
+          /*FEntityItem['FEntity_Link'] = [
             {
               "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",
-              "FEntity_Link_FSTableName": "T_SAL_DELIVERYNOTICEENTRY",
+              "FEntity_Link_FSTableName": "T_STK_TRANSFERAPPLYENTRY",
               "FEntity_Link_FSBillId": orderDate[hobbyIndex][15],
               "FEntity_Link_FSId": orderDate[hobbyIndex][4],
               "FEntity_Link_FSALBASEQTY": element[8]['value']['value']
             }
-          ];
+          ];*/
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -922,31 +1775,139 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         ToastUtil.showInfo('请输入数量,仓库');
         return;
       }
-      Model['FEntity'] = FEntity;
+      Model['FBillEntry'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));
+      var saveData = jsonEncode(dataMap);
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
+        var returnData = res['Result']['NeedReturnData'];
         Map<String, dynamic> submitMap = Map();
         submitMap = {
-          "formid": "SAL_OUTSTOCK",
+          "formid": "STK_TransferDirect",
           "data": {
             'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
           }
         };
         //提交
-        HandlerOrder.orderHandler(context, submitMap, 1, "SAL_OUTSTOCK",
+        HandlerOrder.orderHandler(context, submitMap, 1, "STK_TransferDirect",
             SubmitEntity.submit(submitMap))
             .then((submitResult) {
           if (submitResult) {
             //审核
-            HandlerOrder.orderHandler(context, submitMap, 1, "SAL_OUTSTOCK",
-                SubmitEntity.audit(submitMap))
-                .then((auditResult) {
+            HandlerOrder.orderHandler(context, submitMap, 1,
+                "STK_TransferDirect", SubmitEntity.audit(submitMap))
+                .then((auditResult) async {
               if (auditResult) {
+                var errorMsg = "";
+                if (fBarCodeList == 1) {
+                  for (int i = 0; i < this.hobby.length; i++) {
+                    if (this.hobby[i][3]['value']['value'] != '0') {
+                      var kingDeeCode =
+                      this.hobby[i][0]['value']['kingDeeCode'];
+                      for (int j = 0; j < kingDeeCode.length; j++) {
+                        Map<String, dynamic> dataCodeMap = Map();
+                        dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                        Map<String, dynamic> orderCodeMap = Map();
+                        orderCodeMap['NeedReturnFields'] = [];
+                        orderCodeMap['IsDeleteEntry'] = false;
+                        Map<String, dynamic> codeModel = Map();
+                        var itemCode = kingDeeCode[j].split("-");
+                        codeModel['FID'] = itemCode[0];
+                        for (var j = 0; j < 2; j++) {
+                          if (j == 0) {
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FOutQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] = returnData[0]['FBillNo'];
+                            codeFEntityItem['FEntryStockID'] = {
+                              "FNUMBER": this.hobby[i][6]['value']['value']
+                            };
+                            if (this.hobby[i][8]['value']['dimension'] !=
+                                null) {
+                              codeFEntityItem['FStockLocID'] = {
+                                "FSTOCKLOCID__" +
+                                    this.hobby[i][8]['value']['dimension']: {
+                                  "FNumber": this.hobby[i][7]['value']['value']
+                                }
+                              };
+                            }
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            String codeRes =
+                            await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if (!barcodeRes['Result']['ResponseStatus']
+                            ['IsSuccess']) {
+                              errorMsg += "错误反馈：" +
+                                  itemCode[1] +
+                                  ":" +
+                                  barcodeRes['Result']['ResponseStatus']
+                                  ['Errors'][0]['Message'];
+                            }
+                            print(codeRes);
+                          } else {
+                            codeModel['FOwnerID'] = {
+                              "FNUMBER": this.fOrgID
+                            };
+                            codeModel['FStockOrgID'] = {
+                              "FNUMBER": this.fOrgID
+                            };
+                            codeModel['FStockID'] = {
+                              "FNUMBER": this.hobby[i][8]['value']['value']
+                            };
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FInQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] = returnData[0]['FBillNo'];
+                            //codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                            codeFEntityItem['FEntryStockID'] = {
+                              "FNUMBER": this.hobby[i][8]['value']['value']
+                            };
+                            if (this.hobby[i][8]['value']['dimension'] !=
+                                null) {
+                              codeFEntityItem['FStockLocID'] = {
+                                "FSTOCKLOCID__" +
+                                    this.hobby[i][8]['value']['dimension']: {
+                                  "FNumber": this.hobby[i][9]['value']['value']
+                                }
+                              };
+                            }
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            String codeRes =
+                            await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if (!barcodeRes['Result']['ResponseStatus']
+                            ['IsSuccess']) {
+                              errorMsg += "错误反馈：" +
+                                  itemCode[1] +
+                                  ":" +
+                                  barcodeRes['Result']['ResponseStatus']
+                                  ['Errors'][0]['Message'];
+                            }
+                            print(codeRes);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                if (errorMsg != "") {
+                  ToastUtil.errorDialog(context, errorMsg);
+                  this.isSubmit = false;
+                }
                 //提交清空页面
                 setState(() {
                   this.hobby = [];
@@ -957,12 +1918,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 });
               } else {
                 //失败后反审
-                HandlerOrder.orderHandler(context, submitMap, 0, "SAL_OUTSTOCK",
-                    SubmitEntity.unAudit(submitMap))
+                HandlerOrder.orderHandler(context, submitMap, 0,
+                    "STK_TransferDirect", SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
                     this.isSubmit = false;
-                  }else{
+                  } else {
                     this.isSubmit = false;
                   }
                 });
@@ -983,6 +1944,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       ToastUtil.showInfo('无提交数据');
     }
   }
+
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {
     return showDialog<void>(
@@ -1009,6 +1971,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           );
         });
   }
+
   //扫码函数,最简单的那种
   Future scan() async {
     String cameraScanResult = await scanner.scan(); //通过扫码获取二维码中的数据
@@ -1019,6 +1982,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     _onEvent(scan);
+  }
+
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
   }
   @override
   Widget build(BuildContext context) {
@@ -1042,7 +2009,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
-                  Column(
+                  /*Column(
                     children: [
                       Container(
                         color: Colors.white,
@@ -1052,34 +2019,79 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       ),
                       divider,
                     ],
-                  ),
-                  /*Visibility(
-                    maintainSize: false,
-                    maintainState: false,
-                    maintainAnimation: false,
-                    visible: isScanWork,
-                    child: Column(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          child: ListTile(
-                            *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
-                            title: Text("客户：$cusName"),
+                  ),*/
+                  /*Container(
+                    height: 52.0,
+                    child: new Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Row(children: [
+                        Card(
+                          child: new Container(
+                              width: hc_ScreenWidth() - 80,
+                              child: Row(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 6.0,
+                                  ),
+                                  Icon(
+                                    Icons.search,
+                                    color: Colors.grey,
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      child: TextField(
+                                        controller: this.controller,
+                                        decoration: new InputDecoration(
+                                            contentPadding:
+                                            EdgeInsets.only(
+                                                bottom: 12.0),
+                                            hintText: '物料编码',
+                                            border: InputBorder.none),
+                                        onSubmitted: (value) {
+                                          setState(() {
+                                            this.keyWord = value;
+                                            this.getInventoryList();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  new IconButton(
+                                    icon: new Icon(Icons.cancel),
+                                    color: Colors.grey,
+                                    iconSize: 18.0,
+                                    onPressed: () {
+                                      this.controller.clear();
+                                    },
+                                  ),
+                                ],
+                              )),
+                        ),
+                        new SizedBox(
+                          width: 60.0,
+                          height: 40.0,
+                          child: new RaisedButton(
+                            color: Colors.lightBlueAccent,
+                            child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                            onPressed: (){
+                              setState(() {
+                                this.keyWord = this.controller.text;
+                                this.getInventoryList();
+                              });
+                            },
                           ),
                         ),
-                        divider,
-                      ],
+                      ]),
                     ),
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                 /* Visibility(
-                    maintainSize: false,
-                    maintainState: false,
-                    maintainAnimation: false,
-                    visible: !isScanWork,
-                    child: _item('客户:', this.customerList, this.customerName,
-                        'customer'),
-                  ),*/
+                  /*_item('调出货主', this.organizationsList, this.organizationsName1,
+                      'organizations1'),
+                  _item('调入货主', this.organizationsList, this.organizationsName2,
+                      'organizations2'),*/
                   Column(
                     children: [
                       Container(
@@ -1099,9 +2111,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               setState(() {
                                 _remarkContent.value = TextEditingValue(
                                     text: value,
-                                    selection: TextSelection.fromPosition(TextPosition(
-                                        affinity: TextAffinity.downstream,
-                                        offset: value.length)));
+                                    selection: TextSelection.fromPosition(
+                                        TextPosition(
+                                            affinity: TextAffinity.downstream,
+                                            offset: value.length)));
                               });
                             },
                           ),

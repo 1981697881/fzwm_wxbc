@@ -10,6 +10,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'allocation_detail.dart';
 
@@ -35,7 +36,7 @@ class _RetrievalPageState extends State<AllocationPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
   var _code;
-
+  var isScan = false;
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
 
@@ -54,6 +55,7 @@ class _RetrievalPageState extends State<AllocationPage> {
     EasyLoading.dismiss();
   }
   _initState() {
+    isScan = false;
     EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
@@ -78,22 +80,33 @@ class _RetrievalPageState extends State<AllocationPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FRemainOutQty>0 and FCLOSESTATUS='A'";
+    userMap['FilterString'] = "FQty>0 and FCLOSESTATUS='A'";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FRemainOutQty>0 and FCLOSESTATUS='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FQty>0 and FCLOSESTATUS='A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =
-          "FBillNo like '%"+keyWord+"%' and FCLOSESTATUS='A' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    if(this.isScan){
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FCLOSESTATUS='A' and FQty>0";
+      }
+    }else{
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FCLOSESTATUS='A' and FQty>0";
+      }else{
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FCLOSESTATUS='A' and FQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
-    userMap['FormId'] = 'SAL_DELIVERYNOTICE';
+    this.isScan = false;
+    userMap['FormId'] = 'STK_TRANSFERAPPLY';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,,FCustomerID.FNumber,FCustomerID.FName';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -111,16 +124,10 @@ class _RetrievalPageState extends State<AllocationPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "销售组织",
-          "name": "FSaleOrgId",
+          "title": "调入库存组织",
+          "name": "",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
-        });
-        arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
-          "isHide": false,
-          "value": {"label": value[17], "value": value[16]}
         });
         arr.add({
           "title": "单据日期",
@@ -147,22 +154,22 @@ class _RetrievalPageState extends State<AllocationPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "数量",
+          "title": "申请数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "要货日期",
-          "name": "FDeliveryDate",
+          "title": "调出仓库",
+          "name": "",
           "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
+          "value": {"label": value[16], "value": value[16]}
         });
         arr.add({
-          "title": "未出库数量",
-          "name": "FRemainOutQty",
+          "title": "调入仓库",
+          "name": "",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": value[17], "value": value[17]}
         });
         hobby.add(arr);
       });
@@ -180,13 +187,40 @@ class _RetrievalPageState extends State<AllocationPage> {
   }
 
   void _onEvent(event) async {
-    /*  setState(() {*/
-    _code = event;
     EasyLoading.show(status: 'loading...');
-    keyWord = _code;
-    this.controller.text = _code;
-    await getOrderList();
-    /*});*/
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var deptData = sharedPreferences.getString('menuList');
+    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+    var fBarCodeList = menuList['FBarCodeList'];
+    if(event == ""){
+      return;
+    }
+    if (fBarCodeList == 1) {
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FSrcBillNo';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        keyWord = barcodeData[0][0];
+        this.controller.text = barcodeData[0][0];
+        this.isScan = true;
+        await this.getOrderList();
+      } else {
+        ToastUtil.showInfo('条码不在条码清单中');
+      }
+    } else {
+      keyWord = _code;
+      this.controller.text = _code;
+      _code = event;
+      await this.getOrderList();
+      print("ChannelPage: $event");
+    }
+    EasyLoading.dismiss();
   }
 
   void _onError(Object error) {
@@ -245,7 +279,7 @@ class _RetrievalPageState extends State<AllocationPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 6,width: 320,child: ColoredBox(color: Colors.grey)),
       );
       tempList.add(
         Column(
@@ -274,11 +308,10 @@ class _RetrievalPageState extends State<AllocationPage> {
 
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-     var seDate = _dateSelectText.split(" - ");
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -291,7 +324,7 @@ class _RetrievalPageState extends State<AllocationPage> {
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
-        initialDateRange: DateTimeRange(start: DateTime.parse(seDate[0]), end: DateTime.parse(seDate[1])));
+        initialDateRange: DateTimeRange(start: start, end: end));
     //结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();
@@ -300,10 +333,7 @@ class _RetrievalPageState extends State<AllocationPage> {
       //选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
-    print(_dateSelectText);
-    setState(() {
-
-    });
+    setState(() {});
   }
   double hc_ScreenWidth() {
     return window.physicalSize.width / window.devicePixelRatio;
@@ -324,7 +354,7 @@ class _RetrievalPageState extends State<AllocationPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("移库"),
+            title: Text("调拨"),
             centerTitle: true,
           ),
           body: CustomScrollView(

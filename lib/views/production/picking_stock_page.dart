@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
+import 'package:fzwm_wxbc/model/submit_entity.dart';
 import 'package:fzwm_wxbc/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fzwm_wxbc/views/production/picking_detail.dart';
 import 'package:fzwm_wxbc/views/production/picking_stock_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,15 +26,20 @@ class _PickingStockPageState extends State<PickingStockPage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
+  //生产车间
+  String FName = '';
+  String FNumber = '';
+  String username = '';
+  var isScan = false;
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  StreamSubscription ?_subscription;
   var _code;
-  var isScan = false;
+
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
 
@@ -44,7 +51,7 @@ class _PickingStockPageState extends State<PickingStockPage> {
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -72,90 +79,224 @@ class _PickingStockPageState extends State<PickingStockPage> {
 
   // 集合
   List hobby = [];
+  void getWorkShop() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      if (sharedPreferences.getString('FWorkShopName') != null) {
+        username = sharedPreferences.getString('FStaffNumber');
+        FName = sharedPreferences.getString('FWorkShopName');
+        FNumber = sharedPreferences.getString('FWorkShopNumber');
+      }
+    });
+  }
 
   getOrderList() async {
-    EasyLoading.show(status: 'loading...');
+    setState(() {
+      hobby = [];
+      this._getHobby();
+    });
     Map<String, dynamic> userMap = Map();
-    var scanCode = keyWord.split(",");
+    userMap['FilterString'] = "FNoStockInQty>0";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
     }
     if(this.isScan){
-      userMap['FilterString'] =/*and FInStockQty>0*/
-      "FDocumentStatus in ('A','B','D')";
+      userMap['FilterString'] =
+      "FStatus in(3,4) and FNoStockInQty>0";
       if(this.keyWord != ''){
-        userMap['FilterString'] =/*and FInStockQty>0*/
-        "FBillNo like '%"+keyWord+"%'  and FDocumentStatus in ('A','B','D')";
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
       }
     }else{
       if(this.keyWord != ''){
-        userMap['FilterString'] =/*and FInStockQty>0*/
-        "FBillNo like '%"+keyWord+"%' and FDocumentStatus in ('A','B','D')";
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
       }else{
-        userMap['FilterString'] =/*and FInStockQty>0*/
-        "FDate>= '$startDate' and FDate <= '$endDate' and FDocumentStatus in ('A','B','D')";
+        userMap['FilterString'] =
+        "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'PRD_PickMtrl';
+    userMap['FormId'] = 'PRD_MO';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActualQty,FSrcBillNo,FID';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,FMemoItem';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
+    print(orderDate);
+    //获取当前的时间
+    DateTime now = DateTime.now();
+    DateTime start = DateTime(2022, 05, 30);
+    final difference = start
+        .difference(now)
+        .inDays;
     hobby = [];
     if (orderDate.length > 0) {
-      orderDate.forEach((value) {
+      for (var value = 0; value < orderDate.length; value++) {
+        Map<String, dynamic> pickmtrlMap = Map();
+        pickmtrlMap['FilterString'] =
+        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][18]}'";
+        pickmtrlMap['FormId'] = 'PRD_PickMtrl';
+        pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap2 = Map();
+        dataMap2['data'] = pickmtrlMap;
+        String order2 = await CurrencyEntity.polling(dataMap2);
+        print(order2);
         List arr = [];
         arr.add({
-          "title": "单据编号",
+          "title": "生产订单号",
           "name": "FBillNo",
           "isHide": false,
-          "value": {"label": value[0], "value": value[0]}
+          "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
         });
         arr.add({
           "title": "生产组织",
-          "name": "",
-          "isHide": false,
-          "value": {"label": value[9], "value": value[8]}
-
+          "name": "FPrdOrgId",
+          "isHide": true,
+          "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
         });
         arr.add({
-          "title": "单据日期",
+          "title": "排产日期",
           "name": "FDate",
           "isHide": false,
-          "value": {"label": value[3], "value": value[3]}
+          "value": {"label": orderDate[value][3], "value": orderDate[value][3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {
+            "label": orderDate[value][11],
+            "value": orderDate[value][10]
+          }
         });
         arr.add({
-          "title": "数量",
-          "name": "FQty",
+          "title": "应发数量",
+          "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {
+            "label": orderDate[value][12],
+            "value": orderDate[value][12]
+          }
         });
+        arr.add({
+          "title": "生产序号",
+          "name": "FProdOrder",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][1],/*orderDate[value][18]*/
+            "value": orderDate[value][1]
+          }
+        });
+        arr.add({
+          "title": "计划开工日期",
+          "name": "FBaseQty",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][13],
+            "value": orderDate[value][13]
+          }
+        });
+        arr.add({
+          "title": "未入库数量",
+          "name": "FBaseQty",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][16],
+            "value": orderDate[value][16]
+          }
+        });
+        arr.add({
+          "title": "行号",
+          "name": "FSeq",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][18],
+            "value": orderDate[value][18]
+          }
+        });
+        arr.add({
+          "title": "分录内码",
+          "name": "FEntryId",
+          "isHide": true,
+          "value": {"label": orderDate[value][4], "value": orderDate[value][4]}
+        });
+        arr.add({
+          "title": "FID",
+          "name": "FID",
+          "isHide": true,
+          "value": {
+            "label": orderDate[value][17],
+            "value": orderDate[value][17]
+          }
+        });
+        arr.add({
+          "title": "备注",
+          "name": "FID",
+          "isHide": false,
+          "value": {
+            "label": orderDate[value][20] == null?"":orderDate[value][20],
+            "value": orderDate[value][20] == null?"":orderDate[value][20],
+          }
+        });
+        /* arr.add({
+          "title": "状态",
+          "name": "FStatus",
+          "isHide": false,
+          "value": {
+            "label": orderDate[value][20] == "3" ? "下达" : "开工",
+            "value": orderDate[value][20]
+          }
+        });
+        arr.add({
+          "title": "checked",
+          "name": "checked",
+          "isHide": true,
+          "value": false
+        });
+        var order1Date = jsonDecode(order1);*/
+        var order2Date = jsonDecode(order2);
+        /*if (order1Date.length > 0) {
+          arr.add({
+            "title": "入库单状态",
+            "name": "PRD_INSTOCK",
+            "isHide": false,
+            "value": {
+              "label": order1Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order1Date[0][0]
+            }
+          });
+        }*/
+        if (order2Date.length > 0) {
+          arr.add({
+            "title": "领料单状态",
+            "name": "PRD_PickMtrl",
+            "isHide": true,
+            "value": {
+              "label": order2Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order2Date[0][0]
+            }
+          });
+        }
         hobby.add(arr);
-      });
+      }
+      /*)*/;
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -180,10 +321,10 @@ class _PickingStockPageState extends State<PickingStockPage> {
     }
     if (fBarCodeList == 1) {
       Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FSrcBillNo';
+      'FSrcBillNo,FSN,FMATERIALID.FNUMBER';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -210,7 +351,32 @@ class _PickingStockPageState extends State<PickingStockPage> {
     setState(() {
       _code = "扫描异常";
     });
+  } //删除
+  deleteOrder(Map<String, dynamic> map, title, {var type}) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          if (type == 1) {
+            ToastUtil.showInfo('删除成功');
+            this.getOrderList();
+            EasyLoading.dismiss();
+          }
+        } else {
+          if (type == 1) {
+            EasyLoading.dismiss();
+            setState(() {
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
+        }
+      }
+    }
   }
+
 
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
@@ -218,51 +384,94 @@ class _PickingStockPageState extends State<PickingStockPage> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return PickingStockDetail(
-                              FBillNo: this.hobby[i][0]['value']
-                            // 路由参数
-                          );
-                        },
-                      ),
-                    ).then((data) {
-                      //延时500毫秒执行
-                      Future.delayed(
-                          const Duration(milliseconds: 500),
-                              () {
-                            setState(() {
-                              //延时更新状态
-                              this._initState();
-                            });
-                          });
-                    });
-                  },
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
+          if (j == 14) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+
+                            new MaterialButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: new Text('删除'),
+                              onPressed: () {
+                                Map<String, dynamic> deleteMap = Map();
+                                deleteMap = {
+                                  "formid": this.hobby[i][j]["name"],
+                                  "data": {
+                                    'Ids': this.hobby[i][j]["value"]["value"]
+                                  }
+                                };
+                                EasyLoading.show(status: 'loading...');
+                                deleteOrder(deleteMap, '删除', type: 1);
+                              },
+                            )
+                          ])),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          } else {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return PickingStockDetail(
+                              FBillNo: this
+                                  .hobby[i][0]['value'],
+                              FBarcode: _code,
+                              FSeq: this.hobby[i][10]['value'],
+                              FEntryId: this.hobby[i][11]['value'],
+                              FID: this.hobby[i][12]['value'],
+                              FProdOrder: this.hobby[i][7]['value'],
+                              FMemoItem: this.hobby[i][13]['value'],
+                              // 路由参数
+                            );
+                          },
+                        ),
+                      ).then((data) {
+                        //延时500毫秒执行
+                        Future.delayed(
+                            const Duration(milliseconds: 500),
+                                () {
+                              setState(() {
+                                //延时更新状态
+                                this._initState();
+                              });
+                            });
+                      });
+                    },
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing:
+                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
+                    ]),
+                  ),
+                ),
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(
-        SizedBox(height: 6,width: 320,child: ColoredBox(color: Colors.grey)),
+        SizedBox(height: 10),
       );
       tempList.add(
         Column(
@@ -282,19 +491,18 @@ class _PickingStockPageState extends State<PickingStockPage> {
 
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
-    keyWord = scan;
-    this.controller.text = scan;
-    await getOrderList();
+    _onEvent(scan);
   }
 
   String _dateSelectText = "";
 
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate = _dateSelectText.split(" - ");
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -307,7 +515,7 @@ class _PickingStockPageState extends State<PickingStockPage> {
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
-        initialDateRange: DateTimeRange(start: start, end: end));
+        initialDateRange: DateTimeRange(start: DateTime.parse(seDate[0]), end: DateTime.parse(seDate[1])));
     //结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();
@@ -337,7 +545,7 @@ class _PickingStockPageState extends State<PickingStockPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产领料确认"),
+            title: Text("生产订单"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -460,6 +668,7 @@ class _PickingStockPageState extends State<PickingStockPage> {
                                       onPressed: (){
                                         setState(() {
                                           this.keyWord = this.controller.text;
+                                          EasyLoading.show(status: 'loading...');
                                           this.getOrderList();
                                         });
                                       },

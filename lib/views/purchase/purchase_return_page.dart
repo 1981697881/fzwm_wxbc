@@ -352,7 +352,7 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("采购退货"),
+            title: Text("退料申请单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

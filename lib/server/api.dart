@@ -75,7 +75,7 @@ class API {
   static const String STATUS_URL = API_PREFIX + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExcuteOperation.common.kdsvc';*/
   //版本查询
   static const String VERSION_URL =
-      'https://www.pgyer.com/apiv2/app/check?_api_key=dd6926b00c3c3f22a0ee4204f8aaad88&appKey=ef0c698e399e901fae15cd8f6970ae53';
+      'https://www.pgyer.com/apiv2/app/check?_api_key=dd6926b00c3c3f22a0ee4204f8aaad88&appKey=d32e326b2c4affee8f713b7a602c2b4e';
   //授权查询 authorize
   static const String AUTHORIZE_URL =
       'http://auth.gzfzdev.com:50022/web/auth/findAuthMessage';

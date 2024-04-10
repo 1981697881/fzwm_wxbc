@@ -202,7 +202,7 @@ class _PickingDetailState extends State<PickingDetail> {
 //下推
       Map<String, dynamic> pushMap = Map();
       pushMap['Ids'] = orderDate[0][13];
-      pushMap['RuleId'] = "PDA_PRD_PPBOM2PICKMTRL_NORMAL";
+      pushMap['RuleId'] = "PRD_PPBOM2PICKMTRL_NORMAL";
       var entryId = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
@@ -214,7 +214,7 @@ class _PickingDetailState extends State<PickingDetail> {
       pushMap['EntryIds'] = entryId;
       pushMap['TargetFormId'] = "PRD_PickMtrl";
       print(pushMap);
-      var datass = jsonEncode(pushMap);
+      var datass = pushMap.toString();
       var downData =
       await SubmitEntity.pushDown({"formid": "PRD_PPBOM", "data": pushMap});
       print(downData);
@@ -225,6 +225,7 @@ class _PickingDetailState extends State<PickingDetail> {
         var entitysNumber =
         res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
         Map<String, dynamic> OrderMap = Map();
+
         OrderMap['FormId'] = 'PRD_PickMtrl';
         OrderMap['FilterString'] =
         "FID='$entitysNumber' and FLot.FNumber != ''";
@@ -437,108 +438,52 @@ class _PickingDetailState extends State<PickingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
-    fBarCodeList = menuList['FBarCodeList'];
+    fBarCodeList = 1;//menuList['FBarCodeList'];
     if (event == "") {
       return;
     }
     if (fBarCodeList == 1) {
-      if (event.split('-').length > 2) {
-        Map<String, dynamic> serialMap = Map();
-        serialMap['FormId'] = 'BD_SerialMainFile';
-        serialMap['FieldKeys'] = 'FStockStatus';
-        serialMap['FilterString'] = "FNumber = '" + event.split('-')[2] + "'";
-        Map<String, dynamic> serialDataMap = Map();
-        serialDataMap['data'] = serialMap;
-        String serialRes = await CurrencyEntity.polling(serialDataMap);
-        var serialJson = jsonDecode(serialRes);
-        if (serialJson.length > 0) {
-          if(serialJson[0][0]=="1"){
-            getMaterialListT(event, event.split('-')[2]);
-          }else{
-            ToastUtil.showInfo('该序列号已出库或未入库');
-          }
-        }else{
-          ToastUtil.showInfo('序列号不存在');
-        }
-      } else {
-        if (event.length > 15) {
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          barcodeMap['FieldKeys'] =
-              'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            if (barcodeData[0][4] > 0) {
-              var msg = "";
-              var orderIndex = 0;
-              print(fNumber);
-              for (var value in orderDate) {
-                print(value[7]);
-                print(barcodeData[0][8]);
-                if (value[7] == barcodeData[0][8]) {
-                  msg = "";
-                  if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-                    break;
-                  }
-                } else {
-                  msg = '条码不在单据物料中';
-                }
-                orderIndex++;
-              }
-              ;
-              if (msg == "") {
-                _code = event;
-                Map<String, dynamic> serialMap = Map();
-                serialMap['FormId'] = 'BD_SerialMainFile';
-                serialMap['FieldKeys'] = 'FStockStatus';
-                serialMap['FilterString'] = "FNumber = '" + barcodeData[0][11] + "' and FMaterialID.FNumber = '" + barcodeData[0][8] + "'";
-                Map<String, dynamic> serialDataMap = Map();
-                serialDataMap['data'] = serialMap;
-                String serialRes = await CurrencyEntity.polling(serialDataMap);
-                var serialJson = jsonDecode(serialRes);
-                if (serialJson.length > 0) {
-                  if(serialJson[0][0]=="1"){
-                    this.getMaterialList(
-                        barcodeData, barcodeData[0][10], barcodeData[0][11]);
-                    print("ChannelPage: $event");
-                  }else{
-                    ToastUtil.showInfo('该序列号已出库或未入库');
-                  }
-                }else{
-                  ToastUtil.showInfo('序列号不存在');
-                }
-              } else {
-                ToastUtil.showInfo(msg);
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        if (barcodeData[0][4] > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          print(fNumber);
+          for (var value in orderDate) {
+            print(value[7]);
+            print(barcodeData[0][8]);
+            if (value[7] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
               }
             } else {
-              ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+              msg = '条码不在单据物料中';
             }
+            orderIndex++;
+          }
+          ;
+          if (msg == "") {
+            _code = event;
+            this.getMaterialList(
+                barcodeData, barcodeData[0][10], barcodeData[0][11]);
+            print("ChannelPage: $event");
           } else {
-            ToastUtil.showInfo('条码不在条码清单中');
+            ToastUtil.showInfo(msg);
           }
         } else {
-          Map<String, dynamic> serialMap = Map();
-          serialMap['FormId'] = 'BD_SerialMainFile';
-          serialMap['FieldKeys'] = 'FStockStatus';
-          serialMap['FilterString'] = "FNumber = '" + event.substring(9,15) + "'";
-          Map<String, dynamic> serialDataMap = Map();
-          serialDataMap['data'] = serialMap;
-          String serialRes = await CurrencyEntity.polling(serialDataMap);
-          var serialJson = jsonDecode(serialRes);
-          if (serialJson.length > 0) {
-            if(serialJson[0][0]=="1"){
-              getMaterialListTH(event, event.substring(9, 15));
-            }else{
-              ToastUtil.showInfo('该序列号已出库或未入库');
-            }
-          }else{
-            ToastUtil.showInfo('序列号不存在');
-          }
+          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
         }
+      } else {
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
       _code = event;
@@ -555,7 +500,7 @@ class _PickingDetailState extends State<PickingDetail> {
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
     userMap['FilterString'] = "FNumber='" +
-        barcodeData[0][8] +
+        scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = " +
         deptData[1];
     userMap['FormId'] = 'BD_MATERIAL';
@@ -600,6 +545,9 @@ class _PickingDetailState extends State<PickingDetail> {
                   element[0]['value']['scanCode'].add(code);
                   element[10]['value']['label'] = barcodeNum.toString();
                   element[10]['value']['value'] = barcodeNum.toString();
+                  //仓库
+                  element[4]['value']['label'] = barcodeData[0][6].toString();
+                  element[4]['value']['value'] = barcodeData[0][7].toString();
                   barcodeNum =
                       (double.parse(barcodeNum) - double.parse(barcodeNum))
                           .toString();
@@ -630,6 +578,9 @@ class _PickingDetailState extends State<PickingDetail> {
                     element[0]['value']['scanCode'].add(code);
                     element[10]['value']['label'] = barcodeNum.toString();
                     element[10]['value']['value'] = barcodeNum.toString();
+                    //仓库
+                    element[4]['value']['label'] = barcodeData[0][6].toString();
+                    element[4]['value']['value'] = barcodeData[0][7].toString();
                     barcodeNum =
                         (double.parse(barcodeNum) - double.parse(barcodeNum))
                             .toString();
@@ -678,6 +629,9 @@ class _PickingDetailState extends State<PickingDetail> {
                             double.parse(element[3]['value']['label']);
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
+                        //仓库
+                        element[4]['value']['label'] = barcodeData[0][6].toString();
+                        element[4]['value']['value'] = barcodeData[0][7].toString();
                         print(1);
                         print(element[0]['value']['kingDeeCode']);
                       }
@@ -700,6 +654,9 @@ class _PickingDetailState extends State<PickingDetail> {
                         element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
+                        //仓库
+                        element[4]['value']['label'] = barcodeData[0][6].toString();
+                        element[4]['value']['value'] = barcodeData[0][7].toString();
                         barcodeNum = (double.parse(barcodeNum) -
                                 double.parse(barcodeNum))
                             .toString();
@@ -740,6 +697,9 @@ class _PickingDetailState extends State<PickingDetail> {
                   element[0]['value']['scanCode'].add(code);
                   element[10]['value']['label'] = barcodeNum.toString();
                   element[10]['value']['value'] = barcodeNum.toString();
+                  //仓库
+                  element[4]['value']['label'] = barcodeData[0][6].toString();
+                  element[4]['value']['value'] = barcodeData[0][7].toString();
                   barcodeNum =
                       (double.parse(barcodeNum) - double.parse(barcodeNum))
                           .toString();
@@ -761,6 +721,9 @@ class _PickingDetailState extends State<PickingDetail> {
                           fsn;
                       element[10]['value']['label'] = barcodeNum.toString();
                       element[10]['value']['value'] = barcodeNum.toString();
+                      //仓库
+                      element[4]['value']['label'] = barcodeData[0][6].toString();
+                      element[4]['value']['value'] = barcodeData[0][7].toString();
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       barcodeNum =
@@ -815,6 +778,9 @@ class _PickingDetailState extends State<PickingDetail> {
                               double.parse(element[3]['value']['label']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
+                          //仓库
+                          element[4]['value']['label'] = barcodeData[0][6].toString();
+                          element[4]['value']['value'] = barcodeData[0][7].toString();
                           print(1);
                           print(element[0]['value']['kingDeeCode']);
                         }
@@ -838,6 +804,9 @@ class _PickingDetailState extends State<PickingDetail> {
                           element[10]['value']['value'] = barcodeNum.toString();
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
+                          //仓库
+                          element[4]['value']['label'] = barcodeData[0][6].toString();
+                          element[4]['value']['value'] = barcodeData[0][7].toString();
                           barcodeNum = (double.parse(barcodeNum) -
                                   double.parse(barcodeNum))
                               .toString();
@@ -876,6 +845,9 @@ class _PickingDetailState extends State<PickingDetail> {
                         element[10]['value']['value'] = barcodeNum.toString();
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
+                        //仓库
+                        element[4]['value']['label'] = barcodeData[0][6].toString();
+                        element[4]['value']['value'] = barcodeData[0][7].toString();
                         barcodeNum = (double.parse(barcodeNum) -
                                 double.parse(barcodeNum))
                             .toString();
@@ -928,6 +900,9 @@ class _PickingDetailState extends State<PickingDetail> {
                                 double.parse(element[3]['value']['label']);
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
+                            //仓库
+                            element[4]['value']['label'] = barcodeData[0][6].toString();
+                            element[4]['value']['value'] = barcodeData[0][7].toString();
                             print(1);
                             print(element[0]['value']['kingDeeCode']);
                           }
@@ -953,6 +928,9 @@ class _PickingDetailState extends State<PickingDetail> {
                                 barcodeNum.toString();
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
+                            //仓库
+                            element[4]['value']['label'] = barcodeData[0][6].toString();
+                            element[4]['value']['value'] = barcodeData[0][7].toString();
                             barcodeNum = (double.parse(barcodeNum) -
                                     double.parse(barcodeNum))
                                 .toString();

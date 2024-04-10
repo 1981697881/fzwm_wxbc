@@ -187,7 +187,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     userMap['FormId'] = 'PUR_MRAPP';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMATERIALID.FIsBatchManage,FPRICEUNITID_F.FNumber,FAPPROVEPRICE_F,FEntryTaxRate,FBASEUNITID.FName,FBASEUNITID.FNumber,FRequireOrgId.FNumber';
+    'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMATERIALID.FIsBatchManage,FPRICEUNITID_F.FNumber,FAPPROVEPRICE_F,FEntryTaxRate,FBASEUNITID.FName,FBASEUNITID.FNumber,FRequireOrgId.FNumber,FAUXPROPID.FF100002.FNumber,FRMREASON_M';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -299,50 +299,42 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       return;
     }
     if (fBarCodeList == 1) {
-      if(event.split('-').length>2){
-        getMaterialListT(event,event.split('-')[2]);
-      }else{
-        if(event.length>15){
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          barcodeMap['FieldKeys'] =
-          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            if (barcodeData[0][4] > 0) {
-            var msg = "";
-            var orderIndex = 0;
-            for (var value in orderDate) {
-              if(value[5] == barcodeData[0][8]){
-                msg = "";
-                if(fNumber.lastIndexOf(barcodeData[0][8])  == orderIndex){
-                  break;
-                }
-              }else{
-                msg = '条码不在单据物料中';
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        if (barcodeData[0][4] > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if(value[5] == barcodeData[0][8]){
+              msg = "";
+              if(fNumber.lastIndexOf(barcodeData[0][8])  == orderIndex){
+                break;
               }
-              orderIndex++;
-            };
-            if(msg ==  ""){
-              _code = event;
-              this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11]);
-              print("ChannelPage: $event");
             }else{
-              ToastUtil.showInfo(msg);
+              msg = '条码不在单据物料中';
             }
-            } else {
-              ToastUtil.showInfo('该条码已出库或没入库，数量为零');
-            }
-          } else {
-            ToastUtil.showInfo('条码不在条码清单中');
+            orderIndex++;
+          };
+          if(msg ==  ""){
+            _code = event;
+            this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11]);
+            print("ChannelPage: $event");
+          }else{
+            ToastUtil.showInfo(msg);
           }
-        }else{
-          getMaterialListTH(event,event.substring(9,15));
+        } else {
+          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
         }
+      } else {
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
       _code = event;
@@ -363,7 +355,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+barcodeData[0][8]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
@@ -1544,7 +1536,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       Map<String, dynamic> dataMap = Map();
       dataMap['formid'] = 'PUR_MRB';
       Map<String, dynamic> orderMap = Map();
-      orderMap['NeedReturnFields'] = [];
+      orderMap['NeedReturnFields'] = [
+        'FBillNo',
+      ];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
@@ -1584,18 +1578,32 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           FEntityItem['FSTOCKID'] = {"FNumber": element[4]['value']['value']};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FSRCBillTypeId'] = "PUR_MRAPP";
-          FEntityItem['FSRCBillNo'] = orderDate[hobbyIndex][0];
+          if(orderDate.length>0){
+            FEntityItem['FSRCBillNo'] = orderDate[hobbyIndex][0];
+          }
           FEntityItem['FSTOCKLOCID'] = {
             "FSTOCKLOCID__FF100011": {
               "FNumber": element[6]['value']['value']
             }
           };
+          if(orderDate.length>0){
+            FEntityItem['FAuxPropID'] = {
+              "FAUXPROPID__FF100002": {"FNumber": orderDate[hobbyIndex][29]}
+            };
+          }else{
+            FEntityItem['FAuxPropID'] = {
+              "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
+            };
+          }
+          FEntityItem['F_UUAC_MulLangText'] = "测试";
           FEntityItem['FRMREALQTY'] = element[3]['value']['value'];
           FEntityItem['FOWNERTYPEID'] = "BD_OwnerOrg";
           FEntityItem['FOWNERID'] = {"FNumber": this.fOrgID};
-          FEntityItem['FPRICEUNITID'] = {"FNumber": orderDate[hobbyIndex][23]};
-          FEntityItem['FTAXPRICE'] = orderDate[hobbyIndex][24];
-          FEntityItem['FENTRYTAXRATE'] = orderDate[hobbyIndex][25];
+          if(orderDate.length>0){
+            FEntityItem['FPRICEUNITID'] = {"FNumber": orderDate[hobbyIndex][23]};
+            FEntityItem['FTAXPRICE'] = orderDate[hobbyIndex][24];
+            FEntityItem['FENTRYTAXRATE'] = orderDate[hobbyIndex][25];
+          }
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
           for (int subj = 0; subj < kingDeeCode.length; subj++) {
@@ -1611,16 +1619,18 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             fSerialSub.add(subObj);
           }
           FEntityItem['FSerialSubEntity'] = fSerialSub;
-          FEntityItem['FPURMRBENTRY_Link'] = [
-            {
-              "FPURMRBENTRY_Link_FRuleId": "PUR_MRAPP-PUR_MRB",
-              "FPURMRBENTRY_Link_FSTableName": "T_PUR_MRAPPENTRY",
-              "FPURMRBENTRY_Link_FSBillId": orderDate[hobbyIndex][15],
-              "FPURMRBENTRY_Link_FSId": orderDate[hobbyIndex][4],
-              "FPURMRBENTRY_Link_FCarryBaseQty": element[3]['value']['value'],
-              "FPURMRBENTRY_Link_FBASEUNITQTY": element[3]['value']['value'],
-            }
-          ];
+          if(orderDate.length>0){
+            FEntityItem['FPURMRBENTRY_Link'] = [
+              {
+                "FPURMRBENTRY_Link_FRuleId": "PUR_MRAPP-PUR_MRB",
+                "FPURMRBENTRY_Link_FSTableName": "T_PUR_MRAPPENTRY",
+                "FPURMRBENTRY_Link_FSBillId": orderDate[hobbyIndex][15],
+                "FPURMRBENTRY_Link_FSId": orderDate[hobbyIndex][4],
+                "FPURMRBENTRY_Link_FCarryBaseQty": element[3]['value']['value'],
+                "FPURMRBENTRY_Link_FBASEUNITQTY": element[3]['value']['value'],
+              }
+            ];
+          }
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -1639,6 +1649,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
+        var returnData = res['Result']['NeedReturnData'];
         submitMap = {
           "formid": "PUR_MRB",
           "data": {
@@ -1690,7 +1701,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
-                        codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                        if(orderDate.length>0){
+                          codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                        }else{
+                          codeFEntityItem['FEntryBillNo'] = returnData[0]['FBillNo'];
+                        }
                         codeFEntityItem['FEntryStockID'] ={
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };

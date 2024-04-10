@@ -97,23 +97,23 @@ class _StockPageState extends State<StockPage> {
     Map<String, dynamic> userMap = Map();
     if (keyWord != '') {
       userMap['FilterString'] =
-          "FMaterialId.FNumber='" + this.keyWord + "' and FBaseQty >0";
+          "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty >0";
       if (batchNo != '') {
         if (this.warehouseNumber != null) {
           userMap['FilterString'] = "FMaterialId.FNumber='" +
-              this.keyWord +
+              keyWord.split(";")[0] +
               "' and FStockID.FNumber='" +
               this.warehouseNumber +
               "' and FBaseQty >0"; /*and FLot.FNumber= '"+batchNo+"'*/
         } else {
           userMap['FilterString'] = "FMaterialId.FNumber='" +
-              this.keyWord +
+              keyWord.split(";")[0] +
               "' and FBaseQty >0"; /*and FLot.FNumber= '"+batchNo+"'*/
         }
       }
       if (this.warehouseNumber != null) {
         userMap['FilterString'] = "FMaterialId.FNumber='" +
-            this.keyWord +
+            keyWord.split(";")[0] +
             "' and FStockID.FNumber='" +
             this.warehouseNumber +
             "' and FBaseQty >0";
@@ -208,77 +208,22 @@ class _StockPageState extends State<StockPage> {
       return;
     }
     if (fBarCodeList == 1) {
-      if (event.split('-').length > 2) {
-        Map<String, dynamic> userMap = Map();
-        SharedPreferences sharedPreferences =
-            await SharedPreferences.getInstance();
-        var menuData = sharedPreferences.getString('MenuPermissions');
-        var deptData = jsonDecode(menuData)[0];
-        userMap['FilterString'] = "F_UYEP_GYSTM='" +
-            event.split('-')[0] +
-            "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-            deptData[1] +
-            "'";
-        userMap['FormId'] = 'BD_MATERIAL';
-        userMap['FieldKeys'] =
-            'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
-        Map<String, dynamic> dataMap = Map();
-        dataMap['data'] = userMap;
-        String order = await CurrencyEntity.polling(dataMap);
-        var barcodeData = jsonDecode(order);
-        if (barcodeData.length > 0) {
-          keyWord = barcodeData[0][2];
-          this.controller.text = barcodeData[0][2];
-          await this.getOrderList(barcodeData[0][2], "", event.split('-')[2]);
-        } else {
-          ToastUtil.showInfo('条码不存在');
-        }
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FBatchNo,FSN';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        keyWord = barcodeData[0][8];
+        this.controller.text = barcodeData[0][8];
+        await this.getOrderList(
+            barcodeData[0][8], barcodeData[0][11], barcodeData[0][12]);
       } else {
-        if (event.length > 15) {
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          barcodeMap['FieldKeys'] =
-              'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FBatchNo,FSN';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            keyWord = barcodeData[0][8];
-            this.controller.text = barcodeData[0][8];
-            await this.getOrderList(
-                barcodeData[0][8], barcodeData[0][11], barcodeData[0][12]);
-          } else {
-            ToastUtil.showInfo('条码不在条码清单中');
-          }
-        } else {
-          Map<String, dynamic> userMap = Map();
-          SharedPreferences sharedPreferences =
-              await SharedPreferences.getInstance();
-          var menuData = sharedPreferences.getString('MenuPermissions');
-          var deptData = jsonDecode(menuData)[0];
-          userMap['FilterString'] = "F_UYEP_GYSTM='" +
-              event.substring(0, 3) +
-              "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-              deptData[1] +
-              "'";
-          userMap['FormId'] = 'BD_MATERIAL';
-          userMap['FieldKeys'] =
-              'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = userMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            keyWord = barcodeData[0][2];
-            this.controller.text = barcodeData[0][2];
-            await this
-                .getOrderList(barcodeData[0][2], "", event.substring(9, 15));
-          } else {
-            ToastUtil.showInfo('条码不存在');
-          }
-        }
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
       keyWord = _code;
@@ -356,7 +301,7 @@ class _StockPageState extends State<StockPage> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (j == 5) {
+       /* if (j == 5) {
           comList.add(
             Column(children: [
               Container(
@@ -382,7 +327,7 @@ class _StockPageState extends State<StockPage> {
               divider,
             ]),
           );
-        } else {
+        } else {*/
           comList.add(
             Column(children: [
               Container(
@@ -401,7 +346,7 @@ class _StockPageState extends State<StockPage> {
               divider,
             ]),
           );
-        }
+        //}
       }
       tempList.add(
         SizedBox(height: 10),
@@ -534,7 +479,7 @@ class _StockPageState extends State<StockPage> {
                 pinned: true,
                 delegate: StickyTabBarDelegate(
                   minHeight: 50, //收起的高度
-                  maxHeight: 175, //展开的最大高度
+                  maxHeight: 120, //展开的最大高度
                   child: Container(
                     color: Theme.of(context).primaryColor,
                     child: Padding(
@@ -609,15 +554,6 @@ class _StockPageState extends State<StockPage> {
                                   const EdgeInsets.fromLTRB(5.0, 0, 5.0, 0),
                               child: _item('仓库:', this.warehouseList,
                                   this.warehouseName, 'warehouse'),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(5.0, 0, 5.0, 0),
-                            child: Container(
-                              color: Colors.white,
-                              child: ListTile(
-                                title: Text("SN：$fSn"),
-                              ),
                             ),
                           ),
                         ],

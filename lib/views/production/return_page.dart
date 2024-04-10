@@ -25,7 +25,7 @@ class _ReturnPageState extends State<ReturnPage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
-
+  var isScan = false;
   //生产车间
   String FName = '';
   String FNumber = '';
@@ -58,6 +58,7 @@ class _ReturnPageState extends State<ReturnPage> {
     }
   }
   _initState() {
+    isScan = false;
     EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
@@ -101,12 +102,23 @@ class _ReturnPageState extends State<ReturnPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
     }
-    userMap['FilterString'] =
-    "FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    if(this.keyWord != ''){
+    if(this.isScan){
       userMap['FilterString'] =
-      "FBillNo like '%"+keyWord+"%' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      if(this.keyWord != ''){
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      }
+    }else{
+      if(this.keyWord != ''){
+        userMap['FilterString'] =
+            "FBillNo like '%"+keyWord+"%' and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      }else{
+        userMap['FilterString'] =
+        "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
+    this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
@@ -438,7 +450,7 @@ class _ReturnPageState extends State<ReturnPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("退料"),
+            title: Text("生产订单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

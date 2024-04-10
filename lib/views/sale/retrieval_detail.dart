@@ -175,7 +175,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -306,106 +306,44 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       return;
     }
     if (fBarCodeList == 1) {
-      if(event.split('-').length>2){
-        Map<String, dynamic> serialMap = Map();
-        serialMap['FormId'] = 'BD_SerialMainFile';
-        serialMap['FieldKeys'] = 'FStockStatus';
-        serialMap['FilterString'] = "FNumber = '" +
-            event.split('-')[2] +
-            "'";
-        Map<String, dynamic> serialDataMap = Map();
-        serialDataMap['data'] = serialMap;
-        String serialRes = await CurrencyEntity.polling(serialDataMap);
-        var serialJson = jsonDecode(serialRes);
-        if (serialJson.length > 0) {
-          if(serialJson[0][0]=="1"){
-            getMaterialListT(event,event.split('-')[2]);
-          }else{
-            ToastUtil.showInfo('该序列号已出库或未入库');
-          }
-        }else{
-          ToastUtil.showInfo('序列号不存在');
-        }
-      }else {
-        if (event.length > 15) {
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          barcodeMap['FieldKeys'] =
-          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            if (barcodeData[0][4] > 0) {
-              var msg = "";
-              var orderIndex = 0;
-              for (var value in orderDate) {
-                if (value[5] == barcodeData[0][8]) {
-                  msg = "";
-                  if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-                    break;
-                  }
-                } else {
-                  msg = '条码不在单据物料中';
-                }
-                orderIndex++;
-              }
-              ;
-              if (msg == "") {
-                _code = event;
-                Map<String, dynamic> serialMap = Map();
-                serialMap['FormId'] = 'BD_SerialMainFile';
-                serialMap['FieldKeys'] = 'FStockStatus';
-                serialMap['FilterString'] = "FNumber = '" + barcodeData[0][11] + "' and FMaterialID.FNumber = '" + barcodeData[0][8] + "'";
-                Map<String, dynamic> serialDataMap = Map();
-                serialDataMap['data'] = serialMap;
-                String serialRes = await CurrencyEntity.polling(serialDataMap);
-                var serialJson = jsonDecode(serialRes);
-                if (serialJson.length > 0) {
-                  if(serialJson[0][0]=="1"){
-                    this.getMaterialList(
-                        barcodeData, barcodeData[0][10], barcodeData[0][11]);
-                  }else{
-                    ToastUtil.showInfo('该序列号已出库或未入库');
-                  }
-                }else{
-                  ToastUtil.showInfo('序列号不存在');
-                }
-
-                print("ChannelPage: $event");
-              } else {
-                ToastUtil.showInfo(msg);
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        if (barcodeData[0][4] > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if (value[5] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
               }
             } else {
-              ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+              msg = '条码不在单据物料中';
             }
+            orderIndex++;
+          }
+          ;
+          if (msg == "") {
+            _code = event;
+            this.getMaterialList(
+                barcodeData, barcodeData[0][10], barcodeData[0][11]);
+            print("ChannelPage: $event");
           } else {
-            ToastUtil.showInfo('条码不在条码清单中');
+            ToastUtil.showInfo(msg);
           }
-        }else{
-          Map<String, dynamic> serialMap = Map();
-          serialMap['FormId'] = 'BD_SerialMainFile';
-          serialMap['FieldKeys'] = 'FStockStatus';
-          serialMap['FilterString'] = "FNumber = '" +
-              event.substring(9,15) +
-              "'";
-          Map<String, dynamic> serialDataMap = Map();
-          serialDataMap['data'] = serialMap;
-          String serialRes = await CurrencyEntity.polling(serialDataMap);
-          var serialJson = jsonDecode(serialRes);
-          if (serialJson.length > 0) {
-            if(serialJson[0][0]=="1"){
-              getMaterialListTH(event,event.substring(9,15));
-            }else{
-              ToastUtil.showInfo('该序列号已出库或未入库');
-            }
-          }else{
-            ToastUtil.showInfo('序列号不存在');
-          }
-
+        } else {
+          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
         }
+      } else {
+        ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
       _code = event;
@@ -428,7 +366,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
     userMap['FilterString'] = "FNumber='" +
-        barcodeData[0][8] +
+        scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
         deptData[1] +
         "'";
@@ -2191,9 +2129,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "CKD01_SYS"};
+      Model['FBillTypeID'] = {"FNUMBER": "XSCKD01_SYS"};
       Model['FDate'] = FDate;
-      Model['F_UYEP_TEXT'] = "PDA-";
       //获取登录信息
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
@@ -2232,11 +2169,14 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           FEntityItem['FStockLocId'] = {
             "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
           };
+          FEntityItem['FAuxPropId'] = {
+            "FAUXPROPID__FF100002": {"FNumber": orderDate[hobbyIndex][32]}
+          };
           FEntityItem['FRealQty'] = element[3]['value']['value'];
           FEntityItem['FSrcBillNo'] = this.FBillNo;
-          FEntityItem['FSoorDerno'] = orderDate[hobbyIndex][30];
-          FEntityItem['F_UYEP_Text1'] = orderDate[hobbyIndex][32];
-          FEntityItem['FEntrynote'] = orderDate[hobbyIndex][34];
+          FEntityItem['FSoorDerno'] = orderDate[hobbyIndex][29];
+          //FEntityItem['F_UYEP_Text1'] = orderDate[hobbyIndex][32];
+          FEntityItem['FEntrynote'] = orderDate[hobbyIndex][31];
           FEntityItem['FEntity_Link'] = [
             {
               "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",

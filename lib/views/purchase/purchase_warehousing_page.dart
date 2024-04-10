@@ -88,12 +88,12 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%')' and FCloseStatus = 'A' and FActlandQty>0";
       }else{
         userMap['FilterString'] =/*and FActlandQty>0*/
         "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate' and FActlandQty>0";
@@ -356,7 +356,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("采购入库"),
+            title: Text("收料通知单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

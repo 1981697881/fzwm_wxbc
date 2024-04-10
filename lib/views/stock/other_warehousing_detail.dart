@@ -46,6 +46,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var supplierNumber;
   var departmentName;
   var departmentNumber;
+  var receiptTypeName;
+  var receiptTypeNumber;
   var typeName;
   var typeNumber;
   String FDate = '';
@@ -69,6 +71,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   //部门
   var departmentList = [];
   List<dynamic> departmentListObj = [];
+  //入库类型
+  var receiptTypeList = ['五金入库','样品入库','试验','研发项目入库','污水处理入库','其他','赠送入库','称量差异','盘盈入库'];
+  List<dynamic> receiptTypeListObj = [['01','五金入库'],['02','样品入库'],['03','试验'],['04','研发项目入库'],['05','污水处理入库'],['06','其他'],['07','赠送入库'],['08','称量差异'],['09','盘盈入库']];
   List<dynamic> orderDate = [];
   List<dynamic> materialDate = [];
   List<dynamic> collarOrderDate = [];
@@ -335,7 +340,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+barcodeData[0][8]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -634,6 +639,15 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             data.forEach((element) {
               if (element == p) {
                 departmentNumber = departmentListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
+          } else if(hobby  == 'receiptType'){
+            receiptTypeName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                receiptTypeNumber = receiptTypeListObj[elementIndex][0];
               }
               elementIndex++;
             });
@@ -965,7 +979,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "QTRKD01_SYS"};
+      Model['FBillTypeID'] = {"FNUMBER": "QTRKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
@@ -981,6 +995,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         Model['FSUPPLIERID'] = {"FNumber": this.supplierNumber};
       }
       Model['FOwnerIdHead'] = {"FNumber": deptData[1]};
+      Model['F_UUAC_Assistant'] = {"FNumber": this.receiptTypeNumber};
       Model['FNOTE'] = this._remarkContent.text;
       var FEntity = [];
       var hobbyIndex = 0;
@@ -1001,6 +1016,14 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             "FSTOCKLOCID__FF100011": {
               "FNumber": element[6]['value']['value']
             }
+          };
+          FEntityItem['FStockLocId'] = {
+            "FSTOCKLOCID__FF100011": {
+              "FNumber": element[6]['value']['value']
+            }
+          };
+          FEntityItem['FAuxPropId'] = {
+            "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FQty'] = element[3]['value']['value'];
@@ -1233,6 +1256,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     'supplier'),
                   _item('部门',  this.departmentList, this.departmentName,
                       'department'),
+                  _item('入库类型',  this.receiptTypeList, this.receiptTypeName,
+                      'receiptType'),
                   /*_item('类别',  this.typeList, this.typeName,
                       'type'),*/
                   Column(

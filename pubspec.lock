@@ -280,6 +280,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  gbk2utf8:
+    dependency: "direct main"
+    description:
+      name: gbk2utf8
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   gbk_codec:
     dependency: transitive
     description:

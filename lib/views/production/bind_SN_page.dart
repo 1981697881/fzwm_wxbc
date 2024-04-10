@@ -1137,7 +1137,7 @@ class _BindSNPageState extends State<BindSNPage> {
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
     userMap['FilterString'] = "FNumber='" +
-        barcodeData[0][8] +
+        scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
         deptData[1] +
         "'";

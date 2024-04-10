@@ -397,7 +397,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("销售出库"),
+            title: Text("发货通知单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

@@ -7,13 +7,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm_wxbc/views/production/warehousing_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
-
-final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class WarehousingPage extends StatefulWidget {
   WarehousingPage({Key ?key}) : super(key: key);
@@ -27,18 +24,14 @@ class _WarehousingPageState extends State<WarehousingPage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
-  //生产车间
-  String FName = '';
-  String FNumber = '';
-  String username = '';
   var isScan = false;
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -52,7 +45,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -80,45 +73,36 @@ class _WarehousingPageState extends State<WarehousingPage> {
 
   // 集合
   List hobby = [];
-  void getWorkShop() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      if (sharedPreferences.getString('FWorkShopName') != null) {
-        username = sharedPreferences.getString('FStaffNumber');
-        FName = sharedPreferences.getString('FWorkShopName');
-        FNumber = sharedPreferences.getString('FWorkShopNumber');
-      }
-    });
-  }
+
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
+    var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
+      userMap['FilterString'] =
+      "FDate>= '$startDate' and FDocumentStatus = 'C' and FDate <= '$endDate'";
     }
     if(this.isScan){
-      userMap['FilterString'] =
-      "FCloseStatus = 'A' and FFinishQty>0";
-      if(this.keyWord != ''){
-        userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FFinishQty>0";
+      if (this.keyWord != '') {
+        userMap['FilterString'] =/*and FActlandQty>0*/
+        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C'";
       }
     }else{
-      if(this.keyWord != ''){
-        userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FFinishQty>0";
+      if (this.keyWord != '') {
+        userMap['FilterString'] =/*and FActlandQty>0*/
+        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C'";
       }else{
-        userMap['FilterString'] =
-        "FCloseStatus = 'A' and FFinishQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        userMap['FilterString'] =/*and FActlandQty>0*/
+        "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     this.isScan = false;
     userMap['FormId'] = 'PRD_MORPT';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipIdH.FNumber,FWorkshipIdH.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FSrcBillNo,FInspectQty,FID';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgId.FNumber,FStockInOrgId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -129,19 +113,20 @@ class _WarehousingPageState extends State<WarehousingPage> {
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
-          "title": "汇报单号",
+          "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "采购组织",
+          "name": "FPurchaseOrgId",
           "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": value[9], "value": value[8]}
+
         });
         arr.add({
-          "title": "汇报日期",
+          "title": "单据日期",
           "name": "FDate",
           "isHide": false,
           "value": {"label": value[3], "value": value[3]}
@@ -150,65 +135,31 @@ class _WarehousingPageState extends State<WarehousingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": value[6], "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[6], "value": value[6]}
+          "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {
-            "label": value[11],
-            "value": value[10]
-          }
+          "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "完成数量",
-          "name": "FBaseQty",
+          "title": "交货数量",
+          "name": "FQty",
           "isHide": false,
-          "value": {
-            "label": value[12],
-            "value": value[12]
-          }
+          "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "生产序号",
-          "name": "FProdOrder",
-          "isHide": true,
-          "value": {
-            "label": value[1],/*value[18]*/
-            "value": value[1]
-          }
-        });
-
-        arr.add({
-          "title": "检验数量",
-          "name": "FBaseQty",
+          "title": "供应商",
+          "name": "FSupplierID",
           "isHide": false,
-          "value": {
-            "label": value[14],
-            "value": value[14]
-          }
-        });
-        arr.add({
-          "title": "分录内码",
-          "name": "FEntryId",
-          "isHide": true,
-          "value": {"label": value[4], "value": value[4]}
-        });
-        arr.add({
-          "title": "FID",
-          "name": "FID",
-          "isHide": true,
-          "value": {
-            "label": value[15],
-            "value": value[15]
-          }
+          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });
@@ -297,18 +248,9 @@ class _WarehousingPageState extends State<WarehousingPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return WarehousingDetail(
-                            FBillNo: this.hobby[i][0]
-                            ['value'],
-                            FBarcode: _code,
-                            FSeq: this.hobby[i][10]
-                            ['value'],
-                            FEntryId: this.hobby[i][11]
-                            ['value'],
-                            FID: this.hobby[i][12]['value'],
-                            FProdOrder: this.hobby[i][7]['value'],
-                            FMemoItem: this.hobby[i][14]['value'],
-                              // 路由参数
-                              );
+                              FBillNo: this.hobby[i][0]['value']
+                            // 路由参数
+                          );
                         },
                       ),
                     ).then((data) {
@@ -327,7 +269,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                   ]),
@@ -370,7 +312,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-     var seDate = _dateSelectText.split(" - ");
+    var seDate = _dateSelectText.split(" - ");
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -392,7 +334,6 @@ class _WarehousingPageState extends State<WarehousingPage> {
       //选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
-    print(_dateSelectText);
     setState(() {});
   }
   double hc_ScreenWidth() {
@@ -414,7 +355,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产入库"),
+            title: Text("生产汇报单"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -448,12 +389,12 @@ class _WarehousingPageState extends State<WarehousingPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(0, 10)),
+                                                    ._dateSelectText
+                                                    .substring(0, 10)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                   Expanded(
                                     flex: 1,
@@ -466,12 +407,12 @@ class _WarehousingPageState extends State<WarehousingPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(26, 36)),
+                                                    ._dateSelectText
+                                                    .substring(26, 36)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                 ],
                               ),

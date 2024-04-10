@@ -49,6 +49,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   var customerNumber;
   var departmentName;
   var departmentNumber;
+  var outboundTypeName;
+  var outboundTypeNumber;
   var typeName;
   var typeNumber;
   var show = false;
@@ -67,6 +69,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   List<dynamic> departmentListObj = [];
   var customerList = [];
   List<dynamic> customerListObj = [];
+  var outboundTypeList = ['五金出库','样品出库','损耗出库','研发出库','污水处理出库','生产/辅材领用','保密材料出库','研发领用1','称量差异','盘亏出库','报废出库','废品出售','其他出库'];
+  List<dynamic> outboundTypeListObj = [['01','五金出库'],['02','样品出库'],['03','损耗出库'],['04','研发出库'],['05','污水处理出库'],['06','生产/辅材领用'],['07','保密材料出库'],['08','研发领用1'],['09','称量差异'],['10','盘亏出库'],['11','报废出库'],['12','废品出售'],['13','其他出库']];
   List<dynamic> orderDate = [];
   List<dynamic> materialDate = [];
   List<dynamic> collarOrderDate = [];
@@ -258,12 +262,14 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           "name": "FStockLocID",
           "isHide": false,
           "value": {"label": "", "value": "","hide": false}
-        });arr.add({
+        });
+        arr.add({
           "title": "加工费",
           "name": "",
           "isHide": false,
           "value": {"label": "0", "value": "0"}
-        });arr.add({
+        });
+        arr.add({
           "title": "操作",
           "name": "",
           "isHide": false,
@@ -292,7 +298,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     if(event == ""){
       return;
     }
-   /* if(fBarCodeList == 1){
+    if(fBarCodeList == 1){
       Map<String, dynamic> barcodeMap = Map();
       barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
@@ -314,11 +320,11 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       }else{
         ToastUtil.showInfo('条码不在条码清单中');
       }
-    }else{*/
+    }else{
       _code = event;
       this.getMaterialList("",_code,"");
       print("ChannelPage: $event");
-    //}
+    }
   }
 
   void _onError(Object error) {
@@ -331,10 +337,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = code.split(",");
-    userMap['FilterString'] = "FNumber='" +
-        scanCode[0] +
-        "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    var scanCode = code.split(";");
+    userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
@@ -348,12 +352,12 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     if (materialDate.length > 0) {
       var number = 0;
       var barCodeScan;
-      /*if(fBarCodeList == 1){
+      if(fBarCodeList == 1){
         barCodeScan = barcodeData[0];
         barCodeScan[4] = barCodeScan[4].toString();
-      }else{*/
+      }else{
         barCodeScan = scanCode;
-    /*  }*/
+      }
       var barcodeNum = scanCode[3];
       for (var element in hobby) {
         var residue = 0.0;
@@ -631,6 +635,15 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             data.forEach((element) {
               if (element == p) {
                 departmentNumber = departmentListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
+          }else if(hobby  == 'outboundType'){
+            outboundTypeName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                outboundTypeNumber = outboundTypeListObj[elementIndex][0];
               }
               elementIndex++;
             });
@@ -963,7 +976,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['FBillType'] = {"FNUMBER": "QTCKD01_SYS"};
+      Model['FBillTypeID'] = {"FNUMBER": "QTCKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
@@ -972,6 +985,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FPickOrgId'] = {"FNumber": deptData[1]};
       if (this.departmentNumber  != null) {
         Model['FDeptId'] = {"FNumber": this.departmentNumber};
+        Model['F_UUAC_Text_83g'] = this.departmentName;
       }
       if (this.customerNumber  != null) {
         Model['FCustId'] = {"FNumber": this.customerNumber};
@@ -981,6 +995,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FBizType'] = "0";
       /*Model['F_ora_Assistant'] = {"FNumber": this.typeNumber};*/
       Model['FOwnerIdHead'] = {"FNumber": deptData[1]};
+      Model['F_UUAC_Assistant'] = {"FNumber": this.outboundTypeNumber};
       Model['FNote'] = this._remarkContent.text;
       var FEntity = [];
       var hobbyIndex = 0;
@@ -1004,6 +1019,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "FSTOCKLOCID__FF100011": {
               "FNumber": element[6]['value']['value']
             }
+          };
+          FEntityItem['FAuxPropId'] = {
+            "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FQty'] = element[3]['value']['value'];
@@ -1060,10 +1078,70 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             1,
             "STK_MisDelivery",
             SubmitEntity.submit(submitMap))
-            .then((submitResult) {
+            .then((submitResult) async{
           if (submitResult) {
+            var errorMsg = "";
+            if(fBarCodeList == 1){
+              for (int i = 0; i < this.hobby.length; i++) {
+                if (this.hobby[i][3]['value']['value'] != '0') {
+                  var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                  for(int j = 0;j<kingDeeCode.length;j++){
+                    Map<String, dynamic> dataCodeMap = Map();
+                    dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                    Map<String, dynamic> orderCodeMap = Map();
+                    orderCodeMap['NeedReturnFields'] = [];
+                    orderCodeMap['IsDeleteEntry'] = false;
+                    Map<String, dynamic> codeModel = Map();
+                    var itemCode = kingDeeCode[j].split("-");
+                    codeModel['FID'] = itemCode[0];
+                    /*codeModel['FOwnerID'] = {
+                          "FNUMBER": deptData[1]
+                        };
+                        codeModel['FStockOrgID'] = {
+                          "FNUMBER": deptData[1]
+                        };
+                        codeModel['FStockID'] = {
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };*/
+                    /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                    Map<String, dynamic> codeFEntityItem = Map();
+                    codeFEntityItem['FBillDate'] = FDate;
+                    codeFEntityItem['FOutQty'] = itemCode[1];
+                    codeFEntityItem['FEntryBillNo'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
+                    codeFEntityItem['FEntryStockID'] ={
+                      "FNUMBER": this.hobby[i][4]['value']['value']
+                    };
+                    var codeFEntity = [codeFEntityItem];
+                    codeModel['FEntity'] = codeFEntity;
+                    orderCodeMap['Model'] = codeModel;
+                    dataCodeMap['data'] = orderCodeMap;
+                    print(dataCodeMap);
+                    String codeRes = await SubmitEntity.save(dataCodeMap);
+                    var barcodeRes = jsonDecode(codeRes);
+                    if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){
+                      errorMsg +="错误反馈："+itemCode[1]+":"+barcodeRes['Result']['ResponseStatus']['Errors'][0]['Message'];
+                    }
+                    print(codeRes);
+                  }
+                }
+              }
+            }
+            if(errorMsg !=""){
+              ToastUtil.errorDialog(context,
+                  errorMsg);
+              this.isSubmit = false;
+            }
+            //提交清空页面
+            setState(() {
+              this.hobby = [];
+              this.orderDate = [];
+              this.materialDate = [];
+              this.FBillNo = '';
+              ToastUtil.showInfo('提交成功');
+              Navigator.of(context).pop("refresh");
+            });
             //审核
-            HandlerOrder.orderHandler(
+           /* HandlerOrder.orderHandler(
                 context,
                 submitMap,
                 1,
@@ -1086,7 +1164,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                         Map<String, dynamic> codeModel = Map();
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
-                        /*codeModel['FOwnerID'] = {
+                        *//*codeModel['FOwnerID'] = {
                           "FNUMBER": deptData[1]
                         };
                         codeModel['FStockOrgID'] = {
@@ -1094,8 +1172,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
-                        };*/
-                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                        };*//*
+                        *//*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*//*
                         Map<String, dynamic> codeFEntityItem = Map();
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FOutQty'] = itemCode[1];
@@ -1148,7 +1226,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                   }
                 });
               }
-            });
+            });*/
           } else {
             this.isSubmit = false;
           }
@@ -1238,6 +1316,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                       'customer'),
                   _item('部门', this.departmentList, this.departmentName,
                       'department'),
+                  _item('出库类型', this.outboundTypeList, this.outboundTypeName,
+                      'outboundType'),
                   /*_item('类别', this.typeList, this.typeName,
                       'type'),*/
                  Column(
