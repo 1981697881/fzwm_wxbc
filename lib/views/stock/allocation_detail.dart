@@ -597,7 +597,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   0 &&
                   double.parse(barcodeNum) > 0) {
                 //判断物料是否重复 首个下标是否对应末尾下标
-                if (fNumber.indexOf(element[0]['value']['value']) ==
+                /*if (fNumber.indexOf(element[0]['value']['value']) ==
                     fNumber.lastIndexOf(element[0]['value']['value'])) {
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                     element[3]['value']['label'] =
@@ -617,7 +617,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     print(2);
                     print(element[0]['value']['kingDeeCode']);
                   }
-                } else {
+                } else {*/
                   if (this.isScanWork) {
                     //判断扫描数量是否大于单据数量
                     if (double.parse(element[3]['value']['label']) >=
@@ -714,7 +714,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       print(element[0]['value']['kingDeeCode']);
                     }
                   }
-                }
+                //}
               }
               //判断是否可重复扫码
               if (scanCode.length > 4) {
@@ -784,7 +784,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     0 &&
                     double.parse(barcodeNum) > 0) {
                   //判断物料是否重复 首个下标是否对应末尾下标
-                  if (fNumber.indexOf(element[0]['value']['value']) ==
+                  /*if (fNumber.indexOf(element[0]['value']['value']) ==
                       fNumber.lastIndexOf(element[0]['value']['value'])) {
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       element[3]['value']['label'] =
@@ -805,7 +805,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       print(2);
                       print(element[0]['value']['kingDeeCode']);
                     }
-                  } else {
+                  } else {*/
                     if (this.isScanWork) {
                       //判断扫描数量是否大于单据数量
                       if (double.parse(element[3]['value']['label']) >=
@@ -900,7 +900,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         print(element[0]['value']['kingDeeCode']);
                       }
                     }
-                  }
+                  //}
                 }
                 //判断是否可重复扫码
                 if (scanCode.length > 4) {
@@ -916,7 +916,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       0 &&
                       double.parse(barcodeNum) > 0) {
                     //判断物料是否重复 首个下标是否对应末尾下标
-                    if (fNumber.indexOf(element[0]['value']['value']) ==
+                    /*if (fNumber.indexOf(element[0]['value']['value']) ==
                         fNumber.lastIndexOf(element[0]['value']['value'])) {
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         element[3]['value']['label'] =
@@ -937,7 +937,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         print(2);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    } else {
+                    } else {*/
                       if (this.isScanWork) {
                         //判断扫描数量是否大于单据数量
                         if (double.parse(element[3]['value']['label']) >=
@@ -1040,7 +1040,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           print(element[0]['value']['kingDeeCode']);
                         }
                       }
-                    }
+                    //}
                   }
                   //判断是否可重复扫码
                   if (scanCode.length > 4) {

@@ -561,7 +561,7 @@ class _PickingDetailState extends State<PickingDetail> {
                       0 &&
                   double.parse(barcodeNum) > 0) {
                 //判断物料是否重复 首个下标是否对应末尾下标
-                if (fNumber.indexOf(element[0]['value']['value']) ==
+                /*if (fNumber.indexOf(element[0]['value']['value']) ==
                     fNumber.lastIndexOf(element[0]['value']['value'])) {
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                     element[3]['value']['label'] =
@@ -587,7 +587,7 @@ class _PickingDetailState extends State<PickingDetail> {
                     print(2);
                     print(element[0]['value']['kingDeeCode']);
                   }
-                } else {
+                } else {*/
                   //判断扫描数量是否大于单据数量
                   if (double.parse(element[3]['value']['label']) >=
                       element[9]['value']['label']) {
@@ -665,7 +665,7 @@ class _PickingDetailState extends State<PickingDetail> {
                       }
                     }
                   }
-                }
+                //}
               }
             } else {
               ToastUtil.showInfo('该标签已扫描');
@@ -710,7 +710,7 @@ class _PickingDetailState extends State<PickingDetail> {
                 //判断条码数量
                 if ((double.parse(element[3]['value']['label']) + double.parse(barcodeNum)) > 0 && double.parse(barcodeNum) > 0) {
                   //判断物料是否重复 首个下标是否对应末尾下标
-                  if (fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])) {
+                  /*if (fNumber.indexOf(element[0]['value']['value']) == fNumber.lastIndexOf(element[0]['value']['value'])) {
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       element[3]['value']['label'] = (double.parse(element[3]['value']['label']) + double.parse(barcodeNum)).toString();
                       element[3]['value']['value'] = element[3]['value']['label'];
@@ -732,7 +732,7 @@ class _PickingDetailState extends State<PickingDetail> {
                       print(2);
                       print(element[0]['value']['kingDeeCode']);
                     }
-                  } else {
+                  } else {*/
                     //判断扫描数量是否大于单据数量
                     if (double.parse(element[3]['value']['label']) >=
                         element[9]['value']['label']) {
@@ -815,7 +815,7 @@ class _PickingDetailState extends State<PickingDetail> {
                         }
                       }
                     }
-                  }
+                  //}
                 }
               } else {
                 if (element[5]['value']['value'] == "") {
@@ -827,7 +827,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           0 &&
                       double.parse(barcodeNum) > 0) {
                     //判断物料是否重复 首个下标是否对应末尾下标
-                    if (fNumber.indexOf(element[0]['value']['value']) ==
+                    /*if (fNumber.indexOf(element[0]['value']['value']) ==
                         fNumber.lastIndexOf(element[0]['value']['value'])) {
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         element[3]['value']['label'] =
@@ -854,7 +854,7 @@ class _PickingDetailState extends State<PickingDetail> {
                         print(2);
                         print(element[0]['value']['kingDeeCode']);
                       }
-                    } else {
+                    } else {*/
                       //判断扫描数量是否大于单据数量
                       if (double.parse(element[3]['value']['label']) >=
                           element[9]['value']['label']) {
@@ -939,7 +939,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           }
                         }
                       }
-                    }
+                    //}
                   }
                 }
               }
