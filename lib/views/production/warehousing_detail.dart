@@ -198,7 +198,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": value[8], "value": value[8]}
           });
@@ -357,7 +357,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
+        'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -706,7 +706,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": value[3], "value": value[3]}
           });

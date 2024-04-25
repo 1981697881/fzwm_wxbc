@@ -213,7 +213,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
@@ -354,7 +354,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
+    'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -575,7 +575,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": value[3], "value": value[3]}
           });

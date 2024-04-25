@@ -178,7 +178,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       this.fOrgID = deptData[1];
     }
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber='" + fOrgID + "'";
+        "FForbidStatus = 'A'"; //and FUseOrgId.FNumber='" + fOrgID + "'
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -223,7 +223,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FCorrespondOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber';
+        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FCorrespondOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -264,7 +264,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[7], "value": value[7]}
         });
@@ -408,7 +408,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
+        'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage'; /*,SubHeadEntity1.FStoreUnitID.FNumber*/
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -757,7 +757,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": value[3], "value": value[3]}
           });

@@ -192,7 +192,7 @@ class _GroundingPageState extends State<GroundingPage> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[3], "value": value[3]}
         });

@@ -290,7 +290,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[2], "value": value[2]}
         });
         arr.add({
@@ -1077,7 +1077,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": value[2], "value": value[2]}
           });

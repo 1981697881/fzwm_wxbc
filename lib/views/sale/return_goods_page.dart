@@ -144,7 +144,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[6], "value": value[6]}
         });
         arr.add({

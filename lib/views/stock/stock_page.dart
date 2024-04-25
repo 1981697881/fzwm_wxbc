@@ -77,7 +77,7 @@ class _StockPageState extends State<StockPage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ='" + deptData[1] + "'";
+    //userMap['FilterString'] = "FUseOrgId.FNumber ='" + deptData[1] + "'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -96,33 +96,31 @@ class _StockPageState extends State<StockPage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     if (keyWord != '') {
-      userMap['FilterString'] =
-          "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty >0";
-      if (batchNo != '') {
-        if (this.warehouseNumber != null) {
-          userMap['FilterString'] = "FMaterialId.FNumber='" +
-              keyWord.split(";")[0] +
-              "' and FStockID.FNumber='" +
-              this.warehouseNumber +
-              "' and FBaseQty >0"; /*and FLot.FNumber= '"+batchNo+"'*/
-        } else {
-          userMap['FilterString'] = "FMaterialId.FNumber='" +
-              keyWord.split(";")[0] +
-              "' and FBaseQty >0"; /*and FLot.FNumber= '"+batchNo+"'*/
+      if(keyWord.split(";").length>1){
+        userMap['FilterString'] =
+            "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0";
+        if (batchNo != '') {
+          if (this.warehouseNumber != null) {
+            userMap['FilterString'] = "FMaterialId.FNumber='" +
+                keyWord.split(";")[0] +
+                "' and FStockID.FNumber='" +
+                this.warehouseNumber +
+                "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+          } else {
+            userMap['FilterString'] = "FMaterialId.FNumber='" +
+                keyWord.split(";")[0] +
+                "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+          }
         }
-      }
-      if (this.warehouseNumber != null) {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
-            keyWord.split(";")[0] +
-            "' and FStockID.FNumber='" +
-            this.warehouseNumber +
-            "' and FBaseQty >0";
+      }else{
+        userMap['FilterString'] =
+            "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0";
       }
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['Limit'] = '50';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber';
+        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -147,6 +145,7 @@ class _StockPageState extends State<StockPage> {
         arr.add({
           "title": "规格",
           "name": "FMaterialIdFSpecification",
+          "isHide": true,
           "value": {"label": value[2], "value": value[2]}
         });
         arr.add({

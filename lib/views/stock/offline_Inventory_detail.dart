@@ -479,7 +479,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {
             "label": resInventory[0]['specification'],
@@ -656,7 +656,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": false,
+            "isHide": true,
             "name": "FMaterialIdFSpecification",
             "value": {"label": "", "value": ""}
           });
@@ -1109,7 +1109,7 @@ class _OfflineInventoryDetailState extends State<OfflineInventoryDetail> {
                       });
                       arr.add({
                         "title": "规格型号",
-                        "isHide": false,
+                        "isHide": true,
                         "name": "FMaterialIdFSpecification",
                         "value": {
                           "label": element["specification"],

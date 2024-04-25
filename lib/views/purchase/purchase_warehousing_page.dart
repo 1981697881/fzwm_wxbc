@@ -83,27 +83,27 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FCloseStatus = 'A' and FDate <= '$endDate'";
+      "FPreDeliveryDate >= '$startDate' and FCloseStatus = 'A' and FPreDeliveryDate  <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%')' and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%')' and FCloseStatus = 'A' and FActlandQty>0";
       }else{
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate' and FActlandQty>0";
+        "FCloseStatus = 'A' and FPreDeliveryDate >= '$startDate' and FPreDeliveryDate  <= '$endDate' and FActlandQty>0";
       }
     }
     this.isScan = false;
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -141,7 +141,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[7], "value": value[7]}
         });
         arr.add({

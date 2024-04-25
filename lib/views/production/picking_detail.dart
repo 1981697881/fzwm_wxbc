@@ -308,7 +308,7 @@ class _PickingDetailState extends State<PickingDetail> {
           "value": {"label": "", "value": ""}
         });
         arr.add({
-          "title": "用量",
+          "title": "未领数量",
           "name": "FPrdOrgId",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -358,7 +358,7 @@ class _PickingDetailState extends State<PickingDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[9], "value": value[9]}
         });
@@ -505,7 +505,7 @@ class _PickingDetailState extends State<PickingDetail> {
         deptData[1];
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
+        'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);

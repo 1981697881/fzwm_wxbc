@@ -174,7 +174,7 @@ class _PickingStockPageState extends State<PickingStockPage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
         });
         arr.add({

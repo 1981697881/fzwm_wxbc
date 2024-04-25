@@ -86,7 +86,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-          "FRemainOutQty>0 and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FRemainOutQty>0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
@@ -99,7 +99,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
             "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0";
       }else{
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+            "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0 and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
       }
     }
     this.isScan = false;
@@ -150,7 +150,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[6], "value": value[6]}
         });
         /*arr.add({

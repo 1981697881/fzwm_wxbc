@@ -147,7 +147,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[7], "value": value[7]}
         });

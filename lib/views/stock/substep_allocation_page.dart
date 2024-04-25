@@ -126,7 +126,7 @@ class _AllocationAffirmPageState extends State<SubstepAllocationPage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
