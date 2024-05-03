@@ -463,10 +463,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "单位名称",
@@ -682,7 +682,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 3 || j ==5) {
+          if (j == 1/* || j == 3 || j ==5*/) {
             comList.add(
               Column(children: [
                 Container(
@@ -720,7 +720,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 divider,
               ]),
             );
-          } else */if (j == 4) {
+          } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),

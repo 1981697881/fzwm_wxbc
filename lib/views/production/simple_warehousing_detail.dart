@@ -456,10 +456,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "单位名称",
@@ -675,7 +675,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 3 || j ==5) {
+          if (j == 1) {
             comList.add(
               Column(children: [
                 Container(
@@ -713,7 +713,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                 divider,
               ]),
             );
-          } else */if (j == 4) {
+          } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
@@ -889,7 +889,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.text,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                              ],
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -997,7 +1000,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             }
           };
           FEntityItem['FAuxPropId'] = {
-            "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FRealQty'] = element[3]['value']['value'];

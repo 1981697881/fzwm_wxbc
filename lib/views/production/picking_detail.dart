@@ -185,7 +185,7 @@ class _PickingDetailState extends State<PickingDetail> {
     userMap['FormId'] = 'PRD_PPBOM';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID,FLot.FNumber,FMaterialID2.FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -199,7 +199,7 @@ class _PickingDetailState extends State<PickingDetail> {
       FStockOrgId = orderDate[0][1].toString();
       FPrdOrgId = orderDate[0][1].toString();
       this.fOrgID = orderDate[0][1];
-//下推
+      //下推
       Map<String, dynamic> pushMap = Map();
       pushMap['Ids'] = orderDate[0][13];
       pushMap['RuleId'] = "PRD_PPBOM2PICKMTRL_NORMAL";
@@ -237,14 +237,17 @@ class _PickingDetailState extends State<PickingDetail> {
         setState(() {
           this.isSubmitT = false;
           if(res['Result']['ResponseStatus']['Errors'][0]['Message']=="分录实体“明细”是必填项"){
-          ToastUtil.errorDialog(context, "默认发料仓库异常");
+            ToastUtil.errorDialog(context, "默认发料仓库异常");
           }else{
             ToastUtil.errorDialog(
                 context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
           }
         });
       }
-     /* orderDate.forEach((value) {
+      /*FStockOrgId = orderDate[0][1].toString();
+      FPrdOrgId = orderDate[0][1].toString();
+      this.fOrgID = orderDate[0][1];
+      orderDate.forEach((value) {
         fNumber.add(value[7]);
         List arr = [];
         arr.add({
@@ -261,7 +264,7 @@ class _PickingDetailState extends State<PickingDetail> {
         });
         arr.add({
           "title": "规格型号",
-          "isHide": false,
+          "isHide": true,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[9], "value": value[9]}
         });

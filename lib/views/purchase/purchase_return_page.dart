@@ -87,13 +87,13 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }else{
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+        userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     this.isScan = false;

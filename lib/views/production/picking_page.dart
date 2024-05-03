@@ -105,12 +105,12 @@ class _PickingPageState extends State<PickingPage> {
       "FStatus in(3,4) and FNoStockInQty>0";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(3,4) and FNoStockInQty>0";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(3,4) and FNoStockInQty>0";
       }else{
         userMap['FilterString'] =
         "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";

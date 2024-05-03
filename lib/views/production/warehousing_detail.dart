@@ -197,10 +197,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             }
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[8], "value": value[8]}
+            "value": {"label": value[24]==null?"":value[24], "value": value[24]==null?"":value[24]}
           });
           arr.add({
             "title": "单位名称",
@@ -921,7 +921,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 3 || j==5) {
+          if (j == 1) {
             comList.add(
               Column(children: [
                 Container(
@@ -964,7 +964,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                 divider,
               ]),
             );
-          } else*/
+          } else
           if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
@@ -1109,7 +1109,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                             child: Column(children: <Widget>[
                           TextField(
                             style: TextStyle(color: Colors.black87),
-                            keyboardType: TextInputType.number,
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                            ],
                             controller: this._textNumber,
                             decoration: InputDecoration(hintText: "输入或者扫描数量"),
                             onChanged: (value) {
@@ -1463,11 +1466,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][4]['value']['value']
               };
-              if (orderDate[element][24] != null) {
                 FEntityItem['FAuxPropId'] = {
-                  "FAUXPROPID__FF100002": {"FNumber": orderDate[element][24]}
+                  "FAUXPROPID__FF100002": {"FNumber": this.hobby[element][1]['value']['value']}
                 };
-              }
               FEntityItem['FLot'] = {
                 "FNumber": this.hobby[element][5]['value']['value']
               };

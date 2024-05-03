@@ -263,10 +263,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           }
         });
         arr.add({
-          "title": "规格型号",
-          "isHide": true,
+          "title": "包装规格",
+          "isHide": false,
           "name": "FMaterialIdFSpecification",
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
         });
         arr.add({
           "title": "单位名称",
@@ -1652,7 +1652,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3 || j==5) {
+          if (j == 1 ||j == 3 || j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -1838,7 +1838,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           child: Column(children: <Widget>[
                         TextField(
                           style: TextStyle(color: Colors.black87),
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                          ],
                           controller: this._textNumber,
                           decoration: InputDecoration(hintText: "输入"),
                           onChanged: (value) {
@@ -2118,11 +2121,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FStockLocId'] = {
               "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
             };
-            if (orderDate[hobbyIndex][25] != null) {
               FEntityItem['FAuxPropId'] = {
-                "FAUXPROPID__FF100002": {"FNumber": orderDate[hobbyIndex][25]}
+                "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
               };
-            }
             var fSerialSub = [];
             var kingDeeCode = element[0]['value']['kingDeeCode'];
             for (int subj = 0; subj < kingDeeCode.length; subj++) {

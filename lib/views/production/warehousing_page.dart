@@ -87,12 +87,12 @@ class _WarehousingPageState extends State<WarehousingPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C'";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus = 'C'";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C'";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus = 'C'";
       }else{
         userMap['FilterString'] =/*and FActlandQty>0*/
         "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate'";

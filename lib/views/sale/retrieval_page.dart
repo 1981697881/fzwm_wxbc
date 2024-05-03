@@ -91,15 +91,15 @@ class _RetrievalPageState extends State<RetrievalPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
       }else{
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FRemainOutQty>0 and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
+            "FDocumentStatus ='C' and FRemainOutQty>0 and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
       }
     }
     this.isScan = false;
@@ -153,16 +153,16 @@ class _RetrievalPageState extends State<RetrievalPage> {
           "isHide": true,
           "value": {"label": value[6], "value": value[6]}
         });
-        /*arr.add({
+        arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
           "value": {"label": value[11], "value": value[10]}
-        });*/
+        });
         arr.add({
           "title": "包数",
           "name": "FBaseQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[12], "value": value[12]}
         });
         /*arr.add({

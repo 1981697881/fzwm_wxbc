@@ -18,10 +18,11 @@ import 'package:qrscan/qrscan.dart' as scanner;
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class StockPage extends StatefulWidget {
-  StockPage({Key? key}) : super(key: key);
+  var keyword;
 
+  StockPage({Key? key, @required this.keyword}) : super(key: key);
   @override
-  _StockPageState createState() => _StockPageState();
+  _StockPageState createState() => _StockPageState(keyword);
 }
 
 class _StockPageState extends State<StockPage> {
@@ -42,7 +43,11 @@ class _StockPageState extends State<StockPage> {
   List<dynamic> warehouseListObj = [];
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
-
+  _StockPageState(value) {
+    if (value != null) {
+      this._onEvent(value);
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -119,8 +124,9 @@ class _StockPageState extends State<StockPage> {
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['Limit'] = '50';
+    userMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber';
+        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -143,10 +149,9 @@ class _StockPageState extends State<StockPage> {
           "value": {"label": value[1], "value": value[1]}
         });
         arr.add({
-          "title": "规格",
+          "title": "包装规格",
           "name": "FMaterialIdFSpecification",
-          "isHide": true,
-          "value": {"label": value[2], "value": value[2]}
+          "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "仓库",

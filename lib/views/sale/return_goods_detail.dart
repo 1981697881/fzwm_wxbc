@@ -211,10 +211,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": [],"kingDeeCode": [],"scanCode": []}
         });
         arr.add({
-          "title": "规格型号",
+          "title": "包装规格",
           "name": "FMaterialIdFSpecification",
-          "isHide": true,
-          "value": {"label": value[7], "value": value[7]}
+          "isHide": false,
+          "value": {"label": value[27]==null?"":value[27], "value": value[27]==null?"":value[27]}
         });
         arr.add({
           "title": "单位名称",
@@ -574,10 +574,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2], "barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "单位名称",
@@ -759,7 +759,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 8 || j == 11) {
+          if (j == 1) {
             comList.add(
               Column(children: [
                 Container(
@@ -795,7 +795,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 divider,
               ]),
             );
-          } else */if (j == 4) {
+          } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
@@ -932,7 +932,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.text,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                              ],
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -1141,15 +1144,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               "FNumber": element[6]['value']['value']
             }
           };
-          if(orderDate.length>0){
+
             FEntityItem['FAuxPropID'] = {
-              "FAUXPROPID__FF100002": {"FNumber": orderDate[hobbyIndex][27]}
+              "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
             };
-          }else{
-            FEntityItem['FAuxPropID'] = {
-              "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
-            };
-          }
+
           FEntityItem['FRealQty'] = element[3]['value']['value'];
           if(orderDate.length>0){
             FEntityItem['FEntity_Link'] = [

@@ -1,15 +1,19 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm_wxbc/http/api_response.dart';
 import 'package:fzwm_wxbc/model/version_entity.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataOffline.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataRepertoire.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataScheme.dart';
 import 'package:fzwm_wxbc/views/login/login_page.dart';
+import 'package:fzwm_wxbc/views/stock/stock_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,12 +34,6 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
-  final _saved = new Set<WordPair>();
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-
-  // 承载listView的滚动视图
-  ScrollController _scrollController = ScrollController();
-
   //自动更新字段
   String serviceVersionCode = '';
   String downloadUrl = '';
@@ -44,33 +42,45 @@ class _IndexPageState extends State<IndexPage> {
   late ProgressDialog pr;
   String apkName = 'fzwm_wxbc.apk';
   String appPath = '';
+  var _code;
   ReceivePort _port = ReceivePort();
   late SharedPreferences sharedPreferences;
+
+  static const scannerPlugin = const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription ?_subscription;
 
   @override
   void initState() {
     super.initState();
+    /// 开启监听
+    if (_subscription == null) {
+      _subscription = scannerPlugin
+          .receiveBroadcastStream()
+          .listen(_onEvent, onError: _onError);
+    }
+    print(123);
+    print(_subscription);
     Future.delayed(
         Duration.zero,
         () => setState(() {
               _load();
             }));
-    IsolateNameServer.registerPortWithName(
+
+   /* IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen(_updateDownLoadInfo);
     FlutterDownloader.registerCallback(_downLoadCallback);
-    afterFirstLayout(context);
+    afterFirstLayout(context);*/
   }
-
-  _load() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
-
   @override
   void dispose() {
     super.dispose();
-  }
 
+    /// 取消监听
+    if (_subscription != null) {
+      _subscription!.cancel();
+    }
+  }
   @override
   void afterFirstLayout(BuildContext context) {
     // 如果是android，则执行热更新
@@ -78,7 +88,49 @@ class _IndexPageState extends State<IndexPage> {
       _getNewVersionAPP(context);
     }
   }
+  _initState() {
+    EasyLoading.show(status: 'loading...');
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
+  void _onEvent(event) async {
+    _code = event;
+    if(event == ""){
+      return;
+    }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return StockPage(
+                keyword: event
+              // 路由参数
+            );
+          },
+        ),
+      ).then((data) {
+        //延时500毫秒执行
+        Future.delayed(
+            const Duration(milliseconds: 500),
+                () {
+              setState(() {
+                //延时更新状态
+                this._initState();
+              });
+            });
+      });
+  }
 
+  void _onError(Object error) {
+    setState(() {
+      _code = "扫描异常";
+    });
+  }
+  _load() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
   /// 执行版本更新的网络请求
   _getNewVersionAPP(context) async {
     ApiResponse<VersionEntity> entity = await VersionEntity.getVersion();
@@ -88,7 +140,6 @@ class _IndexPageState extends State<IndexPage> {
     downloadUrl = entity.data!.data.downloadUrl;
     _checkVersionCode();
   }
-
   /// 检查当前版本是否为最新，若不是，则更新
   void _checkVersionCode() {
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
@@ -98,7 +149,6 @@ class _IndexPageState extends State<IndexPage> {
       }
     });
   }
-
   /// 版本更新提示对话框
   Future<void> _showNewVersionAppDialog() async {
     return showDialog<void>(
@@ -132,13 +182,11 @@ class _IndexPageState extends State<IndexPage> {
           );
         });
   }
-
   /// 执行更新操作
   _doUpdate(BuildContext context) async {
     Navigator.pop(context);
     _executeDownload(context);
   }
-
   /// 下载最新apk包
   Future<void> _executeDownload(BuildContext context) async {
     pr = new ProgressDialog(
@@ -151,7 +199,6 @@ class _IndexPageState extends State<IndexPage> {
     if (!pr.isShowing()) {
       pr.show();
     }
-
     final path = await _apkLocalPath;
     await FlutterDownloader.enqueue(
         url: downloadUrl,
@@ -160,7 +207,6 @@ class _IndexPageState extends State<IndexPage> {
         showNotification: true,
         openFileFromNotification: true);
   }
-
   /// 下载进度回调函数
   static void _downLoadCallback(
       String id, DownloadTaskStatus status, int progress) {
@@ -168,7 +214,6 @@ class _IndexPageState extends State<IndexPage> {
         IsolateNameServer.lookupPortByName('downloader_send_port')!;
     send.send([id, status, progress]);
   }
-
   /// 更新下载进度框
   _updateDownLoadInfo(dynamic data) {
     DownloadTaskStatus status = data[1];
@@ -190,12 +235,10 @@ class _IndexPageState extends State<IndexPage> {
       _installApk();
     }
   }
-
   /// 安装apk
   Future<Null> _installApk() async {
     await OpenFile.open(appPath + '/' + apkName);
   }
-
   /// 获取apk存储位置
   Future<String> get _apkLocalPath async {
     final directory = await getExternalStorageDirectory();
@@ -278,7 +321,6 @@ class _IndexPageState extends State<IndexPage> {
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
     var fAuthList = menuList['FAuthList'].split(",");
     var menu = <Map<String, dynamic>>[];
-
     for (var i in fAuthList) {
       switch (i) {
         case "1":
@@ -484,7 +526,7 @@ class _IndexPageState extends State<IndexPage> {
                 horizontal: NavigationToolbar.kMiddleSpacing,
                 vertical: 20.0,
               ),
-              child: buildAppBarTabs(),
+              //child: buildAppBarTabs(),
             ),
             /*Expanded(
               child: ListView.builder(

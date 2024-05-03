@@ -107,12 +107,12 @@ class _ReturnPageState extends State<ReturnPage> {
       "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
       }else{
         userMap['FilterString'] =
         "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";

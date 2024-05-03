@@ -463,9 +463,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           });
           arr.add({
             "title": "规格型号",
-            "isHide": true,
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "单位名称",
@@ -683,7 +683,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (/*j == 3 || */j==5) {
+          if (j == 1 || j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -896,7 +896,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.text,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                              ],
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -1023,7 +1026,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             }
           };
           FEntityItem['FAuxPropId'] = {
-            "FAUXPROPID__FF100002": {"FNumber": element[3]['value']['value']+"kg"}
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FQty'] = element[3]['value']['value'];

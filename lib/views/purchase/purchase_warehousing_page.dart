@@ -93,7 +93,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%')' and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }else{
         userMap['FilterString'] =/*and FActlandQty>0*/
         "FCloseStatus = 'A' and FPreDeliveryDate >= '$startDate' and FPreDeliveryDate  <= '$endDate' and FActlandQty>0";

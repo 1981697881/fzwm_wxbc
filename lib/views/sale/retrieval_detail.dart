@@ -221,8 +221,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": true,
-          "value": {"label": value[7], "value": value[7]}
+          "isHide": false,
+          "value": {"label": value[32]==null?"":value[32], "value": value[32]==null?"":value[32]}
         });
         arr.add({
           "title": "单位名称",
@@ -1804,7 +1804,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 8 || j == 11) {
+          if (j == 1 /*|| j == 8 || j == 11*/) {
             comList.add(
               Column(children: [
                 Container(
@@ -1840,7 +1840,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                 divider,
               ]),
             );
-          } else*/
+          } else
           if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
@@ -2170,7 +2170,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
           };
           FEntityItem['FAuxPropId'] = {
-            "FAUXPROPID__FF100002": {"FNumber": orderDate[hobbyIndex][32]}
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           FEntityItem['FRealQty'] = element[3]['value']['value'];
           FEntityItem['FSrcBillNo'] = this.FBillNo;
