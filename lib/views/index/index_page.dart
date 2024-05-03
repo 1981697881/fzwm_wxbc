@@ -66,11 +66,11 @@ class _IndexPageState extends State<IndexPage> {
               _load();
             }));
 
-   /* IsolateNameServer.registerPortWithName(
+    IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen(_updateDownLoadInfo);
     FlutterDownloader.registerCallback(_downLoadCallback);
-    afterFirstLayout(context);*/
+    afterFirstLayout(context);
   }
   @override
   void dispose() {
@@ -89,7 +89,6 @@ class _IndexPageState extends State<IndexPage> {
     }
   }
   _initState() {
-    EasyLoading.show(status: 'loading...');
     /// 开启监听
     _subscription = scannerPlugin
         .receiveBroadcastStream()
@@ -353,16 +352,6 @@ class _IndexPageState extends State<IndexPage> {
           };
           menu.add(obj);
           break;
-        /*case "4":
-          var obj = {
-            "icon": Icons.ballot,
-            "text": "车间管理",
-            "id": 4,
-            "color": Colors.pink.withOpacity(0.7),
-            "router": MiddleLayerPage(menuId: 4, menuTitle: "车间管理")
-          };
-          menu.add(obj);
-          break;*/
         case "5":
           var obj = {
             "icon": Icons.shopping_cart,
@@ -385,35 +374,11 @@ class _IndexPageState extends State<IndexPage> {
           break;
       }
     };
-    /*var obj = {
-      "icon": Icons.ballot,
-      "text": "委外管理",
-      "id": 6,
-      "color": Colors.pink.withOpacity(0.7),
-      "router": MiddleLayerPage(menuId: 6, menuTitle: "委外管理")
-    };
-    menu.add(obj);*/
     return Wrap(
-        /*mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,*/
         spacing: 24, //主轴上子控件的间距
         runSpacing: 20, //交叉轴上子控件之间的间距
         children: Boxs(
-            menu) /*[
-        AppBarTabsItem(
-            icon: Icons.web,
-            text: "库存查询",
-            color: Theme
-                .of(context)
-                .primaryColor
-                .withOpacity(0.8),
-            router: StockPage()),
-        AppBarTabsItem(
-            icon: Icons.wallpaper,
-            text: "图纸查询",
-            color: Colors.green.withOpacity(0.7),
-            router: DrawingPage()),
-      ],*/
+            menu)
         );
   }
 
@@ -505,7 +470,8 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FlutterEasyLoading(
+      child: Scaffold(
       appBar: AppBar(
         title: new Text('主页'),
         centerTitle: true,
@@ -526,120 +492,13 @@ class _IndexPageState extends State<IndexPage> {
                 horizontal: NavigationToolbar.kMiddleSpacing,
                 vertical: 20.0,
               ),
-              //child: buildAppBarTabs(),
+              child: buildAppBarTabs(),
             ),
-            /*Expanded(
-              child: ListView.builder(
-                itemCount: 4,
-                padding: EdgeInsets.symmetric(
-                    // vertical: 5.0,
-                    // horizontal: NavigationToolbar.kMiddleSpacing,
-                    ),
-                itemBuilder: (BuildContext listViewContext, int index) {
-                  MessageModel mm = MessageModel();
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(width: 1, color: Colors.grey[100]),
-                      ),
-                    ),
-                    child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(50.0),
-                          child: Image.network(
-                            mm.tileAvatar,
-                            fit: BoxFit.cover,
-                            width: 40.0,
-                            height: 40.0,
-                          ),
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(mm.tileTime),
-                            index % 2 == 0
-                                ? BadgeWidget(
-                                    child: Container(
-                                      height: 7.0,
-                                      width: 7.0,
-                                    ),
-                                  )
-                                : Container(
-                                    height: 7.0,
-                                    width: 7.0,
-                                  )
-                          ],
-                        ),
-                        title: Text(mm.tileName),
-                        subtitle: Text(mm.tileContent),
-                        //item 点击事件
-                        onTap: () {
-                          print("点击到第" + index.toString());
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return ReportPage(
-                                    // 路由参数
-                                    );
-                              },
-                            ),
-                          );
-                        },
-                        //item 长按事件
-                        onLongPress: () {
-                          print("长按" + index.toString());
-                        }),
-                  );
-                },
-              ),
-            ),
-          */
           ],
         ),
       ),
+    ),
     );
   }
 }
 
-class AppBarTabsItem extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color color;
-  final router;
-
-  const AppBarTabsItem({Key ?key, required this.icon, required this.text, required this.color, this.router})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => router),
-            );
-          },
-          child: Container(
-            padding: EdgeInsets.all(6.0),
-            decoration: BoxDecoration(
-                color: this.color, borderRadius: BorderRadius.circular(6.0)),
-            child: Icon(
-              this.icon,
-              size: (IconTheme.of(context).size!) - 6,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 5.0,
-        ),
-        Text(this.text),
-      ],
-    );
-  }
-}

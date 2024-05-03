@@ -294,7 +294,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
-    fBarCodeList = menuList['FBarCodeList'];
+    fBarCodeList = 1;//menuList['FBarCodeList'];
     if(event == ""){
       return;
     }
@@ -454,7 +454,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
         }
       }
       if(number == 0 && this.fBillNo ==""){
-        materialDate.forEach((value) {
+        for (var value in materialDate) {
           List arr = [];
           arr.add({
             "title": "物料名称",
@@ -486,12 +486,32 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "isHide": false,
             "value": {"label": '', "value": ''}
           });
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[2] + "' and FBaseQty >0";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
           arr.add({
-            "title": "批号",
-            "name": "FLot",
-            "isHide": value[6] != true,
-            "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
-          });
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[6] != true,
+              "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):'',"fLotList": stocks}
+            });
+          }else{
+           arr.add({
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[6] != true,
+              "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):'',"fLotList": []}
+            });
+          }
           arr.add({
             "title": "仓位",
             "name": "FStockLocID",
@@ -514,7 +534,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             }
           });
           hobby.add(arr);
-        });
+        };
       }
       setState(() {
         EasyLoading.dismiss();
@@ -676,13 +696,88 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       },
     );
   }
+  Future<List<int>?> _showModalBottomSheet(
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(10.0),
+                topRight: const Radius.circular(10.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        ListTile(
+                          title: Text('批号:'+options[index][5]),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                          onTap: () {
+                            setState(() {
+                              dataItem['value'] = options[index][5];
+                              dataItem['label'] = options[index][5];
+                            });
+                            print(options[index]);
+                            // Do something
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Divider(height: 1.0),
+                      ],
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 1/* || j == 3 || j ==5*/) {
+          if (j == 5) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        new MaterialButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          child: new Text('查看'),
+                          onPressed: () async {
+                            await _showModalBottomSheet(
+                                context, this.hobby[i][j]["value"]["fLotList"],this.hobby[i][j]["value"]);
+                            setState(() {});
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 1/* || j == 3 || j ==5*/) {
             comList.add(
               Column(children: [
                 Container(
