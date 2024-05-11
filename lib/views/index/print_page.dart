@@ -204,6 +204,7 @@ class _PrintPageState extends State<PrintPage> {
               codeModel['FOrder'] = barcodeNum;
               codeModel['FProduceDate'] = value['FProduceDate'];
               codeModel['FExpiryDate'] = value['FExpiryDate'];
+              codeModel['FPackageSpec'] = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
               codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
                   ? packing
                   : remainingQuantity;
@@ -364,6 +365,7 @@ class _PrintPageState extends State<PrintPage> {
                 codeModel['FOrder'] = barcodeNum;
                 codeModel['FProduceDate'] = value['FProduceDate'];
                 codeModel['FExpiryDate'] = value['FExpiryDate'];
+                codeModel['FPackageSpec'] = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
                 codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
                     ? packing
                     : remainingQuantity;

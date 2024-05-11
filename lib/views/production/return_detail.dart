@@ -60,6 +60,10 @@ class _ReturnDetailState extends State<ReturnDetail> {
   var selectData = {
     DateMode.YMD: "",
   };
+  var organizationsName;
+  var organizationsNumber;
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
   var stockList = [];
   List<dynamic> stockListObj = [];
   var selectStock = "";
@@ -105,9 +109,22 @@ class _ReturnDetailState extends State<ReturnDetail> {
           .listen(_onEvent, onError: _onError);
     }
     getWorkShop();
-    getStockList();
-  }
 
+  }
+//获取组织
+  getOrganizationsList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber,FDocumentStatus';
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
+    });
+  }
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -143,7 +160,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
     if(fOrgID == null){
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+fOrgID+"'";
+    userMap['FilterString'] = "FForbidStatus = 'A'  and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -176,6 +193,8 @@ class _ReturnDetailState extends State<ReturnDetail> {
     if (orderDate.length > 0) {
       FStockOrgId = orderDate[0][1].toString();
       FPrdOrgId = orderDate[0][1].toString();
+      this.fOrgID = orderDate[0][1];
+      this.organizationsNumber = orderDate[0][1];
       hobby = [];
       orderDate.forEach((value) {
         fNumber.add(value[7]);
@@ -279,7 +298,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FPackageSpec';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -321,7 +340,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStoreUnitID.FNumber,FStoreUnitID.FName';
@@ -715,17 +734,30 @@ class _ReturnDetailState extends State<ReturnDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
+          if (hobby == 'organizations') {
+            organizationsName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+            if (element == p) {
+            organizationsNumber = organizationsListObj[elementIndex][2];
+            }
+            elementIndex++;
+            });
+            getStockList();
+          }else{
             setState(() {
               hobby['value']['label'] = p;
             });
             var elementIndex = 0;
             data.forEach((element) {
-              print( element);
-              if (element == p) {
-                hobby['value']['value'] = stockListObj[elementIndex][2];
-              }
-              elementIndex++;
+            print( element);
+            if (element == p) {
+              hobby['value']['value'] = stockListObj[elementIndex][2];
+            }
+            elementIndex++;
             });
+          }
+
         });
       },
     );
@@ -1031,8 +1063,8 @@ class _ReturnDetailState extends State<ReturnDetail> {
                   Map<String, dynamic> codeModel = Map();
                   var itemCode = kingDeeCode[j].split("-");
                   codeModel['FID'] = itemCode[0];
-                  codeModel['FOwnerID'] = {"FNUMBER": deptData[1]};
-                  codeModel['FStockOrgID'] = {"FNUMBER": deptData[1]};
+                  codeModel['FOwnerID'] = {"FNUMBER": this.organizationsNumber};
+                  codeModel['FStockOrgID'] = {"FNUMBER": this.organizationsNumber};
                   codeModel['FStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
@@ -1140,8 +1172,8 @@ class _ReturnDetailState extends State<ReturnDetail> {
         Model['FStockOrgId'] = {"FNumber": FStockOrgId};
         Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
       }else{
-        Model['FStockOrgId'] = {"FNumber": deptData[1]};
-        Model['FPrdOrgId'] = {"FNumber": deptData[1]};
+        Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
+        Model['FPrdOrgId'] = {"FNumber": this.organizationsNumber};
       }
       Model['FCurrId'] = {"FNumber": 'PRE001'};
       var FEntity = [];
@@ -1178,9 +1210,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
               }
             ];
           }else{
-            FEntityItem['FKeeperId'] = {"FNumber": deptData[1]};
-            FEntityItem['FOwnerId'] = {"FNumber": deptData[1]};
-            FEntityItem['FParentOwnerId'] = {"FNumber": deptData[1]};
+            FEntityItem['FKeeperId'] = {"FNumber": this.organizationsNumber};
+            FEntityItem['FOwnerId'] = {"FNumber": this.organizationsNumber};
+            FEntityItem['FParentOwnerId'] = {"FNumber": this.organizationsNumber};
             FEntityItem['FProduceDate'] = element[0]['value']['FProduceDate'];
             FEntityItem['FExpiryDate'] = element[0]['value']['FExpiryDate'];
             FEntityItem['FAuxPropID'] = {
@@ -1305,6 +1337,31 @@ class _ReturnDetailState extends State<ReturnDetail> {
                       ),
                       divider,
                     ],
+                  ),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: isScanWork,
+                    child: Column(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          child: ListTile(
+                            title: Text("组织：$organizationsName"),
+                          ),
+                        ),
+                        divider,
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: !isScanWork,
+                    child: _item('组织:', this.organizationsList, this.organizationsName,
+                        'organizations'),
                   ),
                   Column(
                     children: [

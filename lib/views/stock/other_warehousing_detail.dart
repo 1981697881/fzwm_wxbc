@@ -48,6 +48,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var departmentNumber;
   var receiptTypeName;
   var receiptTypeNumber;
+  var organizationsName;
+  var organizationsNumber;
   var typeName;
   var typeNumber;
   String FDate = '';
@@ -62,6 +64,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   };
   var typeList = [];
   List<dynamic> typeListObj = [];
+  //包装规格
+  var bagList = [];
+  List<dynamic> bagListObj = [];
   //仓库
   var stockList = [];
   List<dynamic> stockListObj = [];
@@ -71,6 +76,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   //部门
   var departmentList = [];
   List<dynamic> departmentListObj = [];
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
   //入库类型
   var receiptTypeList = ['五金入库','样品入库','试验','研发项目入库','污水处理入库','其他','赠送入库','称量差异','盘盈入库'];
   List<dynamic> receiptTypeListObj = [['01','五金入库'],['02','样品入库'],['03','试验'],['04','研发项目入库'],['05','污水处理入库'],['06','其他'],['07','赠送入库'],['08','称量差异'],['09','盘盈入库']];
@@ -87,7 +94,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var _FNumber;
   var fBillNo;
   var fBarCodeList;
-
+  final controller = TextEditingController();
   _OtherWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -111,10 +118,12 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
    /* getWorkShop();*/
-    getStockList();
+
     /*getTypeList();*/
     getSupplierList();
-    getDepartmentList();
+
+    getBagList();
+    getOrganizationsList();
     /*_onEvent("mB@CpNDtniREhhqrndaYPT9HiXOipMKs0csC7RJ8y4eJM38mGYHuig==");*/
   }
   //获取部门
@@ -125,7 +134,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+this.organizationsNumber+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -142,13 +151,27 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"'";
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+organizationsNumber+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
     stockListObj.forEach((element) {
       stockList.add(element[1]);
+    });
+  }
+  //获取包装规格
+  getBagList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BOS_ASSISTANTDATA_DETAIL';
+    userMap['FieldKeys'] = 'FNumber,FDataValue,FId';
+    userMap['FilterString'] = [{"Left":"(","FieldName":"FId","Compare":"67","Value":"64746193a3e99b","Right":")","Logic":"0"}];
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    bagListObj = jsonDecode(res);
+    bagListObj.forEach((element) {
+      bagList.add(element[1]);
     });
   }
   //获取入库类别
@@ -176,6 +199,20 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     supplierListObj = jsonDecode(res);
     supplierListObj.forEach((element) {
       supplierList.add(element[1]);
+    });
+  }
+  //获取组织
+  getOrganizationsList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber';
+    userMap['FilterString'] = "FForbidStatus = 'A'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
     });
   }
   void getWorkShop() async {
@@ -304,6 +341,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   }
 
   void _onEvent(event) async {
+    if ( (organizationsNumber == null || organizationsNumber == "")) {
+      ToastUtil.showInfo('请选择对应组织，获取仓库');
+      return;
+    }
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
@@ -316,31 +357,31 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
         _code = event;
-        this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11]);
+        this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
         print("ChannelPage: $event");
       }else{
         ToastUtil.showInfo('条码不在条码清单中');
       }
     }else{
       _code = event;
-      this.getMaterialList("",_code, "");
+      this.getMaterialList("",_code, "", "");
       print("ChannelPage: $event");
     }
   }
-  getMaterialList(barcodeData,code, fsn) async {
+  getMaterialList(barcodeData,code, fsn, fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -462,10 +503,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
           });
           arr.add({
-            "title": "规格型号",
+            "title": "包装规格",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": "", "value": ""}
+            "value": {"label": fAuxPropId, "value": fAuxPropId}
           });
           arr.add({
             "title": "单位名称",
@@ -660,10 +701,32 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               }
               elementIndex++;
             });
+          }else if (hobby == 'organizations') {
+            organizationsName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                organizationsNumber = organizationsListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
+            getStockList();
+            getDepartmentList();
+          }else if(hobby['title']  == '包装规格'){
+            setState(() {
+              hobby['value']['label'] = p;
+            });
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                hobby['value']['value'] = bagListObj[elementIndex][0];
+              }
+              elementIndex++;
+            });
           }else{
             setState(() {
-          hobby['value']['label'] = p;
-        });
+              hobby['value']['label'] = p;
+            });
             var elementIndex = 0;
             data.forEach((element) {
               if (element == p) {
@@ -683,7 +746,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 1 || j==5) {
+          if (j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -725,6 +788,38 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
+            );
+          }else if (j == 1) {
+            /*comList.add(
+              _item('包装规格:', bagList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],stock:this.hobby[i]),
+            );*/
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.bagList = [];
+                                for(var element in this.bagListObj){
+                                  this.bagList.add(element[1]);
+                                }
+                                _showMultiChoiceModalBottomSheet(context, this.bagList,  this.hobby[i][j]);
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
             );
           }else if (j == 7) {
             comList.add(
@@ -796,7 +891,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 ]),
               ),
             );
-          }else if (j == 8) {
+          }/*else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -834,7 +929,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 divider,
               ]),
             );
-          }else {
+          }*/else {
             comList.add(
               Column(children: [
                 Container(
@@ -867,7 +962,110 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     }
     return tempList;
   }
+  setClickData(Map<dynamic,dynamic> dataItem, val) async{
+    setState(() {
+      dataItem['value']['value'] = val;
+      dataItem['value']['label'] = val;
+    });
+  }
 
+  Future<List<int>?> _showMultiChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    List selected = [];
+    /*var selectList = this.hobby;
+    for (var select in selectList) {
+      for(var item in options){
+        if (select[1]['value']['value'] == item[1]) {
+          selected.add(item);
+        } else {
+          selected.remove(item);
+        }
+      }
+    }*/
+    print(options);
+    print(selected);
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment:
+                CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0,left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.controller,
+                        decoration: new InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(
+                                bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value){
+                          options = [];
+                          for(var element in this.bagListObj){
+                            options.add(element[1]);
+                          }
+                          setState(() {
+                            options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                            print(options);
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(children: <Widget>[Text(options[index],
+                      )
+                      ], mainAxisAlignment: MainAxisAlignment.center,),
+                      onTap: () async{
+                        await this.setClickData(dataItem, options[index]);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   //调出弹窗 扫码
   void scanDialog() {
     showDialog<Widget>(
@@ -987,7 +1185,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
-      Model['FStockOrgId'] = {"FNumber": deptData[1]};
+      Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
       /*Model['F_ora_Assistant'] = {"FNumber": this.typeNumber};*/
       if (this.departmentNumber  != null) {
         Model['FDEPTID'] = {"FNumber": this.departmentNumber};
@@ -997,7 +1195,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       if (this.supplierNumber  != null) {
         Model['FSUPPLIERID'] = {"FNumber": this.supplierNumber};
       }
-      Model['FOwnerIdHead'] = {"FNumber": deptData[1]};
+      Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber};
       Model['F_UUAC_Assistant'] = {"FNumber": this.receiptTypeNumber};
       Model['FNOTE'] = this._remarkContent.text;
       var FEntity = [];
@@ -1032,7 +1230,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FOWNERTYPEID'] = "BD_OwnerOrg";
           FEntityItem['FSTOCKSTATUSID'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FOWNERID'] = {"FNumber": deptData[1]};
+          FEntityItem['FOWNERID'] = {"FNumber": this.organizationsNumber};
           FEntityItem['FLOT'] = {"FNumber": element[5]['value']['value']};
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
@@ -1106,10 +1304,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": deptData[1]
+                          "FNUMBER": this.organizationsNumber
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": deptData[1]
+                          "FNUMBER": this.organizationsNumber
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1255,6 +1453,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     ],
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
+                  _item('组织', this.organizationsList, this.organizationsName,
+                      'organizations'),
                   _item('供应商:', this.supplierList, this.supplierName,
                     'supplier'),
                   _item('部门',  this.departmentList, this.departmentName,

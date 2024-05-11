@@ -114,7 +114,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       this.fOrgID = deptData[1];
     }
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + fOrgID + "'";
+        "FForbidStatus = 'A'";// and FUseOrgId.FNumber ='" + fOrgID + "'
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -307,7 +307,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -330,7 +330,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         if (msg == "") {
           _code = event;
           this.getMaterialList(
-              barcodeData, barcodeData[0][10], barcodeData[0][11]);
+              barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
         } else {
           ToastUtil.showInfo(msg);
         }
@@ -339,12 +339,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       }
     } else {
       _code = event;
-      this.getMaterialList("", _code, '');
+      this.getMaterialList("", _code, '', '');
       print("ChannelPage: $event");
     }
   }
 
-  getMaterialList(barcodeData, code, fsn) async {
+  getMaterialList(barcodeData, code, fsn,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');

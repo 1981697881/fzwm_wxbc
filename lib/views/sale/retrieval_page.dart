@@ -45,14 +45,15 @@ class _RetrievalPageState extends State<RetrievalPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    EasyLoading.dismiss();
+    //EasyLoading.dismiss();
+    this.getOrderList();
   }
   _initState() {
     isScan = false;
@@ -98,8 +99,15 @@ class _RetrievalPageState extends State<RetrievalPage> {
         userMap['FilterString'] =
             "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
       }else{
-        userMap['FilterString'] =
-            "FDocumentStatus ='C' and FRemainOutQty>0 and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] =
+          "FRemainOutQty>0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
+        }else{
+          userMap['FilterString'] =
+          "FDocumentStatus ='C' and FRemainOutQty>0";
+        }
       }
     }
     this.isScan = false;
@@ -145,7 +153,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
@@ -351,7 +359,14 @@ class _RetrievalPageState extends State<RetrievalPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-     var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

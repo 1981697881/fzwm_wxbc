@@ -58,8 +58,6 @@ class _IndexPageState extends State<IndexPage> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    print(123);
-    print(_subscription);
     Future.delayed(
         Duration.zero,
         () => setState(() {
@@ -263,7 +261,17 @@ class _IndexPageState extends State<IndexPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => menu[index]['router']),
-              );
+              ).then((data) {
+                //延时500毫秒执行
+                Future.delayed(
+                    const Duration(milliseconds: 500),
+                        () {
+                      setState(() {
+                        //延时更新状态
+                        this._initState();
+                      });
+                    });
+              });
             },
             child: Container(
                 width: hc_ScreenWidth()/4,

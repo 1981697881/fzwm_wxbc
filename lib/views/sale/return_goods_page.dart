@@ -44,8 +44,9 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-    EasyLoading.dismiss();
+   // _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //EasyLoading.dismiss();
+    this.getOrderList();
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin
@@ -93,7 +94,13 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
       if (this.keyWord != '') {
         userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FBillCloseStatus='A'";
       }else{
-        userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+        if(this._dateSelectText != ""){
+          this.startDate = this._dateSelectText.substring(0,10);
+          this.endDate = this._dateSelectText.substring(26,36);
+          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+        }else{
+          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A'";
+        }
       }
     }
     this.isScan = false;
@@ -139,13 +146,13 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": true,
-          "value": {"label": value[6], "value": value[6]}
+          "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
           "title": "单位名称",
@@ -306,7 +313,14 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-     var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

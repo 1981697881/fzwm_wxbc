@@ -178,13 +178,13 @@ class _ReturnPageState extends State<ReturnPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
+          "value": {"label": orderDate[value][6] + "- (" + orderDate[value][5] + ")", "value": orderDate[value][5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": true,
-          "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
+          "value": {"label": orderDate[value][7], "value": orderDate[value][7]}
         });
         arr.add({
           "title": "单位名称",

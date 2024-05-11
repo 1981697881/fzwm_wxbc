@@ -55,6 +55,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   var selectData = {
     DateMode.YMD: '',
   };
+  var organizationsName;
+  var organizationsNumber;
   var fBarCodeList;
   var stockList = [];
   List<dynamic> stockListObj = [];
@@ -94,7 +96,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         "-",
         dd,
       ]);
-      getStockList();
+      //getStockList();
       getOrganizationsList();
     }
   }
@@ -407,7 +409,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber,FPackageSpec';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -2088,10 +2090,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     ),
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  /*_item('调出货主', this.organizationsList, this.organizationsName1,
+                  _item('调出组织', this.organizationsList, this.organizationsName1,
                       'organizations1'),
-                  _item('调入货主', this.organizationsList, this.organizationsName2,
-                      'organizations2'),*/
+                  _item('调入组织', this.organizationsList, this.organizationsName2,
+                      'organizations2'),
                   Column(
                     children: [
                       Container(

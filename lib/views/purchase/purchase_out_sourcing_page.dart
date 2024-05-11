@@ -45,6 +45,7 @@ class _PurchaseOutSourcingPageState extends State<PurchaseOutSourcingPage> {
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
+
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -137,7 +138,7 @@ class _PurchaseOutSourcingPageState extends State<PurchaseOutSourcingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",

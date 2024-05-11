@@ -82,7 +82,7 @@ class _StockPageState extends State<StockPage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    //userMap['FilterString'] = "FUseOrgId.FNumber ='" + deptData[1] + "'";
+    userMap['FilterString'] = "FForbidStatus = 'A'";// and FUseOrgId.FNumber ='" + deptData[1] + "'
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -121,12 +121,20 @@ class _StockPageState extends State<StockPage> {
         userMap['FilterString'] =
             "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0";
       }
+    }else{
+      if (this.warehouseNumber != null) {
+        userMap['FilterString'] = "FStockID.FNumber='" +
+            this.warehouseNumber +
+            "' and FBaseQty >0 "; /**/
+      } else {
+        userMap['FilterString'] = "FBaseQty >0";
+      }
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['Limit'] = '50';
     userMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber';
+        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber,FMaterialId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -144,7 +152,12 @@ class _StockPageState extends State<StockPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "名称",
+          "title": "物料名称",
+          "name": "FMaterialFName",
+          "value": {"label": value[7], "value": value[7]}
+        });
+        arr.add({
+          "title": "中文名称",
           "name": "FMaterialFName",
           "value": {"label": value[1], "value": value[1]}
         });
@@ -293,6 +306,8 @@ class _StockPageState extends State<StockPage> {
             });
             if (this.keyWord != '') {
               this.getOrderList(this.keyWord, "", "");
+            }else{
+              this.getOrderList("", "", "");
             }
           }
         });

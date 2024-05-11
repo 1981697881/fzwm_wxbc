@@ -42,8 +42,9 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-    EasyLoading.dismiss();
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //EasyLoading.dismiss();
+    this.getOrderList();
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin
@@ -95,8 +96,15 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
         userMap['FilterString'] =/*and FActlandQty>0*/
         "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }else{
-        userMap['FilterString'] =/*and FActlandQty>0*/
-        "FCloseStatus = 'A' and FPreDeliveryDate >= '$startDate' and FPreDeliveryDate  <= '$endDate' and FActlandQty>0";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] =
+          "FPreDeliveryDate >= '$startDate' and FCloseStatus = 'A' and FPreDeliveryDate  <= '$endDate'";
+        }else{
+          userMap['FilterString'] =/*and FActlandQty>0*/
+          "FCloseStatus = 'A' and FActlandQty>0";
+        }
       }
     }
     this.isScan = false;
@@ -136,7 +144,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
@@ -313,7 +321,14 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-     var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

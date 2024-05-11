@@ -59,6 +59,13 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   var selectData = {
     DateMode.YMD: '',
   };
+  var organizationsName;
+  var organizationsNumber;
+  //包装规格
+  var bagList = [];
+  List<dynamic> bagListObj = [];
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
   var typeList = [];
   List<dynamic> typeListObj = [];
   var customerList = [];
@@ -77,6 +84,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   var _FNumber;
   var fBillNo;
   var fBarCodeList;
+  final controller = TextEditingController();
   _ReturnGoodsDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -104,8 +112,23 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    getStockList();
+    /*getStockList();*/
+    getBagList();
 
+  }
+  //获取包装规格
+  getBagList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BOS_ASSISTANTDATA_DETAIL';
+    userMap['FieldKeys'] = 'FNumber,FDataValue,FId';
+    userMap['FilterString'] = [{"Left":"(","FieldName":"FId","Compare":"67","Value":"64746193a3e99b","Right":")","Logic":"0"}];
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    bagListObj = jsonDecode(res);
+    bagListObj.forEach((element) {
+      bagList.add(element[1]);
+    });
   }
   //获取线路名称
   getTypeList() async {
@@ -145,13 +168,27 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     if(fOrgID == null){
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+fOrgID+"'";
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
     stockListObj.forEach((element) {
       stockList.add(element[1]);
+    });
+  }
+  //获取组织
+  getOrganizationsList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber,FDocumentStatus';
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
     });
   }
   void getWorkShop() async {
@@ -200,6 +237,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       this.FBillNo = orderDate[0][0];
       this.cusName = orderDate[0][17];
       this.fOrgID = orderDate[0][8];
+      this.organizationsNumber = orderDate[0][8];
       hobby = [];
       orderDate.forEach((value) {
         fNumber.add(value[5]);
@@ -303,7 +341,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
     barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
     barcodeMap['FieldKeys'] =
-    'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+    'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = barcodeMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -324,7 +362,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       };
       if(msg ==  ""){
         _code = event;
-        this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11]);
+        this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
         print("ChannelPage: $event");
       }else{
         ToastUtil.showInfo(msg);
@@ -334,7 +372,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     }
     } else {
       _code = event;
-      this.getMaterialList("", _code,"");
+      this.getMaterialList("", _code,"","");
       print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
@@ -345,13 +383,13 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData, code, fsn) async {
+  getMaterialList(barcodeData, code, fsn, fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -577,7 +615,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             "title": "包装规格",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": "", "value": ""}
+            "value": {"label": fAuxPropId, "value": fAuxPropId}
           });
           arr.add({
             "title": "单位名称",
@@ -632,6 +670,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+    getStockList();
   }
 
   Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
@@ -735,6 +774,27 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               }
               elementIndex++;
             });
+          }else if (hobby == 'organizations') {
+            organizationsName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                organizationsNumber = organizationsListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
+            getStockList();
+          }else if(hobby['title']  == '包装规格'){
+            setState(() {
+              hobby['value']['label'] = p;
+            });
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                hobby['value']['value'] = bagListObj[elementIndex][0];
+              }
+              elementIndex++;
+            });
           }else{
             setState(() {
               hobby['value']['label'] = p;
@@ -751,15 +811,120 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       },
     );
   }
+  setClickData(Map<dynamic,dynamic> dataItem, val) async{
+    setState(() {
+      dataItem['value']['value'] = val;
+      dataItem['value']['label'] = val;
+    });
+  }
+  Future<List<int>?> _showMultiChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    List selected = [];
+    /*var selectList = this.hobby;
+    for (var select in selectList) {
+      for(var item in options){
+        if (select[1]['value']['value'] == item[1]) {
+          selected.add(item);
+        } else {
+          selected.remove(item);
+        }
+      }
+    }*/
+    print(options);
+    print(selected);
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment:
+                CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0,left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.controller,
+                        decoration: new InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(
+                                bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value){
+                          options = [];
+                          for(var element in this.bagListObj){
+                            options.add(element[1]);
+                          }
+                          setState(() {
+                            options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(children: <Widget>[Text(options[index],
+                      )
+                      ], mainAxisAlignment: MainAxisAlignment.center,),
+                      onTap: () async{
+                        await this.setClickData(dataItem, options[index]);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 1) {
+          if (j == 4) {
+            comList.add(
+              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],stock:this.hobby[i]),
+            );
+          }else if (j == 1) {
             comList.add(
               Column(children: [
                 Container(
@@ -772,22 +937,14 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
+                              icon: new Icon(Icons.chevron_right),
                               onPressed: () {
-                                this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"];
-                                this._FNumber =
-                                this.hobby[i][j]["value"]["label"];
-                                checkData = i;
-                                checkDataChild = j;
-                                scanDialog();
-                                if (this.hobby[i][j]["value"]["label"] != 0) {
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                        text: this.hobby[i][j]["value"]["label"],
-                                      );
+                                this.controller.clear();
+                                this.bagList = [];
+                                for(var element in this.bagListObj){
+                                  this.bagList.add(element[1]);
                                 }
+                                _showMultiChoiceModalBottomSheet(context, this.bagList,  this.hobby[i][j]);
                               },
                             ),
                           ])),
@@ -795,12 +952,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 divider,
               ]),
             );
-          } else if (j == 4) {
-            comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
+            /*comList.add(
+              _item('包装规格:', bagList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
-            );
-          }else if(j == 6){
+            );*/
+          }else if (j == 6){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1209,10 +1365,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": deptData[1]
+                          "FNUMBER": this.organizationsNumber
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": deptData[1]
+                          "FNUMBER": this.organizationsNumber
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1375,6 +1531,31 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                     visible: !isScanWork,
                     child: _item('客户:', this.customerList, this.customerName,
                         'customer'),
+                  ),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: isScanWork,
+                    child: Column(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          child: ListTile(
+                            title: Text("组织：$organizationsName"),
+                          ),
+                        ),
+                        divider,
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: !isScanWork,
+                    child: _item('组织:', this.organizationsList, this.organizationsName,
+                        'organizations'),
                   ),
                   Column(
                     children: [
