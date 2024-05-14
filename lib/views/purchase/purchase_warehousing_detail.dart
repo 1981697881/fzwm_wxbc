@@ -40,7 +40,9 @@ class PurchaseWarehousingDetail extends StatefulWidget {
 class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
-  GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+
+
+  GlobalKey<PartRefreshWidgetState> globalTKey = GlobalKey();
 
   final _textNumber = TextEditingController();
   var checkItem;
@@ -238,7 +240,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber';
+        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -339,8 +341,14 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0"}
+        });
+        arr.add({
+          "title": "生产日期",
+          "name": "FProduceDate",
+          "isHide": false,
+          "value": {"label": value[26].substring(0,10), "value": value[26].substring(0,10)}
         });
         hobby.add(arr);
       });
@@ -835,7 +843,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           arr.add({
             "title": "最后扫描数量",
             "name": "FLastQty",
-            "isHide": false,
+            "isHide": true,
             "value": {"label": "0", "value": "0"}
           });
           hobby.add(arr);
@@ -1538,7 +1546,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     );
   }
 
-  Widget _dateItem(title, model) {
+  Widget _dateItem(title, model, hobby) {
     return Column(
       children: [
         Container(
@@ -1546,10 +1554,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           child: ListTile(
             title: Text(title),
             onTap: () {
-              _onDateClickItem(model);
+              _onDateClickItem(model,hobby);
             },
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              PartRefreshWidget(globalKey, () {
+              PartRefreshWidget(globalTKey, () {
                 //2、使用 创建一个widget
                 return MyText(
                     (PicketUtil.strEmpty(selectData[model])
@@ -1566,8 +1574,46 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       ],
     );
   }
+  Widget _dateChildItem(title, model, hobby) {
+    GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () {
+              _onDateChildClickItem(model,hobby);
+            },
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(
+                    (hobby == ""
+                        ? selectData[model]
+                        : formatDate(
+                        DateFormat('yyyy-MM-dd')
+                            .parse(hobby['value']['label']),
+                        [
+                          yyyy,
+                          "-",
+                          mm,
+                          "-",
+                          dd,
+                        ]))!,
+                    color: Colors.grey,
+                    rightpadding: 18);
+              }),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
+    );
+  }
 
-  void _onDateClickItem(model) {
+  void _onDateClickItem(model,hobby) {
     Pickers.showDatePicker(
       context,
       mode: model,
@@ -1595,18 +1641,59 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     "-",
                     dd,
                   ]);
-              FDate = formatDate(
-                  DateFormat('yyyy-MM-dd')
-                      .parse('${p.year}-${p.month}-${p.day}'),
-                  [
-                    yyyy,
-                    "-",
-                    mm,
-                    "-",
-                    dd,
-                  ]);
+                FDate = formatDate(
+                    DateFormat('yyyy-MM-dd')
+                        .parse('${p.year}-${p.month}-${p.day}'),
+                    [
+                      yyyy,
+                      "-",
+                      mm,
+                      "-",
+                      dd,
+                    ]);
               break;
           }
+        });
+      },
+      // onChanged: (p) => print(p),
+    );
+  }
+  void _onDateChildClickItem(model,hobby) {
+    Pickers.showDatePicker(
+      context,
+      mode: model,
+      suffix: Suffix.normal(),
+      // selectDate: PDuration(month: 2),
+      minDate: PDuration(year: 2020, month: 2, day: 10),
+      maxDate: PDuration(second: 22),
+      selectDate: (hobby['value']['label'] == '' || hobby['value']['label'] == null
+          ? PDuration(year: 2021, month: 2, day: 10)
+          : PDuration.parse(DateTime.parse(hobby['value']['label']))),
+      // minDate: PDuration(hour: 12, minute: 38, second: 3),
+      // maxDate: PDuration(hour: 12, minute: 40, second: 36),
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        setState(() {
+          hobby['value']['label'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+          hobby['value']['value'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
         });
       },
       // onChanged: (p) => print(p),
@@ -1860,6 +1947,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                   this.hobby[i][j],
                   stock: this.hobby[i]),
             );
+          }else if (j == 11) {
+            comList.add(
+              _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
+            );
           }else if (j == 1) {
             /*comList.add(
               _item('包装规格:', bagList, this.hobby[i][j]['value']['label'],
@@ -1925,6 +2016,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                   checkData = i;
                                   checkDataChild = j;
                                   scanDialog();
+
                                   print(this.hobby[i][j]["value"]["label"]);
                                   if (this.hobby[i][j]["value"]["label"] != 0) {
                                     this._textNumber.value =
@@ -1955,8 +2047,119 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             new FlatButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              child: new Text('复制行'),
+                              onPressed: () {
+                                setState(() {
+                                  var orderDataItem = List.from(this.orderDate);
+                                  this.orderDate.insert(i, orderDataItem[i]);
+                                  this.fNumber = [];
+                                  var childItemNumber = 0;
+                                  for(var value in orderDate){
+                                      fNumber.add(value[5]);
+                                      print(childItemNumber);
+                                      print(i);
+                                      if(childItemNumber == i){
+                                        List arr = [];
+                                        arr.add({
+                                          "title": "物料名称",
+                                          "name": "FMaterial",
+                                          "isHide": false,
+                                          "value": {
+                                            "label": value[6] + "- (" + value[5] + ")",
+                                            "value": value[5],
+                                            "barcode": [],
+                                            "kingDeeCode": [],
+                                            "scanCode": []
+                                          }
+                                        });
+                                        arr.add({
+                                          "title": "包装规格",
+                                          "isHide": false,
+                                          "name": "FMaterialIdFSpecification",
+                                          "value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
+                                        });
+                                        arr.add({
+                                          "title": "单位名称",
+                                          "name": "FUnitId",
+                                          "isHide": false,
+                                          "value": {"label": value[11], "value": value[10]}
+                                        });
+                                        arr.add({
+                                          "title": "实收数量",
+                                          "name": "FRealQty",
+                                          "isHide": false,
+                                          /*value[12]*/
+                                          "value": {"label": "0", "value": "0"}
+                                        });
+                                        arr.add({
+                                          "title": "仓库",
+                                          "name": "FStockID",
+                                          "isHide": false,
+                                          "value": {"label": "", "value": ""}
+                                        });
+                                        arr.add({
+                                          "title": "批号",
+                                          "name": "FLot",
+                                          "isHide": value[15] != true,
+                                          "value": {"label": "", "value": ""}
+                                        });
+                                        arr.add({
+                                          "title": "仓位",
+                                          "name": "FStockLocID",
+                                          "isHide": false,
+                                          "value": {"label": "", "value": "", "hide": false}
+                                        });
+                                        arr.add({
+                                          "title": "操作",
+                                          "name": "",
+                                          "isHide": false,
+                                          "value": {"label": "", "value": ""}
+                                        });
+                                        arr.add({
+                                          "title": "库存单位",
+                                          "name": "",
+                                          "isHide": true,
+                                          "value": {"label": value[18], "value": value[18]}
+                                        });
+                                        arr.add({
+                                          "title": "实到数量",
+                                          "name": "",
+                                          "isHide": false,
+                                          "value": {
+                                            "label": value[12],
+                                            "value": value[12],
+                                            "rateValue": value[12]
+                                          } /*+value[12]*0.1*/
+                                        });
+                                        arr.add({
+                                          "title": "最后扫描数量",
+                                          "name": "FLastQty",
+                                          "isHide": true,
+                                          "value": {"label": "0", "value": "0"}
+                                        });
+                                        arr.add({
+                                          "title": "生产日期",
+                                          "name": "FProduceDate",
+                                          "isHide": false,
+                                          "value": {"label": value[26].substring(0,10), "value": value[26].substring(0,10)}
+                                        });
+                                        hobby.insert(i, arr);
+                                        break;
+                                      }
+                                      childItemNumber++;
+                                  }
+                                  this._getHobby();
+                                  print(this.orderDate);
+                                  print(this.hobby);
+                                });
+                              },
+                            ),
+                            new FlatButton(
                               color: Colors.red,
                               textColor: Colors.white,
+
                               child: new Text('删除'),
                               onPressed: () {
                                 this.hobby.removeAt(i);
@@ -2051,6 +2254,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
+                            print(this.orderDate);
+                            print(this.hobby);
                             this.hobby[checkData][checkDataChild]["value"]
                                 ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
@@ -2346,6 +2551,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FTaxPrice'] = orderDate[hobbyIndex][18];
             FEntityItem['FEntryTaxRate'] = orderDate[hobbyIndex][19];
             FEntityItem['FNote'] = orderDate[hobbyIndex][23];
+            FEntityItem['FProduceDate'] = element[11]['value']['value'];
+            //FEntityItem['FExpiryDate'] = orderDate[hobbyIndex][27];
             /*FEntityItem['FPrice'] = orderDate[hobbyIndex][20];*/
             FEntityItem['FInStockEntry_Link'] = [
               {
@@ -2378,9 +2585,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         print(jsonEncode(dataMap));
         var saveData = jsonEncode(dataMap);
         printData = dataMap;
-        setState(() {
-          this.isSubmit = false;
-        });
         ToastUtil.showInfo('保存');
         String order = await SubmitEntity.save(dataMap);
         var res = jsonDecode(order);
@@ -2630,7 +2834,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       divider,
                     ],
                   ),
-                  _dateItem('日期：', DateMode.YMD),
+                  _dateItem('日期：', DateMode.YMD, ""),
                   Visibility(
                     maintainSize: false,
                     maintainState: false,
