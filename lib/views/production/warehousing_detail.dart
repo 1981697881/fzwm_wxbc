@@ -108,13 +108,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if (fOrgID == null) {
-      this.fOrgID = deptData[1];
+      this.fOrgID = tissue;
     }
     userMap['FilterString'] =
-        "FForbidStatus = 'A'";// and FUseOrgId.FNumber ='" + fOrgID + "'
+        "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + fOrgID + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -348,12 +347,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
     userMap['FilterString'] = "FNumber='" +
         scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-        deptData[1] +
+        tissue +
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
@@ -1234,7 +1233,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     await SubmitEntity.submit(auditMap);
     var subData = await SubmitEntity.audit(auditMap);
     var res = jsonDecode(subData);
@@ -1255,8 +1254,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   Map<String, dynamic> codeModel = Map();
                   var itemCode = kingDeeCode[j].split("-");
                   codeModel['FID'] = itemCode[0];
-                  codeModel['FOwnerID'] = {"FNUMBER": deptData[1]};
-                  codeModel['FStockOrgID'] = {"FNUMBER": deptData[1]};
+                  codeModel['FOwnerID'] = {"FNUMBER": tissue};
+                  codeModel['FStockOrgID'] = {"FNUMBER": tissue};
                   codeModel['FStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };

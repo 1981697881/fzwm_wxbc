@@ -5,6 +5,7 @@ import 'package:fzwm_wxbc/views/production/picking_detail.dart';
 import 'package:fzwm_wxbc/views/production/picking_out_sourcing_page.dart';
 import 'package:fzwm_wxbc/views/production/picking_page.dart';
 import 'package:fzwm_wxbc/views/production/picking_stock_page.dart';
+import 'package:fzwm_wxbc/views/production/replenishment_page.dart';
 import 'package:fzwm_wxbc/views/production/return_detail.dart';
 import 'package:fzwm_wxbc/views/production/return_page.dart';
 import 'package:fzwm_wxbc/views/production/simple_picking_detail.dart';
@@ -87,6 +88,14 @@ class MenuPermissions {
       "parentId": 1,
       "color": Colors.pink.withOpacity(0.7),
       "router": SimplePickingDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "生产补料",
+      "parentId": 1,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReplenishmentPage(),
       "source": '',
     });
     menu.add({

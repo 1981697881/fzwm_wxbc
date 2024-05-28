@@ -7,11 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_pickers/pickers.dart';
+import 'package:flutter_pickers/style/default_style.dart';
+import 'package:fzwm_wxbc/components/my_text.dart';
 import 'package:fzwm_wxbc/http/api_response.dart';
+import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/version_entity.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataOffline.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataRepertoire.dart';
 import 'package:fzwm_wxbc/utils/SqfLiteQueueDataScheme.dart';
+import 'package:fzwm_wxbc/utils/toast_util.dart';
 import 'package:fzwm_wxbc/views/login/login_page.dart';
 import 'package:fzwm_wxbc/views/stock/stock_page.dart';
 import 'package:package_info/package_info.dart';
@@ -34,6 +39,7 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   //自动更新字段
   String serviceVersionCode = '';
   String downloadUrl = '';
@@ -42,16 +48,22 @@ class _IndexPageState extends State<IndexPage> {
   late ProgressDialog pr;
   String apkName = 'fzwm_wxbc.apk';
   String appPath = '';
+  var organizationsName;
+  var organizationsNumber;
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
   var _code;
+  final divider = Divider(height: 1, indent: 20);
   ReceivePort _port = ReceivePort();
   late SharedPreferences sharedPreferences;
-
+  final rightIcon = Icon(Icons.keyboard_arrow_right);
   static const scannerPlugin = const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
 
   @override
   void initState() {
     super.initState();
+    this.getOrganizationsList();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -84,6 +96,42 @@ class _IndexPageState extends State<IndexPage> {
     // 如果是android，则执行热更新
     if (Platform.isAndroid) {
       _getNewVersionAPP(context);
+    }
+  }
+  getOrganizationsList() async {
+
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber';
+    userMap['FilterString'] = "FForbidStatus = 'A'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
+    });
+
+    var tissue = sharedPreferences.getString('tissue');
+    var tissueName = sharedPreferences.getString('tissueName');
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    if(tissue != null){
+      setState(() {
+        this.organizationsNumber = tissue;
+        this.organizationsName = tissueName;
+      });
+    }else if(deptData[1] != null){
+      for (var data in organizationsListObj) {
+        if(data[2] == deptData[1]){
+          setState(() {
+            this.organizationsName = data[1];
+          });
+        }
+      }
+      this.organizationsNumber = deptData[1];
+      sharedPreferences.setString('tissue', organizationsNumber);
+      sharedPreferences.setString('tissueName', organizationsName);
     }
   }
   _initState() {
@@ -397,52 +445,55 @@ class _IndexPageState extends State<IndexPage> {
     Navigator.of(context).push(
       new MaterialPageRoute(
         builder: (context) {
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('系统设置'),
-              centerTitle: true,
+      return StatefulBuilder(builder: (context1, setState) {
+        return new Scaffold(
+          appBar: new AppBar(
+            title: new Text('系统设置'),
+            centerTitle: true,
+          ),
+
+          body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.search),
+              title: Text('版本信息（$version）'),
+              onTap: () async {
+                afterFirstLayout(context);
+              },
             ),
-            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.search),
-                title: Text('版本信息（$version）'),
-                onTap: () async {
-                  afterFirstLayout(context);
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-              ListTile(
-                leading: Icon(Icons.help),
-                title: Text('关于'),
-                onTap: () async {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return AboutPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('退出登录'),
-                onTap: () async {
-                  print("点击退出登录");
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  /*prefs.clear();*/
-                  if (await SqfLiteQueueDataOffline.isTableExits("offline_Inventory") == true) {
+            Divider(
+              height: 10.0,
+              indent: 0.0,
+              color: Colors.grey,
+            ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text('关于'),
+              onTap: () async {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return AboutPage();
+                    },
+                  ),
+                );
+              },
+            ),
+            Divider(
+              height: 10.0,
+              indent: 0.0,
+              color: Colors.grey,
+            ),
+
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('退出登录'),
+              onTap: () async {
+                print("点击退出登录");
+                SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+                /*prefs.clear();*/
+                if (await SqfLiteQueueDataOffline.isTableExits("offline_Inventory") == true) {
                     SqfLiteQueueDataOffline.deleteDataTable();
                   }
                   if (await SqfLiteQueueDataOffline.isTableExits("offline_Inventory_cache") == true) {
@@ -454,57 +505,124 @@ class _IndexPageState extends State<IndexPage> {
                   if (await SqfLiteQueueDataScheme.isTableExits("scheme_Inventory") == true) {
                     SqfLiteQueueDataScheme.deleteDataTable();
                   }
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return LoginPage();
-                      },
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                height: 10.0,
-                indent: 0.0,
-                color: Colors.grey,
-              ),
-            ]),
-          );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LoginPage();
+                    },
+                  ),
+                );
+              },
+            ),
+            Divider(
+              height: 10.0,
+              indent: 0.0,
+              color: Colors.grey,
+            ),
+          ]),
+        );
+      });
         },
       ),
     );
   }
-
+  List<Widget> _getDrawer() {
+    List<Widget> tempList = [];
+    for (var data in organizationsListObj) {
+      List<Widget> comList = [];
+      comList.add(
+        Column(children: [
+          Container(
+            color: Colors.white,
+            child: ListTile(
+                title: Text(data[1] +
+                    '：' +
+                    data[2]),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  setState(() {
+                    organizationsName = data[1];
+                    organizationsNumber = data[2];
+                  });
+                  sharedPreferences.setString('tissue', data[2]);
+                  sharedPreferences.setString('tissueName', data[1]);
+                  Navigator.pop(context);
+                },
+                ),
+          ),
+          divider,
+        ]),
+      );
+      tempList.add(
+        Column(
+          children: comList,
+        ),
+      );
+    }
+    return tempList;
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
       child: Scaffold(
-      appBar: AppBar(
-        title: new Text('主页'),
-        centerTitle: true,
-        actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
-        ],
-      ),
-      body: Container(
-        width: double.infinity,
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              margin: EdgeInsets.only(bottom: 10.0),
-              padding: EdgeInsets.symmetric(
-                // 同appBar的titleSpacing一致
-                horizontal: NavigationToolbar.kMiddleSpacing,
-                vertical: 20.0,
-              ),
-              child: buildAppBarTabs(),
-            ),
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: new Text('主页'),
+          centerTitle: true,
+          actions: <Widget>[
+            new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
           ],
         ),
-      ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              // 打开抽屉
+              _scaffoldKey.currentState!.openEndDrawer();
+            },
+            child: Icon(Icons.menu),
+          ),
+          endDrawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text(
+                    organizationsName.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                Column(
+                  children: this._getDrawer(),
+                ),
+              ],
+            ),
+          ),
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                margin: EdgeInsets.only(bottom: 10.0),
+                padding: EdgeInsets.symmetric(
+                  // 同appBar的titleSpacing一致
+                  horizontal: NavigationToolbar.kMiddleSpacing,
+                  vertical: 20.0,
+                ),
+                child: buildAppBarTabs(),
+              ),
+            ],
+          ),
+        ),
     ),
     );
   }

@@ -89,12 +89,12 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);

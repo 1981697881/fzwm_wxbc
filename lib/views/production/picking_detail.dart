@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:decimal/decimal.dart';
 import 'package:fzwm_wxbc/components/my_text.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
@@ -157,10 +158,9 @@ class _PickingDetailState extends State<PickingDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if (fOrgID == null) {
-      this.fOrgID = deptData[1];
+      this.fOrgID = tissue;
     }
     userMap['FilterString'] =
         "FForbidStatus = 'A'  and FUseOrgId.FNumber ='" + fOrgID + "'";
@@ -370,44 +370,40 @@ class _PickingDetailState extends State<PickingDetail> {
           "isHide": false,
           "value": {"label": value[11], "value": value[10]}
         });
-        arr.add({
-          "title": "领料数量",
-          "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": "0", "value": "0"}
-        });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockId",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        /*Map<String, dynamic> inventoryMap = Map();
+        Map<String, dynamic> inventoryMap = Map();
         inventoryMap['FormId'] = 'STK_Inventory';
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[2] + "' and FBaseQty >0";
-        inventoryMap['Limit'] = '50';
+        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
+        inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
-        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber';
+        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FNumber,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber,FStockId.FName';
         Map<String, dynamic> inventoryDataMap = Map();
         inventoryDataMap['data'] = inventoryMap;
         String res = await CurrencyEntity.polling(inventoryDataMap);
         var stocks = jsonDecode(res);
         if (stocks.length > 0) {
           arr.add({
-            "title": "批号",
-            "name": "FLot",
-            "isHide": value[15] != true,
-            "value": {"label": value[13], "value": value[13],"fLotList": stocks}
+            "title": "领料数量",
+            "name": "FBaseQty",
+            "isHide": false,
+            "value": {"label": "0", "value": "0" , "stocks": stocks}
           });
+
         }else{
           arr.add({
-            "title": "批号",
-            "name": "FLot",
-            "isHide": value[15] != true,
-            "value": {"label": value[13], "value": value[13],"fLotList": []}
+            "title": "领料数量",
+            "name": "FBaseQty",
+            "isHide": false,
+            "value": {"label": "0", "value": "0" , "stocks": []}
           });
-        }*/
+        }
+        arr.add({
+          "title": "仓库",
+          "name": "FStockId",
+          "isHide": true,
+          "value": {"label": "", "value": ""}
+        });
+
         arr.add({
           "title": "批号",
           "name": "",
@@ -441,7 +437,7 @@ class _PickingDetailState extends State<PickingDetail> {
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0"}
         });
         arr.add({
@@ -553,13 +549,12 @@ class _PickingDetailState extends State<PickingDetail> {
   getMaterialList(barcodeData, code, fsn,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
     userMap['FilterString'] = "FNumber='" +
         scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = " +
-        deptData[1];
+        tissue;
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
         'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
@@ -1086,13 +1081,12 @@ class _PickingDetailState extends State<PickingDetail> {
   getMaterialListT(code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
 
     userMap['FilterString'] = "F_UYEP_GYSTM='" +
         code.split('-')[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-        deptData[1] +
+        tissue +
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
@@ -1398,13 +1392,12 @@ class _PickingDetailState extends State<PickingDetail> {
   getMaterialListTH(code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
 
     userMap['FilterString'] = "F_UYEP_GYSTM='" +
         code.substring(0, 3) +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-        deptData[1] +
+        tissue +
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
@@ -1903,8 +1896,98 @@ class _PickingDetailState extends State<PickingDetail> {
       print(val);
     });
   }
+  //调出弹窗 扫码
+  void inNumDialog(childList, val, index, stockId) {
+    showDialog<Widget>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              color: Colors.white,
+              child: Column(
+                children: <Widget>[
+                    Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Text('输入数量(可用数量为'+val.toString()+')',
+                        style: TextStyle(
+                            fontSize: 16, decoration: TextDecoration.none)),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Card(
+                          child: Column(children: <Widget>[
+                            TextField(
+                              style: TextStyle(color: Colors.black87),
+                              keyboardType: TextInputType.number,
+                              controller: this._textNumber,
+                              decoration: InputDecoration(hintText: "输入"),
+                              onChanged: (value) {
+                                setState(() {
+                                  this._FNumber = value;
+                                });
+                              },
+                            ),
+                          ]))),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15, bottom: 8),
+                    child: FlatButton(
+                        color: Colors.grey[100],
+                        onPressed: () {
+                          // 关闭 Dialog
+
+                          setState(() {
+                            /*dataItem[3]['value']['value'] = options[index][5];
+                            dataItem[3]['value']['label'] = options[index][5];
+                            dataItem[13]['value']['itemList'].add(childList);*/
+                            print(_FNumber);
+                            print(_FNumber is String);
+                            if(_FNumber != '0' && _FNumber != ''&& _FNumber != null){
+                              if(double.parse(_FNumber) <= double.parse(val)){
+                                this.hobby[checkData][checkDataChild]["value"]
+                                ["label"] = (Decimal.parse(this.hobby[checkData][checkDataChild]["value"]
+                                ["label"]) + Decimal.parse(_FNumber)).toString();
+                                this.hobby[checkData][checkDataChild]['value']
+                                ["value"] = this.hobby[checkData][checkDataChild]["value"]
+                                ["label"] ;
+                                childList = childList +"-"+ _FNumber;
+                                this.hobby[checkData][13]['value']
+                                ["itemList"].add(childList);
+                                this.hobby[checkData][4]['value']
+                                ["value"] = stockId;
+                                this.hobby[checkData][checkDataChild]["value"]
+                                ["stocks"][index][4] = Decimal.parse(val) - Decimal.parse(_FNumber);/*(double.parse(val) - double.parse(_FNumber)).toString();*/
+                                Navigator.pop(context);
+                              }else{
+                                ToastUtil.showInfo('输入数量大于库存数量');
+                              }
+                            }else{
+                              ToastUtil.showInfo('请输入数量');
+                            }
+
+                          });
+                        },
+                        child: Text(
+                          '确定',
+                        )),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    ).then((val) {
+      print(val);
+    });
+  }
   Future<List<int>?> _showModalBottomSheet(
-      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+      BuildContext context, List<dynamic> options, List<dynamic> dataItem) async {
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1928,15 +2011,17 @@ class _PickingDetailState extends State<PickingDetail> {
                     return Column(
                       children: <Widget>[
                         ListTile(
-                          title: Text('批号:'+options[index][5]+';包装规格:'+options[index][6]),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                          title: Text('批号:'+options[index][5]+';包装规格:'+options[index][6]+';仓库:'+options[index][7]+';数量:'+options[index][4].toString()),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
                           onTap: () {
                             setState(() {
-                              dataItem['value'] = options[index][5];
-                              dataItem['label'] = options[index][5];
+                              print(dataItem);
+                              var childList = options[index][6] == null?  options[index][5].toString() +"-无":options[index][5].toString() +"-"+ options[index][6].toString();
+                              Navigator.pop(context);
+                              inNumDialog(childList, options[index][4].toString(),index,options[index][3]);
                             });
                             print(options[index]);
                             // Do something
-                            Navigator.pop(context);
+
                           },
                         ),
                         Divider(height: 1.0),
@@ -1958,7 +2043,7 @@ class _PickingDetailState extends State<PickingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 5) {
+          if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -1971,11 +2056,20 @@ class _PickingDetailState extends State<PickingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.mode_edit),
-                              tooltip: '输入数量',
+                              icon: new Icon(Icons.search),
+                              tooltip: '选择库存',
                               padding: EdgeInsets.only(left: 30),
-                              onPressed: () {
-                                this._textNumber.text = this
+                              onPressed: () async{
+                                await _showModalBottomSheet(
+                                    context, this.hobby[i][j]["value"]["stocks"],this.hobby[i]);
+                                checkData = i;
+                                checkDataChild = j;
+                                _FNumber = '0';
+                                this._textNumber.value =
+                                    _textNumber.value.copyWith(
+                                      text: '0',
+                                    );
+                                /*this._textNumber.text = this
                                     .hobby[i][j]["value"]["label"]
                                     .toString();
                                 this._FNumber = this
@@ -1989,7 +2083,7 @@ class _PickingDetailState extends State<PickingDetail> {
                                       _textNumber.value.copyWith(
                                     text: this.hobby[i][j]["value"]["label"],
                                   );
-                                }
+                                }*/
                               },
                             ),
                           ])),
@@ -1997,7 +2091,7 @@ class _PickingDetailState extends State<PickingDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 4) {
+          } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
@@ -2468,13 +2562,16 @@ class _PickingDetailState extends State<PickingDetail> {
                 FEntityItem['FKeeperId'] = {"FNumber": orderDate[hobbyIndex][24]};
               }
               var childDetail = childItem.split('-');
-              FEntityItem['FActualQty'] = childDetail[1];
-              FEntityItem['FSNQty'] = childDetail[1];
+              FEntityItem['FActualQty'] = childDetail[2];
+              FEntityItem['FSNQty'] = childDetail[2];
+              FEntityItem['F_UUAC_Qty_ca9'] = element[12]['value']['value'];
               FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
               FEntityItem['FLot'] = {"FNumber": childDetail[0]};
-              FEntityItem['FAuxPropId'] = {
-                "FAUXPROPID__FF100002": {"FNumber": childDetail[2]}
-              };
+              if(childDetail[1] !="无"){
+                FEntityItem['FAuxPropId'] = {
+                  "FAUXPROPID__FF100002": {"FNumber": childDetail[1]}
+                };
+              }
               FEntity.add(FEntityItem);
               itemNumber++;
             } /*
@@ -2518,7 +2615,7 @@ class _PickingDetailState extends State<PickingDetail> {
     };
     if (FEntity.length == 0) {
       this.isSubmit = false;
-      ToastUtil.showInfo('请输入数量和录入仓库');
+      ToastUtil.showInfo('请输入数量和包数');
       return;
     }
     Model['FEntity'] = FEntity;

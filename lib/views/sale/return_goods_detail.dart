@@ -163,12 +163,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if(fOrgID == null){
-      this.fOrgID = deptData[1];
+      this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -237,7 +236,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       this.FBillNo = orderDate[0][0];
       this.cusName = orderDate[0][17];
       this.fOrgID = orderDate[0][8];
-      this.organizationsNumber = orderDate[0][8];
+
       hobby = [];
       orderDate.forEach((value) {
         fNumber.add(value[5]);
@@ -386,10 +385,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   getMaterialList(barcodeData, code, fsn, fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -1217,8 +1215,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   saveOrder() async {
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
@@ -1255,10 +1252,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       Model['FID'] = 0;
       Model['FBillTypeID'] = {"FNUMBER": "XSTHD01_SYS"};
       Model['FDate'] = FDate;
-      //获取登录信息
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
@@ -1365,10 +1358,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']

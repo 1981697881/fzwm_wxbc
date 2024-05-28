@@ -155,12 +155,11 @@ class _ReturnDetailState extends State<ReturnDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if(fOrgID == null){
-      this.fOrgID = deptData[1];
+      this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A'  and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A'  and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -194,7 +193,6 @@ class _ReturnDetailState extends State<ReturnDetail> {
       FStockOrgId = orderDate[0][1].toString();
       FPrdOrgId = orderDate[0][1].toString();
       this.fOrgID = orderDate[0][1];
-      this.organizationsNumber = orderDate[0][1];
       hobby = [];
       orderDate.forEach((value) {
         fNumber.add(value[7]);
@@ -337,10 +335,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
   getMaterialList(barcodeData, code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStoreUnitID.FNumber,FStoreUnitID.FName';
@@ -1041,8 +1038,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
     var subData = await SubmitEntity.audit(auditMap);
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
@@ -1063,14 +1059,14 @@ class _ReturnDetailState extends State<ReturnDetail> {
                   Map<String, dynamic> codeModel = Map();
                   var itemCode = kingDeeCode[j].split("-");
                   codeModel['FID'] = itemCode[0];
-                  codeModel['FOwnerID'] = {"FNUMBER": this.organizationsNumber};
-                  codeModel['FStockOrgID'] = {"FNUMBER": this.organizationsNumber};
+                  codeModel['FOwnerID'] = {"FNUMBER": tissue};
+                  codeModel['FStockOrgID'] = {"FNUMBER": tissue};
                   codeModel['FStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
                   Map<String, dynamic> codeFEntityItem = Map();
                   codeFEntityItem['FBillDate'] = FDate;
-                  codeFEntityItem['FInQty'] = itemCode[1];
+                  codeFEntityItem['FOutQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = billNo;
                   codeFEntityItem['FEntryStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1165,15 +1161,14 @@ class _ReturnDetailState extends State<ReturnDetail> {
       Model['FDate'] = FDate;
       //获取登录信息
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
+      var tissue = sharedPreferences.getString('tissue');
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": FStockOrgId};
         Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
       }else{
-        Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
-        Model['FPrdOrgId'] = {"FNumber": this.organizationsNumber};
+        Model['FStockOrgId'] = {"FNumber": tissue};
+        Model['FPrdOrgId'] = {"FNumber": tissue};
       }
       Model['FCurrId'] = {"FNumber": 'PRE001'};
       var FEntity = [];
@@ -1210,9 +1205,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
               }
             ];
           }else{
-            FEntityItem['FKeeperId'] = {"FNumber": this.organizationsNumber};
-            FEntityItem['FOwnerId'] = {"FNumber": this.organizationsNumber};
-            FEntityItem['FParentOwnerId'] = {"FNumber": this.organizationsNumber};
+            FEntityItem['FKeeperId'] = {"FNumber": tissue};
+            FEntityItem['FOwnerId'] = {"FNumber": tissue};
+            FEntityItem['FParentOwnerId'] = {"FNumber": tissue};
             FEntityItem['FProduceDate'] = element[0]['value']['FProduceDate'];
             FEntityItem['FExpiryDate'] = element[0]['value']['FExpiryDate'];
             FEntityItem['FAuxPropID'] = {
@@ -1338,7 +1333,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
                       divider,
                     ],
                   ),
-                  Visibility(
+                  /*Visibility(
                     maintainSize: false,
                     maintainState: false,
                     maintainAnimation: false,
@@ -1362,7 +1357,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     visible: !isScanWork,
                     child: _item('组织:', this.organizationsList, this.organizationsName,
                         'organizations'),
-                  ),
+                  ),*/
                   Column(
                     children: [
                       Container(

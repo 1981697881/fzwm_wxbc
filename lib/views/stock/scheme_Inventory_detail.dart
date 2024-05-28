@@ -173,13 +173,12 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
   getSchemeList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'STK_StockCountScheme';
     userMap['FieldKeys'] = 'FStockOrgId,FName,FBillNo';
     userMap['FilterString'] =
         "FDocumentStatus = 'C' and FCloseStatus ='0' and FStockOrgId.FNumber ='" +
-            deptData[1] +
+            tissue +
             "'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -209,11 +208,10 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='" + deptData[1] + "'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='" + tissue + "'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -229,10 +227,9 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + deptData[1];
+        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + tissue;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -398,8 +395,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
   getMaterialList(barcodeData, code) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(",");
     userMap['FilterString'] = "FMaterialId.FNumber='" +
         scanCode[0] +
@@ -605,7 +601,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       materialMap['FilterString'] = "FNumber='" +
           scanCode[0] +
           "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
-          deptData[1] +
+          tissue +
           "'";
       materialMap['FormId'] = 'BD_MATERIAL';
       materialMap['FieldKeys'] =
@@ -697,7 +693,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "title": "FStockOrgId",
               "name": "FStockOrgId",
               "isHide": true,
-              "value": {"label": deptData[1], "value": deptData[1]}
+              "value": {"label": tissue, "value": tissue}
             });
             arr.add({
               "title": "操作",
@@ -730,7 +726,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "title": "FKeeperId",
               "name": "FKeeperId",
               "isHide": true,
-              "value": {"label": deptData[1], "value": deptData[1]}
+              "value": {"label": tissue, "value": tissue}
             });
             arr.add({
               "title": "FBillEntry_FEntryID",

@@ -143,12 +143,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if(fOrgID == null){
-      this.fOrgID = deptData[1];
+      this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber='"+this.organizationsNumber+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -216,7 +215,6 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     if (orderDate.length > 0) {
       this.FBillNo = orderDate[0][0];
       this.fOrgID = orderDate[0][8];
-      this.organizationsNumber = orderDate[0][8];
       this.supName = orderDate[0][17];
       hobby = [];
       for (var value in orderDate) {
@@ -410,10 +408,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   getMaterialList(barcodeData,code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
@@ -718,10 +715,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   getMaterialListT(code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
 
-    userMap['FilterString'] = "F_UYEP_GYSTM='"+code.split('-')[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "F_UYEP_GYSTM='"+code.split('-')[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
@@ -925,10 +921,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   getMaterialListTH(code, fsn) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
 
-    userMap['FilterString'] = "F_UYEP_GYSTM='"+code.substring(0,3)+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "F_UYEP_GYSTM='"+code.substring(0,3)+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';/*,SubHeadEntity1.FStoreUnitID.FNumber*/
@@ -1741,8 +1736,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   saveOrder() async {
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
@@ -1784,10 +1778,6 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       Model['FMRTYPE'] = "B";
       Model['FMRMODE'] = "A";
       Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
-      //获取登录信息
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
@@ -1920,10 +1910,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
@@ -2092,7 +2082,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     child: _item('供应商:', this.supplierList, this.supplierName,
                         'supplier'),
                   ),
-                  Visibility(
+                 /* Visibility(
                     maintainSize: false,
                     maintainState: false,
                     maintainAnimation: false,
@@ -2116,7 +2106,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     visible: !isScanWork,
                     child: _item('组织:', this.organizationsList, this.organizationsName,
                         'organizations'),
-                  ),
+                  ),*/
                   Column(
                     children: [
                       Container(

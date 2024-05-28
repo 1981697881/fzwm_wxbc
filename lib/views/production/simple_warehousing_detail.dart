@@ -139,10 +139,9 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+this.organizationsNumber+"' and FIsStock = 1";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and FIsStock = 1";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -158,9 +157,8 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";// and FUseOrgId.FNumber ='"+deptData[1]+"'
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";// and FUseOrgId.FNumber ='"+deptData[1]+"'
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -325,10 +323,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
   }
 
   void _onEvent(event) async {
-    if ( (organizationsNumber == null || organizationsNumber == "")) {
-      ToastUtil.showInfo('请选择对应组织，获取仓库');
-      return;
-    }
+
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
@@ -368,10 +363,9 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
   getMaterialList(barcodeData,code, fsn,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
@@ -1124,11 +1118,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       Model['FBillType'] = {"FNUMBER": "JDSCRK01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
-      Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
-      Model['FPrdOrgId'] = {"FNumber": this.organizationsNumber};
-      Model['FOwnerId0'] = {"FNumber": this.organizationsNumber};
+      var tissue = sharedPreferences.getString('tissue');
+      Model['FStockOrgId'] = {"FNumber": tissue};
+      Model['FPrdOrgId'] = {"FNumber": tissue};
+      Model['FOwnerId0'] = {"FNumber": tissue};
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FDescription'] = this._remarkContent.text;
       var FEntity = [];
@@ -1163,9 +1156,9 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FRealQty'] = element[3]['value']['value'];
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FOwnerId'] = {"FNumber": this.organizationsNumber};
+          FEntityItem['FOwnerId'] = {"FNumber": tissue};
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
-          FEntityItem['FKeeperId'] = {"FNumber": this.organizationsNumber};
+          FEntityItem['FKeeperId'] = {"FNumber": tissue};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
@@ -1240,10 +1233,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1380,8 +1373,8 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                  */
                   /*_item('类别', this.typeList, this.typeName,
                       'type'),*/
-                  _item('组织', this.organizationsList, this.organizationsName,
-                      'organizations'),
+                  /*_item('组织', this.organizationsList, this.organizationsName,
+                      'organizations'),*/
                   _item('生产车间', this.departmentList, this.departmentName,
                       'department'),
                   _item('入库类型', this.outboundTypeList, this.outboundTypeName,

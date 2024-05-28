@@ -121,20 +121,19 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
 
     /*getTypeList();*/
     getSupplierList();
-
+    getDepartmentList();
     getBagList();
-    getOrganizationsList();
+    //getOrganizationsList();
     /*_onEvent("mB@CpNDtniREhhqrndaYPT9HiXOipMKs0csC7RJ8y4eJM38mGYHuig==");*/
   }
   //获取部门
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -149,9 +148,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+organizationsNumber+"'";//
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -304,12 +302,6 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           "value": {"label": "", "value": "","hide": false}
         });
         arr.add({
-          "title": "加工费",
-          "name": "",
-          "isHide": false,
-          "value": {"label": "0", "value": "0"}
-        });
-        arr.add({
           "title": "操作",
           "name": "",
           "isHide": false,
@@ -341,10 +333,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   }
 
   void _onEvent(event) async {
-    if ( (organizationsNumber == null || organizationsNumber == "")) {
+    /*if ( (organizationsNumber == null || organizationsNumber == "")) {
       ToastUtil.showInfo('请选择对应组织，获取仓库');
       return;
-    }
+    }*/
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
@@ -378,10 +370,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   getMaterialList(barcodeData,code, fsn, fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -683,6 +674,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               }
               elementIndex++;
             });
+            /*_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");*/
           } else if(hobby  == 'receiptType'){
             receiptTypeName = p;
             var elementIndex = 0;
@@ -692,6 +684,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               }
               elementIndex++;
             });
+
           }else if(hobby  == 'type'){
             typeName = p;
             var elementIndex = 0;
@@ -891,7 +884,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 ]),
               ),
             );
-          }/*else if (j == 8) {
+          }else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -929,7 +922,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 divider,
               ]),
             );
-          }*/else {
+          }else {
             comList.add(
               Column(children: [
                 Container(
@@ -1183,9 +1176,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       Model['FBillTypeID'] = {"FNUMBER": "QTRKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
-      Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
+      var tissue = sharedPreferences.getString('tissue');
+      Model['FStockOrgId'] = {"FNumber": tissue};
       /*Model['F_ora_Assistant'] = {"FNumber": this.typeNumber};*/
       if (this.departmentNumber  != null) {
         Model['FDEPTID'] = {"FNumber": this.departmentNumber};
@@ -1195,7 +1187,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       if (this.supplierNumber  != null) {
         Model['FSUPPLIERID'] = {"FNumber": this.supplierNumber};
       }
-      Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber};
+      Model['FOwnerIdHead'] = {"FNumber": tissue};
       Model['F_UUAC_Assistant'] = {"FNumber": this.receiptTypeNumber};
       Model['FNOTE'] = this._remarkContent.text;
       var FEntity = [];
@@ -1230,7 +1222,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FOWNERTYPEID'] = "BD_OwnerOrg";
           FEntityItem['FSTOCKSTATUSID'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FOWNERID'] = {"FNumber": this.organizationsNumber};
+          FEntityItem['FOWNERID'] = {"FNumber": tissue};
           FEntityItem['FLOT'] = {"FNumber": element[5]['value']['value']};
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
@@ -1304,10 +1296,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         codeModel['FOwnerID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockOrgID'] = {
-                          "FNUMBER": this.organizationsNumber
+                          "FNUMBER": tissue
                         };
                         codeModel['FStockID'] = {
                           "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1453,8 +1445,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     ],
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  _item('组织', this.organizationsList, this.organizationsName,
-                      'organizations'),
+                  /*_item('组织', this.organizationsList, this.organizationsName,
+                      'organizations'),*/
                   _item('供应商:', this.supplierList, this.supplierName,
                     'supplier'),
                   _item('部门',  this.departmentList, this.departmentName,

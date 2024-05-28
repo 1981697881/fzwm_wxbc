@@ -114,18 +114,19 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     /*getWorkShop();*/
 
    /* getTypeList();*/
-    getOrganizationsList();
+    //getOrganizationsList();
     getCustomer();
+    getDepartmentList();
+
 
   }
   //获取部门
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -141,9 +142,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+this.organizationsNumber+"'";//FUseOrgId.FNumber ='"+deptData[1]+"'
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -322,10 +322,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   }
 
   void _onEvent(event) async {
-    if ( (organizationsNumber == null || organizationsNumber == "")) {
+    /*if ( (organizationsNumber == null || organizationsNumber == "")) {
       ToastUtil.showInfo('请选择对应组织，获取仓库');
       return;
-    }
+    }*/
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var deptData = sharedPreferences.getString('menuList');
     var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
@@ -370,10 +370,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   getMaterialList(barcodeData,code, fsn,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+this.organizationsNumber+"'";
+    userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
@@ -716,6 +715,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
               }
               elementIndex++;
             });
+            _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
           }else if(hobby  == 'outboundType'){
             outboundTypeName = p;
             var elementIndex = 0;
@@ -725,6 +725,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
               }
               elementIndex++;
             });
+
           }else if(hobby  == 'type'){
             typeName = p;
             var elementIndex = 0;
@@ -904,7 +905,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 divider,
               ]),
             );
-          } /*else if (j == 8) {
+          } else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -942,7 +943,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 divider,
               ]),
             );
-          }*/else if(j == 6){
+          }else if(j == 6){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1075,17 +1076,18 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
                                 });
-                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
+                                realQty = realQty - double.parse(this.hobby[checkData][8]["value"]["label"]);
                                 realQty = realQty + double.parse(_FNumber);
-                                  this.hobby[checkData][3]["value"]
-                                  ["value"] = realQty.toString();
-                                  this.hobby[checkData][3]["value"]
-                                  ["label"] = realQty.toString();
-                                  this.hobby[checkData][checkDataChild]["value"]
-                                  ["label"] = _FNumber;
-                                  this.hobby[checkData][checkDataChild]['value']
-                                  ["value"] = _FNumber;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                this.hobby[checkData][3]["value"]
+                                ["value"] = realQty.toString();
+                                this.hobby[checkData][3]["value"]
+                                ["label"] = realQty.toString();
+                                this.hobby[checkData][checkDataChild]["value"]
+                                ["label"] = _FNumber;
+                                this.hobby[checkData][checkDataChild]['value']
+                                ["value"] = _FNumber;
+                                this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+
                               }else{
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
@@ -1093,8 +1095,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                               if(this.hobby[checkData][3]['value'] != '0'){
                                 var realQty = 0.0;
                                 realQty = double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(_FNumber);
-                                this.hobby[checkData][10]["value"]["value"] = realQty.toString();
-                                this.hobby[checkData][10]["value"]["label"] = realQty.toString();
+                                this.hobby[checkData][8]["value"]["value"] = realQty.toString();
+                                this.hobby[checkData][8]["value"]["label"] = realQty.toString();
                                 this.hobby[checkData][checkDataChild]["value"]
                                 ["label"] = _FNumber;
                                 this.hobby[checkData][checkDataChild]['value']
@@ -1145,10 +1147,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FBillTypeID'] = {"FNUMBER": "QTCKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      var menuData = sharedPreferences.getString('MenuPermissions');
-      var deptData = jsonDecode(menuData)[0];
-      Model['FStockOrgId'] = {"FNumber": this.organizationsNumber};
-      Model['FPickOrgId'] = {"FNumber": this.organizationsNumber};
+      var tissue = sharedPreferences.getString('tissue');
+      Model['FStockOrgId'] = {"FNumber": tissue};
+      Model['FPickOrgId'] = {"FNumber": tissue};
       if (this.departmentNumber  != null) {
         Model['FDeptId'] = {"FNumber": this.departmentNumber};
         Model['F_UUAC_Text_83g'] = this.departmentName;
@@ -1160,7 +1161,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FStockDirect'] = "GENERAL";
       Model['FBizType'] = "0";
       /*Model['F_ora_Assistant'] = {"FNumber": this.typeNumber};*/
-      Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber};
+      Model['FOwnerIdHead'] = {"FNumber": tissue};
       Model['F_UUAC_Assistant'] = {"FNumber": this.outboundTypeNumber};
       Model['FNote'] = this._remarkContent.text;
       var FEntity = [];
@@ -1193,10 +1194,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FOWNERTYPEID'] = "BD_OwnerOrg";
           FEntityItem['FSTOCKSTATUSID'] = {"FNumber": "KCZT01_SYS"};
-          FEntityItem['FOWNERID'] = {"FNumber": this.organizationsNumber};
-          FEntityItem['FOwnerId'] = {"FNumber": this.organizationsNumber};
+          FEntityItem['FOWNERID'] = {"FNumber": tissue};
+          FEntityItem['FOwnerId'] = {"FNumber": tissue};
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
-          FEntityItem['FKeeperId'] = {"FNumber": this.organizationsNumber};
+          FEntityItem['FKeeperId'] = {"FNumber": tissue};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
@@ -1478,8 +1479,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                     ],
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  _item('组织', this.organizationsList, this.organizationsName,
-                      'organizations'),
+                  /*_item('组织', this.organizationsList, this.organizationsName,
+                      'organizations'),*/
                   _item('客户:', this.customerList, this.customerName,
                       'customer'),
                   _item('部门', this.departmentList, this.departmentName,
