@@ -168,9 +168,20 @@ class _PickingDetailState extends State<PickingDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }
   }
 
   // 查询数据集合
@@ -341,6 +352,9 @@ class _PickingDetailState extends State<PickingDetail> {
     orderDate = [];
     orderDate = jsonDecode(order);
     hobby = [];
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
+    print(fStockIds);
     if (orderDate.length > 0) {
       for (var value in orderDate) {
       //orderDate.forEach((value) {
@@ -372,7 +386,11 @@ class _PickingDetailState extends State<PickingDetail> {
         });
         Map<String, dynamic> inventoryMap = Map();
         inventoryMap['FormId'] = 'STK_Inventory';
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
+        if(fStockIds != '' && fStockIds != null){
+          inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FStockId in(" + fStockIds + ") and FBaseQty >0";// and FStockIds
+        }else{
+          inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
+        }
         inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
@@ -2060,15 +2078,19 @@ class _PickingDetailState extends State<PickingDetail> {
                               tooltip: '选择库存',
                               padding: EdgeInsets.only(left: 30),
                               onPressed: () async{
-                                await _showModalBottomSheet(
-                                    context, this.hobby[i][j]["value"]["stocks"],this.hobby[i]);
-                                checkData = i;
-                                checkDataChild = j;
-                                _FNumber = '0';
-                                this._textNumber.value =
-                                    _textNumber.value.copyWith(
-                                      text: '0',
-                                    );
+                                if(this.hobby[i][j]["value"]["stocks"].length>0){
+                                  await _showModalBottomSheet(
+                                      context, this.hobby[i][j]["value"]["stocks"],this.hobby[i]);
+                                  checkData = i;
+                                  checkDataChild = j;
+                                  _FNumber = '0';
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                        text: '0',
+                                      );
+                                }else{
+                                  ToastUtil.showInfo('无库存');
+                                }
                                 /*this._textNumber.text = this
                                     .hobby[i][j]["value"]["label"]
                                     .toString();

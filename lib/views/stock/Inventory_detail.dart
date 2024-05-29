@@ -130,9 +130,20 @@ class _InventoryDetailState extends State<InventoryDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }
   }
   @override
   void dispose() {

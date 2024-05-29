@@ -495,7 +495,7 @@ class _MyHomePageState extends State {
         userMap['FormId'] = 'BD_Empinfo';
         userMap['FilterString'] =
         "FStaffNumber='$username' and FPwd='$password'";
-        userMap['FieldKeys'] = 'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX';
+        userMap['FieldKeys'] = 'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX,FStockIds';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = userMap;
         String UserEntity = await CurrencyEntity.polling(dataMap);
@@ -524,6 +524,7 @@ class _MyHomePageState extends State {
               if(author.data!.data.fAuthNums > resEmp.length && resEmp.length > 0){
                 sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
                 sharedPreferences.setString('MenuPermissions', UserEntity);
+                sharedPreferences.setString('FStockIds', jsonEncode(resUser[0][27]));
                 if(author.data!.data.fMessage == null){
                   ToastUtil.showInfo('登录成功');
                   Navigator.pushReplacement(

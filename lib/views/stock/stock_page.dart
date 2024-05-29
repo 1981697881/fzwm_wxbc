@@ -81,14 +81,26 @@ class _StockPageState extends State<StockPage> {
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + tissue + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     warehouseListObj = jsonDecode(res);
-    warehouseListObj.forEach((element) {
-      warehouseList.add(element[1]);
-    });
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        warehouseListObj.forEach((element) {
+          if(element[0].toString() == item){
+            warehouseList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      warehouseListObj.forEach((element) {
+        warehouseList.add(element[1]);
+      });
+    }
+
   }
 
   // 集合
@@ -97,12 +109,20 @@ class _StockPageState extends State<StockPage> {
   getOrderList(keyWord, batchNo, fSn) async {
     print(fSn);
     print("123333");
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     if (keyWord != '') {
       if(keyWord.split(";").length>1){
-        userMap['FilterString'] =
-            "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0";
+        if(fStockIds != '' && fStockIds != null){
+          userMap['FilterString'] =
+              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0 and FStockId in(" + fStockIds + ")";
+        }else{
+          userMap['FilterString'] =
+              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0";
+        }
+
         if (batchNo != '') {
           if (this.warehouseNumber != null) {
             userMap['FilterString'] = "FMaterialId.FNumber='" +
@@ -111,14 +131,26 @@ class _StockPageState extends State<StockPage> {
                 this.warehouseNumber +
                 "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
           } else {
-            userMap['FilterString'] = "FMaterialId.FNumber='" +
-                keyWord.split(";")[0] +
-                "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+            if(fStockIds != '' && fStockIds != null){
+              userMap['FilterString'] = "FMaterialId.FNumber='" +
+                  keyWord.split(";")[0] +
+                  "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
+            }else{
+              userMap['FilterString'] = "FMaterialId.FNumber='" +
+                  keyWord.split(";")[0] +
+                  "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+            }
+
           }
         }
       }else{
-        userMap['FilterString'] =
-            "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0";
+        if(fStockIds != '' && fStockIds != null){
+          userMap['FilterString'] =
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0  and FBaseQty >0 and FStockId in(" + fStockIds + ")";
+        }else{
+          userMap['FilterString'] =
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0";
+        }
       }
     }else{
       if (this.warehouseNumber != null) {
@@ -126,7 +158,11 @@ class _StockPageState extends State<StockPage> {
             this.warehouseNumber +
             "' and FBaseQty >0 "; /**/
       } else {
-        userMap['FilterString'] = "FBaseQty >0";
+        if(fStockIds != '' && fStockIds != null){
+          userMap['FilterString'] = "FBaseQty >0  and FStockId in(" + fStockIds + ")";
+        }else{
+          userMap['FilterString'] = "FBaseQty >0";
+        }
       }
     }
     userMap['FormId'] = 'STK_Inventory';

@@ -123,6 +123,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getSupplierList();
     getDepartmentList();
     getBagList();
+    getStockList();
     //getOrganizationsList();
     /*_onEvent("mB@CpNDtniREhhqrndaYPT9HiXOipMKs0csC7RJ8y4eJM38mGYHuig==");*/
   }
@@ -154,9 +155,20 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }
   }
   //获取包装规格
   getBagList() async {

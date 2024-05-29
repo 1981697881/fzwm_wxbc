@@ -116,6 +116,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
    /* getTypeList();*/
     //getOrganizationsList();
     getCustomer();
+    getStockList();
     getDepartmentList();
 
 
@@ -148,9 +149,20 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }
   }
   //获取出库类别
   getTypeList() async {
@@ -704,7 +716,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
               }
               elementIndex++;
             });
-            getStockList();
+
             getDepartmentList();
           }else if(hobby  == 'department'){
             departmentName = p;

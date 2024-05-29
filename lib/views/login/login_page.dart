@@ -548,7 +548,7 @@ class _LoginPageState extends State<LoginPage> {
                 userMap['FilterString'] =
                 "FStaffNumber='$_username' and FPwd='$_password'";
                 userMap['FieldKeys'] =
-                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX'; /*FWorkShopID.FNumber,FWorkShopID.FName*/
+                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX,FStockIds'; /*FWorkShopID.FNumber,FWorkShopID.FName*/
                 Map<String, dynamic> dataMap = Map();
                 dataMap['data'] = userMap;
                 String UserEntity = await CurrencyEntity.polling(dataMap);
@@ -573,6 +573,7 @@ class _LoginPageState extends State<LoginPage> {
                       var resEmp = jsonDecode(EmpEntity);
                       if(author.data!.data.fAuthNums >= resEmp.length && resEmp.length > 0){
                         sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
+                        sharedPreferences.setString('FStockIds', jsonEncode(resUser[0][27]));
                         sharedPreferences.setString('FStaffNumber', _username);
                         sharedPreferences.setString('FPwd', _password);
                         sharedPreferences.setString('MenuPermissions', UserEntity);
