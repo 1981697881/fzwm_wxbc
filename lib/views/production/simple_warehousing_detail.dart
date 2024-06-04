@@ -1127,7 +1127,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (element[3]['value']['value'] != '0' &&
+        if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
             element[4]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {

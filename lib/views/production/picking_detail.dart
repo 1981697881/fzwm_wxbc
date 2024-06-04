@@ -1893,11 +1893,12 @@ class _PickingDetailState extends State<PickingDetail> {
                               }else{
                                 ToastUtil.showInfo('请输入领料数量');
                               }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
-                            this.hobby[checkData][checkDataChild]["value"]
-                                ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                                ["value"] = _FNumber;
                           });
                         },
                         child: Text(
@@ -2061,7 +2062,7 @@ class _PickingDetailState extends State<PickingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3) {
+          /*if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -2091,21 +2092,7 @@ class _PickingDetailState extends State<PickingDetail> {
                                 }else{
                                   ToastUtil.showInfo('无库存');
                                 }
-                                /*this._textNumber.text = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                this._FNumber = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                checkData = i;
-                                checkDataChild = j;
-                                scanDialog();
-                                if (this.hobby[i][j]["value"]["label"] != 0) {
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                    text: this.hobby[i][j]["value"]["label"],
-                                  );
-                                }*/
+
                               },
                             ),
                           ])),
@@ -2113,7 +2100,7 @@ class _PickingDetailState extends State<PickingDetail> {
                 divider,
               ]),
             );
-          } else if (j == 4) {
+          } else*/ if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
