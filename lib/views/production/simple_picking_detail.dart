@@ -112,11 +112,12 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    //_onEvent("13111;20240213科曼斯/长舟;2024-02-13;1338;,1451410210;2");
     /* getTypeList();*/
     getCustomer();
     getDepartmentList();
     getOrganizationsList();
+    getStockList();
   }
   //获取部门
   getDepartmentList() async {
@@ -293,7 +294,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
         });arr.add({
           "title": "加工费",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0"}
         });arr.add({
           "title": "操作",
@@ -395,11 +396,11 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 element[0]['value']['barcode'].add(code);
               }
               //判断条码数量
-              if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+              if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                 //判断条码是否重复
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                  element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                  element[3]['value']['value']=element[3]['value']['label'];
+                  element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['label']=element[3]['value']['value'];
                   var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                   element[8]['value']['label'] =barcodeNum.toString();
                   element[8]['value']['value'] = barcodeNum.toString();
@@ -429,11 +430,11 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断条码数量
-                if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                   //判断条码是否重复
                   if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                    element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                    element[3]['value']['value']=element[3]['value']['label'];
+                    element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['label']=element[3]['value']['value'];
                     var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                     element[8]['value']['label'] =barcodeNum.toString();
                     element[8]['value']['value'] = barcodeNum.toString();
@@ -453,11 +454,11 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                  if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                      element[3]['value']['value']=element[3]['value']['label'];
+                      element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['label']=element[3]['value']['value'];
                       var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                       element[8]['value']['label'] =barcodeNum.toString();
                       element[8]['value']['value'] = barcodeNum.toString();
@@ -1127,8 +1128,8 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                               if(this.hobby[checkData][3]['value'] != '0'){
                                 var realQty = 0.0;
                                 realQty = double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(_FNumber);
-                                this.hobby[checkData][10]["value"]["value"] = realQty.toString();
-                                this.hobby[checkData][10]["value"]["label"] = realQty.toString();
+                                this.hobby[checkData][10]["value"]["value"] = (realQty.ceil()).toString();
+                                this.hobby[checkData][10]["value"]["label"] = (realQty.ceil()).toString();
                                 this.hobby[checkData][checkDataChild]["value"]
                                 ["label"] = _FNumber;
                                 this.hobby[checkData][checkDataChild]['value']

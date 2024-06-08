@@ -316,13 +316,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "title": "调拨数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": "", "value": "0"}
         });
         arr.add({
           "title": "申请数量",
           "name": "FRemainOutQty",
           "isHide": true,
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": "", "value": "0"}
         });
         arr.add({
           "title": "批号",
@@ -583,11 +583,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                  element[3]['value']['label'] =
-                      (double.parse(element[3]['value']['label']) +
+                  element[3]['value']['value'] =
+                      (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
                           .toString();
-                  element[3]['value']['value'] = element[3]['value']['label'];
+                  element[3]['value']['label'] = element[3]['value']['value'];
                   var item = barCodeScan[0].toString() + "-" + barcodeNum;
                   element[0]['value']['kingDeeCode'].add(item);
                   element[0]['value']['scanCode'].add(code);
@@ -605,7 +605,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 break;
               }
               //判断条码数量
-              if ((double.parse(element[3]['value']['label']) +
+              if ((double.parse(element[3]['value']['value']) +
                   double.parse(barcodeNum)) >
                   0 &&
                   double.parse(barcodeNum) > 0) {
@@ -613,11 +613,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 /*if (fNumber.indexOf(element[0]['value']['value']) ==
                     fNumber.lastIndexOf(element[0]['value']['value'])) {
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                    element[3]['value']['label'] =
-                        (double.parse(element[3]['value']['label']) +
-                            double.parse(barcodeNum))
-                            .toString();
-                    element[3]['value']['value'] = element[3]['value']['label'];
+                    element[3]['value']['value'] =
+                      (double.parse(element[3]['value']['value']) +
+                          double.parse(barcodeNum))
+                          .toString();
+                  element[3]['value']['label'] = element[3]['value']['value'];
                     var item = barCodeScan[0].toString() + "-" + barcodeNum;
                     element[0]['value']['kingDeeCode'].add(item);
                     element[0]['value']['scanCode'].add(code);
@@ -633,12 +633,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 } else {*/
                   if (this.isScanWork) {
                     //判断扫描数量是否大于单据数量
-                    if (double.parse(element[3]['value']['label']) >=
+                    if (double.parse(element[3]['value']['value']) >=
                         element[4]['value']['label']) {
                       continue;
                     } else {
                       //判断二维码数量是否大于单据数量
-                      if ((double.parse(element[3]['value']['label']) +
+                      if ((double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum)) >=
                           element[4]['value']['label']) {
                         //判断条码是否重复
@@ -652,11 +652,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                   .toString();
                           element[10]['value']['label'] = (element[9]['value']
                           ['label'] -
-                              double.parse(element[3]['value']['label']))
+                              double.parse(element[3]['value']['value']))
                               .toString();
                           element[10]['value']['value'] = (element[9]['value']
                           ['label'] -
-                              double.parse(element[3]['value']['label']))
+                              double.parse(element[3]['value']['value']))
                               .toString();
                           barcodeNum = (double.parse(barcodeNum) -
                               (element[4]['value']['label'] -
@@ -664,7 +664,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                       element[3]['value']['label'])))
                               .toString();
                           element[3]['value']['label'] =
-                              (double.parse(element[3]['value']['label']) +
+                              (double.parse(element[3]['value']['value']) +
                                   (element[4]['value']['label'] -
                                       double.parse(
                                           element[3]['value']['label'])))
@@ -672,7 +672,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           element[3]['value']['value'] =
                           element[3]['value']['label'];
                           residue = element[4]['value']['label'] -
-                              double.parse(element[3]['value']['label']);
+                              double.parse(element[3]['value']['value']);
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           number++;
@@ -685,7 +685,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         if (element[0]['value']['scanCode'].indexOf(code) ==
                             -1) {
                           element[3]['value']['label'] =
-                              (double.parse(element[3]['value']['label']) +
+                              (double.parse(element[3]['value']['value']) +
                                   double.parse(barcodeNum))
                                   .toString();
                           element[3]['value']['value'] =
@@ -709,7 +709,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       element[3]['value']['label'] =
-                          (double.parse(element[3]['value']['label']) +
+                          (double.parse(element[3]['value']['value']) +
                               double.parse(barcodeNum))
                               .toString();
                       element[3]['value']['value'] =
@@ -769,11 +769,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     element[5]['value']['label'] = fBatchNo;
                     element[5]['value']['value'] = fBatchNo;
                   }
-                  element[3]['value']['label'] =
-                      (double.parse(element[3]['value']['label']) +
+                  element[3]['value']['value'] =
+                      (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
                           .toString();
-                  element[3]['value']['value'] = element[3]['value']['label'];
+                  element[3]['value']['label'] = element[3]['value']['value'];
                   var item = barCodeScan[0].toString() + "-" + barcodeNum;
                   element[0]['value']['kingDeeCode'].add(item);
                   element[0]['value']['scanCode'].add(code);
@@ -792,7 +792,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               }
               if (element[5]['value']['value'] == fBatchNo) {
                 //判断条码数量
-                if ((double.parse(element[3]['value']['label']) +
+                if ((double.parse(element[3]['value']['value']) +
                     double.parse(barcodeNum)) >
                     0 &&
                     double.parse(barcodeNum) > 0) {
@@ -801,7 +801,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       fNumber.lastIndexOf(element[0]['value']['value'])) {
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       element[3]['value']['label'] =
-                          (double.parse(element[3]['value']['label']) +
+                          (double.parse(element[3]['value']['value']) +
                               double.parse(barcodeNum))
                               .toString();
                       element[3]['value']['value'] =
@@ -821,12 +821,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   } else {*/
                     if (this.isScanWork) {
                       //判断扫描数量是否大于单据数量
-                      if (double.parse(element[3]['value']['label']) >=
+                      if (double.parse(element[3]['value']['value']) >=
                           element[4]['value']['label']) {
                         continue;
                       } else {
                         //判断二维码数量是否大于单据数量
-                        if ((double.parse(element[3]['value']['label']) +
+                        if ((double.parse(element[3]['value']['value']) +
                             double.parse(barcodeNum)) >=
                             element[4]['value']['label']) {
                           //判断条码是否重复
@@ -840,11 +840,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                     .toString();
                             element[10]['value']['label'] = (element[9]['value']
                             ['label'] -
-                                double.parse(element[3]['value']['label']))
+                                double.parse(element[3]['value']['value']))
                                 .toString();
                             element[10]['value']['value'] = (element[9]['value']
                             ['label'] -
-                                double.parse(element[3]['value']['label']))
+                                double.parse(element[3]['value']['value']))
                                 .toString();
                             barcodeNum = (double.parse(barcodeNum) -
                                 (element[4]['value']['label'] -
@@ -852,7 +852,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                         element[3]['value']['label'])))
                                 .toString();
                             element[3]['value']['label'] =
-                                (double.parse(element[3]['value']['label']) +
+                                (double.parse(element[3]['value']['value']) +
                                     (element[4]['value']['label'] -
                                         double.parse(
                                             element[3]['value']['label'])))
@@ -860,7 +860,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             element[3]['value']['value'] =
                             element[3]['value']['label'];
                             residue = element[4]['value']['label'] -
-                                double.parse(element[3]['value']['label']);
+                                double.parse(element[3]['value']['value']);
                             element[0]['value']['kingDeeCode'].add(item);
                             element[0]['value']['scanCode'].add(code);
                             number++;
@@ -873,7 +873,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           if (element[0]['value']['scanCode'].indexOf(code) ==
                               -1) {
                             element[3]['value']['label'] =
-                                (double.parse(element[3]['value']['label']) +
+                                (double.parse(element[3]['value']['value']) +
                                     double.parse(barcodeNum))
                                     .toString();
                             element[3]['value']['value'] =
@@ -895,7 +895,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       //判断条码是否重复
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         element[3]['value']['label'] =
-                            (double.parse(element[3]['value']['label']) +
+                            (double.parse(element[3]['value']['value']) +
                                 double.parse(barcodeNum))
                                 .toString();
                         element[3]['value']['value'] =
@@ -924,7 +924,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   element[5]['value']['label'] = fBatchNo;
                   element[5]['value']['value'] = fBatchNo;
                   //判断条码数量
-                  if ((double.parse(element[3]['value']['label']) +
+                  if ((double.parse(element[3]['value']['value']) +
                       double.parse(barcodeNum)) >
                       0 &&
                       double.parse(barcodeNum) > 0) {
@@ -933,7 +933,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         fNumber.lastIndexOf(element[0]['value']['value'])) {
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         element[3]['value']['label'] =
-                            (double.parse(element[3]['value']['label']) +
+                            (double.parse(element[3]['value']['value']) +
                                 double.parse(barcodeNum))
                                 .toString();
                         element[3]['value']['value'] =
@@ -953,12 +953,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     } else {*/
                       if (this.isScanWork) {
                         //判断扫描数量是否大于单据数量
-                        if (double.parse(element[3]['value']['label']) >=
+                        if (double.parse(element[3]['value']['value']) >=
                             element[4]['value']['label']) {
                           continue;
                         } else {
                           //判断二维码数量是否大于单据数量
-                          if ((double.parse(element[3]['value']['label']) +
+                          if ((double.parse(element[3]['value']['value']) +
                               double.parse(barcodeNum)) >=
                               element[4]['value']['label']) {
                             //判断条码是否重复
@@ -986,7 +986,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                           element[3]['value']['label'])))
                                   .toString();
                               element[3]['value']['label'] =
-                                  (double.parse(element[3]['value']['label']) +
+                                  (double.parse(element[3]['value']['value']) +
                                       (element[4]['value']['label'] -
                                           double.parse(element[3]['value']
                                           ['label'])))
@@ -994,7 +994,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               element[3]['value']['value'] =
                               element[3]['value']['label'];
                               residue = element[4]['value']['label'] -
-                                  double.parse(element[3]['value']['label']);
+                                  double.parse(element[3]['value']['value']);
                               element[0]['value']['kingDeeCode'].add(item);
                               element[0]['value']['scanCode'].add(code);
                               number++;
@@ -1007,7 +1007,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             if (element[0]['value']['scanCode'].indexOf(code) ==
                                 -1) {
                               element[3]['value']['label'] =
-                                  (double.parse(element[3]['value']['label']) +
+                                  (double.parse(element[3]['value']['value']) +
                                       double.parse(barcodeNum))
                                       .toString();
                               element[3]['value']['value'] =
@@ -1034,7 +1034,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         if (element[0]['value']['scanCode'].indexOf(code) ==
                             -1) {
                           element[3]['value']['label'] =
-                              (double.parse(element[3]['value']['label']) +
+                              (double.parse(element[3]['value']['value']) +
                                   double.parse(barcodeNum))
                                   .toString();
                           element[3]['value']['value'] =
@@ -1110,7 +1110,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "title": "申请数量",
             "name": "FRealQty",
             "isHide": true,
-            "value": {"label": "0", "value": "0"}
+            "value": {"label": "", "value": "0"}
           });
           arr.add({
             "title": "批号",

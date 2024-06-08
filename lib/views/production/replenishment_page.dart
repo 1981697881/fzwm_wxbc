@@ -33,7 +33,7 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
-
+  var isScan = false;
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
    StreamSubscription ?_subscription;
@@ -58,6 +58,7 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
     }
   }
   _initState() {
+    isScan = false;
     EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
@@ -101,13 +102,23 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
     }
-
-    userMap['FilterString'] =
-    "FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    if(this.keyWord != ''){
-      userMap['FilterString'] =
-      "FBillNo like '%"+keyWord+"%' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
+      if(this.isScan){
+        userMap['FilterString'] =
+        "FStatus in(4) and FNoStockInQty>0";
+        if(this.keyWord != ''){
+          userMap['FilterString'] =
+              "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(4) and FNoStockInQty>0";
+        }
+      }else{
+        if(this.keyWord != ''){
+          userMap['FilterString'] =
+              "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(4) and FNoStockInQty>0";
+        }else{
+          userMap['FilterString'] =
+          "FStatus in(4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        }
+      }
+      this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
       userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
@@ -198,8 +209,8 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
           "name": "FProdOrder",
           "isHide": false,
           "value": {
-            /*"label": orderDate[value][18],
-            "value": orderDate[value][18]*/
+            "label": orderDate[value][18],
+            "value": orderDate[value][18]
           }
         });
         arr.add({

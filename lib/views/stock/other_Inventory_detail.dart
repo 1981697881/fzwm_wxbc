@@ -202,7 +202,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           "title": "盘点数量",
           "name": "FRealQty",
           "isHide": false,
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": "", "value": "0"}
         });
         arr.add({
           "title": "仓库",

@@ -115,11 +115,12 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-
+    //_onEvent("13111;20240213科曼斯/长舟;2024-02-13;1338;,1451410210;2");
     /* getTypeList();*/
     getCustomer();
     getOrganizationsList();
     getBagList();
+    getStockList();
   }
   //获取包装规格
   getBagList() async {
@@ -163,9 +164,20 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }
   }
   //获取出库类别
   getTypeList() async {
@@ -299,7 +311,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
         });arr.add({
           "title": "加工费",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0"}
         });arr.add({
           "title": "操作",
@@ -397,11 +409,11 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                 element[0]['value']['barcode'].add(code);
               }
               //判断条码数量
-              if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+              if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                 //判断条码是否重复
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                  element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                  element[3]['value']['value']=element[3]['value']['label'];
+                  element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                  element[3]['value']['label']=element[3]['value']['value'];
                   var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                   element[8]['value']['label'] =barcodeNum.toString();
                   element[8]['value']['value'] = barcodeNum.toString();
@@ -431,11 +443,11 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断条码数量
-                if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                   //判断条码是否重复
                   if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                    element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                    element[3]['value']['value']=element[3]['value']['label'];
+                    element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['label']=element[3]['value']['value'];
                     var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                     element[8]['value']['label'] =barcodeNum.toString();
                     element[8]['value']['value'] = barcodeNum.toString();
@@ -455,11 +467,11 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
-                  if((double.parse(element[3]['value']['label'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                  if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                      element[3]['value']['label']=(double.parse(element[3]['value']['label'])+double.parse(barcodeNum)).toString();
-                      element[3]['value']['value']=element[3]['value']['label'];
+                      element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                    element[3]['value']['label']=element[3]['value']['value'];
                       var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                       element[8]['value']['label'] =barcodeNum.toString();
                       element[8]['value']['value'] = barcodeNum.toString();

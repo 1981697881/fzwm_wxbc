@@ -92,12 +92,12 @@ class _RetrievalPageState extends State<RetrievalPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty>0";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);

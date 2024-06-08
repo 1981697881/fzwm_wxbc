@@ -317,7 +317,7 @@ class _BindSNPageState extends State<BindSNPage> {
           "title": "加工费",
           "name": "",
           "isHide": false,
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": "", "value": "0"}
         });
         arr.add({
           "title": "操作",
@@ -1186,17 +1186,17 @@ class _BindSNPageState extends State<BindSNPage> {
                 element[0]['value']['barcode'].add(code);
               }
               //判断条码数量
-              if ((double.parse(element[3]['value']['label']) +
+              if ((double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum)) >
                       0 &&
                   double.parse(barcodeNum) > 0) {
                 //判断条码是否重复
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                  element[3]['value']['label'] =
-                      (double.parse(element[3]['value']['label']) +
-                              double.parse(barcodeNum))
+                  element[3]['value']['value'] =
+                      (double.parse(element[3]['value']['value']) +
+                          double.parse(barcodeNum))
                           .toString();
-                  element[3]['value']['value'] = element[3]['value']['label'];
+                  element[3]['value']['label'] = element[3]['value']['value'];
                   var item =
                       barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                   element[8]['value']['label'] = barcodeNum.toString();
@@ -1231,17 +1231,17 @@ class _BindSNPageState extends State<BindSNPage> {
                   element[0]['value']['barcode'].add(code);
                 }
                 //判断条码数量
-                if ((double.parse(element[3]['value']['label']) +
+                if ((double.parse(element[3]['value']['value']) +
                             double.parse(barcodeNum)) >
                         0 &&
                     double.parse(barcodeNum) > 0) {
                   //判断条码是否重复
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                    element[3]['value']['label'] =
-                        (double.parse(element[3]['value']['label']) +
-                                double.parse(barcodeNum))
-                            .toString();
-                    element[3]['value']['value'] = element[3]['value']['label'];
+                    element[3]['value']['value'] =
+                      (double.parse(element[3]['value']['value']) +
+                          double.parse(barcodeNum))
+                          .toString();
+                  element[3]['value']['label'] = element[3]['value']['value'];
                     var item = barCodeScan[0].toString() +
                         "-" +
                         barcodeNum +
@@ -1267,14 +1267,14 @@ class _BindSNPageState extends State<BindSNPage> {
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
-                  if ((double.parse(element[3]['value']['label']) +
+                  if ((double.parse(element[3]['value']['value']) +
                               double.parse(barcodeNum)) >
                           0 &&
                       double.parse(barcodeNum) > 0) {
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       element[3]['value']['label'] =
-                          (double.parse(element[3]['value']['label']) +
+                          (double.parse(element[3]['value']['value']) +
                                   double.parse(barcodeNum))
                               .toString();
                       element[3]['value']['value'] =

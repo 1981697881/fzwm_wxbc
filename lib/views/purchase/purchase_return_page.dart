@@ -88,11 +88,11 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FSUPPLIERID.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FSUPPLIERID.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }else{
         if(this._dateSelectText != ""){
           this.startDate = this._dateSelectText.substring(0,10);
