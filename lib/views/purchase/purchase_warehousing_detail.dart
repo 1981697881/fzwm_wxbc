@@ -245,7 +245,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "FBillNo='$fBillNo'";
+    userMap['FilterString'] = "FBillNo='$fBillNo' and FENTRYSTATUS = 'A'";
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =

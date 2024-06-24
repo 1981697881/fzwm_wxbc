@@ -84,26 +84,26 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FPreDeliveryDate >= '$startDate' and FCloseStatus = 'A' and FPreDeliveryDate  <= '$endDate'";
+      "FPreDeliveryDate >= '$startDate' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FActlandQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FCloseStatus = 'A' and FActlandQty>0";
+        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FActlandQty>0";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
-          this.endDate = this._dateSelectText.substring(26, 36);
+          this.endDate = this._dateSelectText.substring(26, 36); 
           userMap['FilterString'] =
-          "FPreDeliveryDate >= '$startDate' and FCloseStatus = 'A' and FPreDeliveryDate  <= '$endDate'";
+          "FPreDeliveryDate >= '$startDate' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
         }else{
           userMap['FilterString'] =/*and FActlandQty>0*/
-          "FCloseStatus = 'A' and FActlandQty>0";
+          "FENTRYSTATUS = 'A' and FActlandQty>0";
         }
       }
     }

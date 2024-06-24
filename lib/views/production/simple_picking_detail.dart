@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:date_format/date_format.dart';
+import 'package:decimal/decimal.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
 import 'package:fzwm_wxbc/utils/handler_order.dart';
@@ -330,7 +331,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -389,7 +390,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
         var residue = 0.0;
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0]){ // && element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -422,7 +423,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           print(scanCode[0]);
           print(element[4]['value']['value']);
           print(barCodeScan[6]);
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0]){  //&& element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
@@ -493,7 +494,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "title": "包装规格",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": "", "value": ""}
+            "value": {"label": barcodeData[0][12], "value": barcodeData[0][12]}
           });
           arr.add({
             "title": "单位名称",
@@ -563,7 +564,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "isHide": false,
             "value": {
               "label": scanCode[3].toString(),
-              "value": scanCode[3].toString()
+              "value": scanCode[3].toString(),"remainder": "0","representativeQuantity": scanCode[3].toString()
             }
           });
           arr.add({
@@ -577,6 +578,17 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "name": "",
             "isHide": false,
             "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "生产日期",
+            "name": "",
+            "isHide": true,
+            "value": {"label": barcodeData[0][13], "value": barcodeData[0][13]}
+          }); arr.add({
+            "title": "有效期",
+            "name": "",
+            "isHide": true,
+            "value": {"label": barcodeData[0][14], "value": barcodeData[0][14]}
           });
           hobby.add(arr);
         };
@@ -844,7 +856,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 divider,
               ]),
             );
-          } else */ if (j == 5) {
+          } else  if (j == 5) {
             comList.add(
               Column(children: [
                 Container(
@@ -870,7 +882,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 divider,
               ]),
             );
-          }else if ( j == 9) {
+          }else */if ( j == 9) {
             comList.add(
               Column(children: [
                 Container(
@@ -939,7 +951,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 divider,
               ]),
             );
-          } /*else if (j == 8) {
+          } else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -977,7 +989,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 divider,
               ]),
             );
-          }*/else if(j == 6){
+          }else if(j == 6){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1102,27 +1114,29 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            if(checkItem=="FLastQty"){
-                              if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
-                                var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
-                                var realQty = 0.0;
-                                this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                            if (checkItem == "FLastQty") {
+                              if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
+                                if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
+                                  var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
+                                  var realQty = 0.0;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
-                                });
-                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
-                                realQty = realQty + double.parse(_FNumber);
-                                this.hobby[checkData][3]["value"]
-                                ["value"] = realQty.toString();
-                                this.hobby[checkData][3]["value"]
-                                ["label"] = realQty.toString();
-                                this.hobby[checkData][checkDataChild]["value"]
-                                ["label"] = _FNumber;
-                                this.hobby[checkData][checkDataChild]['value']
-                                ["value"] = _FNumber;
-                                this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1] = kingDeeCode[0]+"-"+_FNumber;
+                                  });
+                                  realQty = realQty - double.parse(this.hobby[checkData][8]
+                                  ["value"]["label"]);
+                                  realQty = realQty + double.parse(_FNumber);
+                                  this.hobby[checkData][8]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][8]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
+                                  this.hobby[checkData][3]["value"]["value"] = realQty.toString();
+                                  this.hobby[checkData][3]["value"]["label"] = realQty.toString();
+                                  this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
+                                } else {
+                                    ToastUtil.showInfo('无条码信息，输入失败');
+                                }
                               }else{
-                                ToastUtil.showInfo('无条码信息，输入失败');
+                                ToastUtil.showInfo('输入数量大于条码可用数量');
                               }
                             }else if(checkItem=="bagNum"){
                               if(this.hobby[checkData][3]['value'] != '0'){
@@ -1137,6 +1151,11 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                               }else{
                                 ToastUtil.showInfo('请输入出库数量');
                               }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
                           });
                         },
@@ -1217,6 +1236,8 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
           FEntityItem['FKeeperId'] = {"FNumber": tissue};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
+          FEntityItem['FProduceDate'] = element[11]['value']['value'];
+          FEntityItem['FExpiryDate'] = element[12]['value']['value'];
           var fSerialSub = [];
           var kingDeeCode = element[0]['value']['kingDeeCode'];
           for (int subj = 0; subj < kingDeeCode.length; subj++) {

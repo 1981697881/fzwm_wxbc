@@ -115,8 +115,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           .listen(_onEvent, onError: _onError);
     }
     getOrganizationsList();
-    getSchemeList();
-    getStockList();
+
   }
 
   //获取缓存
@@ -169,8 +168,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       });
     }*/
   } //获取盘点方案
-
   getSchemeList() async {
+    this.schemeList = [];
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -178,7 +177,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     userMap['FieldKeys'] = 'FStockOrgId,FName,FBillNo';
     userMap['FilterString'] =
         "FDocumentStatus = 'C' and FCloseStatus ='0' and FStockOrgId.FNumber ='" +
-            tissue +
+            organizationsNumber +
             "'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -223,31 +222,21 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   //获取仓库
   getStockList() async {
+    this.stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + tissue;
+        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + organizationsNumber;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
-    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
-    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
-      fStockIds.forEach((item){
-        stockListObj.forEach((element) {
-          if(element[0].toString() == item){
-            stockList.add(element[1]);
-          }
-        });
-      });
-    }else{
-      stockListObj.forEach((element) {
-        stockList.add(element[1]);
-      });
-    }
+    stockListObj.forEach((element) {
+      stockList.add(element[1]);
+    });
   }
 
   @override
@@ -918,6 +907,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 organizationsNumber = organizationsListObj[elementIndex][2];
+                getSchemeList();
+                getStockList();
               }
               elementIndex++;
             });
@@ -1616,9 +1607,9 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                     ],
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
+                      _item('货主', this.organizationsList, this.organizationsName,
+                          'organizations'),
                   _item('盘点方案', this.schemeList, this.schemeName, 'scheme'),
-                  _item('货主', this.organizationsList, this.organizationsName,
-                      'organizations'),
                   _item('仓库', this.stockList, this.stockName, 'stock'),
                   _item('累计盘点', ['否', '是'], isCumulative, "cumulative"),
                   /*Column(

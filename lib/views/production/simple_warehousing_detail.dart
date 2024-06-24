@@ -115,10 +115,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    //_onEvent("13111;20240213科曼斯/长舟;2024-02-13;1338;,1451410210;2");
+    //_onEvent("31064;AQ40429304N1;2024-04-30;200;MO001348,0924469295;4");
     /* getTypeList();*/
     getCustomer();
-    getOrganizationsList();
+    getDepartmentList();
     getBagList();
     getStockList();
   }
@@ -388,6 +388,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
     materialDate = jsonDecode(order);
     FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
+    print(selectData[DateMode.YMD]);
     if (materialDate.length > 0) {
       var number = 0;
       var barCodeScan;
@@ -402,7 +403,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
         var residue = 0.0;
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0]){  //&& element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -435,7 +436,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           print(scanCode[0]);
           print(element[4]['value']['value']);
           print(barCodeScan[6]);
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0]){ // && element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
@@ -552,6 +553,12 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
               "value": scanCode[3].toString()
             }
           });
+          arr.add({
+            "title": "生产日期",
+            "name": "",
+            "isHide": false,
+            "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
+          });
           hobby.add(arr);
         });
       }
@@ -647,7 +654,85 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       // onChanged: (p) => print(p),
     );
   }
-
+  Widget _dateChildItem(title, model, hobby) {
+    GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () {
+              _onDateChildClickItem(model,hobby);
+            },
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(
+                    (hobby == ""
+                        ? selectData[model]
+                        : formatDate(
+                        DateFormat('yyyy-MM-dd')
+                            .parse(hobby['value']['label']),
+                        [
+                          yyyy,
+                          "-",
+                          mm,
+                          "-",
+                          dd,
+                        ]))!,
+                    color: Colors.grey,
+                    rightpadding: 18);
+              }),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
+    );
+  }
+  void _onDateChildClickItem(model,hobby) {
+    Pickers.showDatePicker(
+      context,
+      mode: model,
+      suffix: Suffix.normal(),
+      // selectDate: PDuration(month: 2),
+      minDate: PDuration(year: 2020, month: 2, day: 10),
+      maxDate: PDuration(second: 22),
+      selectDate: (hobby['value']['label'] == '' || hobby['value']['label'] == null
+          ? PDuration(year: 2021, month: 2, day: 10)
+          : PDuration.parse(DateTime.parse(hobby['value']['label']))),
+      // minDate: PDuration(hour: 12, minute: 38, second: 3),
+      // maxDate: PDuration(hour: 12, minute: 40, second: 36),
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        setState(() {
+          hobby['value']['label'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+          hobby['value']['value'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+        });
+      },
+      // onChanged: (p) => print(p),
+    );
+  }
   void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
     Pickers.showSinglePicker(
       context,
@@ -882,6 +967,10 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                 divider,
               ]),
             );
+          } else if (j == 9) {
+            comList.add(
+              _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
+            );
           } else if (j == 7) {
             comList.add(
               Column(children: [
@@ -1096,6 +1185,24 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                               }else{
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
+                            }else if(checkItem=="bagNum"){
+                              if(this.hobby[checkData][3]['value'] != '0'){
+                                var realQty = 0.0;
+                                realQty = double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(_FNumber);
+                                this.hobby[checkData][10]["value"]["value"] = (realQty.ceil()).toString();
+                                this.hobby[checkData][10]["value"]["label"] = (realQty.ceil()).toString();
+                                this.hobby[checkData][checkDataChild]["value"]
+                                ["label"] = _FNumber;
+                                this.hobby[checkData][checkDataChild]['value']
+                                ["value"] = _FNumber;
+                              }else{
+                                ToastUtil.showInfo('请输入出库数量');
+                              }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
                           });
                         },
@@ -1167,6 +1274,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FProduceDate'] = element[9]['value']['value'];
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FOwnerId'] = {"FNumber": tissue};
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
@@ -1199,7 +1307,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
-      print(jsonEncode(dataMap));
+      var paramsData= jsonEncode(dataMap);
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);

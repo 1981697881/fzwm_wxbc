@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:date_format/date_format.dart';
+import 'package:decimal/decimal.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
 import 'package:fzwm_wxbc/utils/handler_order.dart';
@@ -136,7 +137,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     String res = await CurrencyEntity.polling(dataMap);
     stockListObj = jsonDecode(res);
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
-    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+    stockListObj.forEach((element) {
+      stockList.add(element[1]);
+    });
+    /*if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
       fStockIds.forEach((item){
         stockListObj.forEach((element) {
           if(element[0].toString() == item){
@@ -148,12 +152,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       stockListObj.forEach((element) {
         stockList.add(element[1]);
       });
-    }
+    }*/
     print(stockList);
   }
 
   //获取组织
   getOrganizationsList() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      this.organizationsNumber1 = sharedPreferences.getString('tissue');
+      this.organizationsName1 = sharedPreferences.getString('tissueName');
+    });
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'ORG_Organizations';
     userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber,FDocumentStatus';
@@ -1083,8 +1092,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               "label": value[0] + "- (" + value[1] + ")",
               "value": value[1],
               "barcode": [_code],
-              "kingDeeCode": [barCodeScan[0].toString() + "-" + barcodeNum],
-              "scanCode": [barCodeScan[0].toString() + "-" + barcodeNum],
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]],
               "codeList": []
             }
           });
@@ -1127,7 +1135,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           arr.add({
             "title": "移出仓位",
             "name": "FStockLocID",
-            "isHide": true,
+            "isHide": false,
             "value": {"label": value[9], "value": value[10], "hide": false}
           });
           arr.add({
@@ -1139,7 +1147,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           arr.add({
             "title": "移入仓位",
             "name": "FStockLocID",
-            "isHide": true,
+            "isHide": false,
             "value": {"label": "", "value": "", "hide": false}
           });
           arr.add({
@@ -1148,7 +1156,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "isHide": false,
             "value": {
               "label": barcodeNum.toString(),
-              "value": barcodeNum.toString()
+              "value": barcodeNum.toString(),"remainder": "0","representativeQuantity": scanCode[3].toString()
             }
           });
           arr.add({
@@ -1336,7 +1344,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3) {
+         /* if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -1372,13 +1380,51 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 divider,
               ]),
             );
-          } else if (j == 8) {
+          } else*/ if (j == 8) {
             comList.add(
               _item('调入仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
                   stock: this.hobby[i]),
             );
-          } else if (j == 9) {
+          }else if (j == 10) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FLastQty';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 9) {
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1533,10 +1579,36 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
+                            if (checkItem == "FLastQty") {
+                              if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
+                                if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
+                                  var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
+                                  var realQty = 0.0;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                    var qty = item.split("-")[1];
+                                    realQty += double.parse(qty);
+                                  });
+                                  realQty = realQty - double.parse(this.hobby[checkData][10]
+                                  ["value"]["label"]);
+                                  realQty = realQty + double.parse(_FNumber);
+                                  this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
+                                  this.hobby[checkData][3]["value"]["value"] = realQty.toString();
+                                  this.hobby[checkData][3]["value"]["label"] = realQty.toString();
+                                  this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
+                                } else {
+                                  ToastUtil.showInfo('无条码信息，输入失败');
+                                }
+                              }else{
+                                ToastUtil.showInfo('输入数量大于条码可用数量');
+                              }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
+                            }
                           });
                         },
                         child: Text(
@@ -2101,8 +2173,19 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     ),
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  _item('调出组织', this.organizationsList, this.organizationsName1,
-                      'organizations1'),
+                  /*_item('调出组织', this.organizationsList, this.organizationsName1,
+                      'organizations1'),*/
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text("调出组织：$organizationsName1"),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
                   _item('调入组织', this.organizationsList, this.organizationsName2,
                       'organizations2'),
                   Column(

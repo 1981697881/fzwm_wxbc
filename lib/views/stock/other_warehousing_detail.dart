@@ -751,7 +751,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j==5) {
+         /* if (j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -789,7 +789,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 divider,
               ]),
             );
-          } else if (j == 4) {
+          } else*/ if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
@@ -1143,6 +1143,11 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                               }else{
                                 ToastUtil.showInfo('无条码信息，输入失败');
                               }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
                           });
                         },

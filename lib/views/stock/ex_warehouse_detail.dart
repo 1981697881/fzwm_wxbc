@@ -409,7 +409,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
         var residue = 0.0;
         //判断是否启用批号
         if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0]){  //&& element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               //判断是否可重复扫码
               if(scanCode.length>4){
@@ -442,7 +442,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           print(scanCode[0]);
           print(element[4]['value']['value']);
           print(barCodeScan[6]);
-          if(element[0]['value']['value'] == scanCode[0] && element[4]['value']['value'] == barCodeScan[7]){
+          if(element[0]['value']['value'] == scanCode[0] ){//&& element[4]['value']['value'] == barCodeScan[7]
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
@@ -1116,6 +1116,11 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                               }else{
                                 ToastUtil.showInfo('请输入出库数量');
                               }
+                            }else{
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             }
                           });
                         },

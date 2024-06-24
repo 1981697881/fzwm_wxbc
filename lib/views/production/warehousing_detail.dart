@@ -20,6 +20,7 @@ import 'package:flutter_pickers/time_picker/model/suffix.dart';
 import 'dart:io';
 import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzwm_wxbc/components/my_text.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
@@ -189,6 +190,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         "-",
         dd,
       ]);
+      print(selectData[DateMode.YMD].toString());
       orderDate = jsonDecode(order);
       if (orderDate.length > 0) {
         orderDate.forEach((value) {
@@ -250,10 +252,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "value": {"label": "", "value": ""}
           });
           arr.add({
-            "title": "库存单位",
+            "title": "生产日期",
             "name": "",
-            "isHide": true,
-            "value": {"label": value[18], "value": value[18]}
+            "isHide": false,
+            "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
           });
           arr.add({
             "title": "检验数量",
@@ -888,7 +890,85 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       // onChanged: (p) => print(p),
     );
   }
-
+  Widget _dateChildItem(title, model, hobby) {
+    GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () {
+              _onDateChildClickItem(model,hobby);
+            },
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(
+                    (hobby == ""
+                        ? selectData[model]
+                        : formatDate(
+                        DateFormat('yyyy-MM-dd')
+                            .parse(hobby['value']['label']),
+                        [
+                          yyyy,
+                          "-",
+                          mm,
+                          "-",
+                          dd,
+                        ]))!,
+                    color: Colors.grey,
+                    rightpadding: 18);
+              }),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
+    );
+  }
+  void _onDateChildClickItem(model,hobby) {
+    Pickers.showDatePicker(
+      context,
+      mode: model,
+      suffix: Suffix.normal(),
+      // selectDate: PDuration(month: 2),
+      minDate: PDuration(year: 2020, month: 2, day: 10),
+      maxDate: PDuration(second: 22),
+      selectDate: (hobby['value']['label'] == '' || hobby['value']['label'] == null
+          ? PDuration(year: 2021, month: 2, day: 10)
+          : PDuration.parse(DateTime.parse(hobby['value']['label']))),
+      // minDate: PDuration(hour: 12, minute: 38, second: 3),
+      // maxDate: PDuration(hour: 12, minute: 40, second: 36),
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        setState(() {
+          hobby['value']['label'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+          hobby['value']['value'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+        });
+      },
+      // onChanged: (p) => print(p),
+    );
+  }
   void _onClickItem(var data, var selectData, hobby,
       {String? label, var stock}) {
     Pickers.showSinglePicker(
@@ -1055,6 +1135,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                 ),
                 divider,
               ]),
+            );
+          } else if (j == 8) {
+            comList.add(
+              _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
             );
           } else {
             comList.add(
@@ -1473,6 +1557,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               FEntityItem['FEntryID'] = resData[entity][0];
               FEntityItem['FInStockType'] = '1';
               FEntityItem['FRealQty'] = this.hobby[element][3]['value']['value'];
+              FEntityItem['FProduceDate'] = this.hobby[element][8]['value']['value'];
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][4]['value']['value']
               };
