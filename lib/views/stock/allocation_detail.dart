@@ -1770,6 +1770,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
+      Model['F_UUAC_Combo_fg2'] = "是";
       Model['FBillTypeID'] = {"FNUMBER": "ZJDB01_SYS"};
       Model['FDate'] = FDate;
       //获取登录信息

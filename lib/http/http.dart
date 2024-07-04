@@ -139,10 +139,10 @@ class Http {
         CancelToken ?cancelToken,
       }) async {
     Options requestOptions = options ?? Options();
-    Map<String, dynamic> kdWebApiHeader = await getKdWebApiHeader(path);
+    /*Map<String, dynamic> kdWebApiHeader = await getKdWebApiHeader(path);
     if (kdWebApiHeader != null) {
       requestOptions = requestOptions.merge(headers: kdWebApiHeader);
-    }
+    }*/
     var response = await dio.post(path,
         data: data,
         queryParameters: params,

@@ -1190,6 +1190,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
+      Model['F_UUAC_Combo_w5c'] = "是";
       Model['FBillTypeID'] = {"FNUMBER": "QTRKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();

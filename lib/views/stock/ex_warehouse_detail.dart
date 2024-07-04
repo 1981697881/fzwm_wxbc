@@ -1161,6 +1161,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
+      Model['F_UUAC_Combo_dvn'] = "是";
       Model['FBillTypeID'] = {"FNUMBER": "QTCKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();

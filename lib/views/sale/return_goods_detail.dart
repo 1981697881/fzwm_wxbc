@@ -1263,6 +1263,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       Model['FID'] = 0;
       Model['FBillTypeID'] = {"FNUMBER": "XSTHD01_SYS"};
       Model['FDate'] = FDate;
+      Model['F_UUAC_Combo_83g'] = "是";
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};

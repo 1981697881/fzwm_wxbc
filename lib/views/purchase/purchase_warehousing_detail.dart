@@ -2467,6 +2467,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         orderMap['IsDeleteEntry'] = true;
         Map<String, dynamic> Model = Map();
         Model['FID'] = 0;
+        Model['F_UUAC_Combo_re5'] = "是";
         Model['FBillTypeID'] = {"FNUMBER": "RKD01_SYS"};
         Model['FBusinessType'] = "CG";
         Model['FDate'] = FDate;

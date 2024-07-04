@@ -1637,6 +1637,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
+      Model['F_UUAC_Combo_qtr'] = "是";
       Model['FBillTypeID'] = {"FNUMBER": "XSCKD01_SYS"};
       Model['FDate'] = FDate;
       //获取登录信息

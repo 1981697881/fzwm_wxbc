@@ -1127,6 +1127,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       Model['FStockOrgId'] = {"FNumber": FStockOrgId};
       Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
       Model['FCurrId'] = {"FNumber": 'PRE001'};
+      Model['F_UUAC_Combo_tzk'] = "是";
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {

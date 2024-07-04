@@ -3,57 +3,54 @@ import 'package:shared_preferences/shared_preferences.dart';
 class API {
   Future<String> LOGIN_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc';
   }
- /* String LOGIN_URL() {
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc';
-  }*/
 //通用查询
   Future<String> CURRENCY_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc';
   }
 
   //提交
   Future<String> SAVE_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc';
   }
 
   //保存
   Future<String> SUBMIT_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc';
   }
 
 //下推
   Future<String> DOWN_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Push.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Push.common.kdsvc';
   }
 
 //审核
   Future<String> AUDIT_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc';
   }
 
 //反审核
   Future<String> UNAUDIT_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UnAudit.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UnAudit.common.kdsvc';
   }
 
 //删除
   Future<String> DELETE_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc';
   }
 
 //修改状态
   Future<String> STATUS_URL() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('url') + '/galaxyapi/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExcuteOperation.common.kdsvc';
+    return sharedPreferences.getString('url') + '/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExcuteOperation.common.kdsvc';
   }
 
   /* static const String LOGIN_URL = API_PREFIX + '/Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc';

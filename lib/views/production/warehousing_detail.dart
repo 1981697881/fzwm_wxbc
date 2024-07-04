@@ -1545,6 +1545,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+      Model['F_UUAC_Combo_uky'] = "是";
       // ignore: non_constant_identifier_names
       var FEntity = [];
       for (int entity = 0; entity < resData.length; entity++) {

@@ -1783,6 +1783,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
+      Model['F_UUAC_Combo_h1g'] = "是";
       Model['FBillTypeID'] = {"FNUMBER": "TLD01_SYS"};
       Model['FDate'] = FDate;
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";

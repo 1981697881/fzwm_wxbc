@@ -521,7 +521,7 @@ class _MyHomePageState extends State {
               empDataMap['data'] = empMap;
               String EmpEntity = await CurrencyEntity.polling(empDataMap);
               var resEmp = jsonDecode(EmpEntity);
-              if(author.data!.data.fAuthNums > resEmp.length && resEmp.length > 0){
+              if(author.data!.data.fAuthNums >= resEmp.length && resEmp.length > 0){
                 sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
                 sharedPreferences.setString('MenuPermissions', UserEntity);
                 sharedPreferences.setString('FStockIds', jsonEncode(resUser[0][27]));
