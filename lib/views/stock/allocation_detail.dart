@@ -112,6 +112,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
+    //_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
     EasyLoading.dismiss();
   }
 
@@ -542,7 +543,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-        'FMATERIALID.FName,FMATERIALID.FNumber,FMATERIALID.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FMATERIALID.FIsBatchManage,FLot.FNumber,FStockID.FNumber,FStockID.FName,FStockLocID,FStockLocID,FBaseQty,FProduceDate,FExpiryDate,FMATERIALID.FIsKFPeriod,FAuxPropId.FF100002.FNumber';
+        'FMATERIALID.FName,FMATERIALID.FNumber,FMATERIALID.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FMATERIALID.FIsBatchManage,FLot.FNumber,FStockID.FNumber,FStockID.FName,FStockLocID,FStockLocID,FBaseQty,FProduceDate,FExpiryDate,FMATERIALID.FIsKFPeriod,FAuxPropId.FF100002.FNumber,FStockID.FIsOpenLocation';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -1097,10 +1098,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             }
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[2], "value": value[2]}
+            "value": {"label": barcodeData[0][16], "value": barcodeData[0][16]}
           });
           arr.add({
             "title": "单位名称",
@@ -1767,10 +1768,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       dataMap['formid'] = 'STK_TransferDirect';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = ['FBillNo'];
-      orderMap['IsDeleteEntry'] = false;
+      orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['F_UUAC_Combo_fg2'] = "是";
+      Model['F_UUAC_Combo_fg2'] = "1";
       Model['FBillTypeID'] = {"FNUMBER": "ZJDB01_SYS"};
       Model['FDate'] = FDate;
       //获取登录信息
@@ -1780,16 +1781,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       var deptData = jsonDecode(menuData)[0];
       //判断有源单 无源单
       if (this.isScanWork) {
-        Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
         Model['FStockOutOrgId'] = {"FNumber": orderDate[0][8].toString()};
+        Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
       } else {
-        Model['FStockOrgId'] = {"FNumber": this.fOrgID};
         Model['FStockOutOrgId'] = {"FNumber": this.fOrgID};
+        Model['FStockOrgId'] = {"FNumber": this.fOrgID};
       }
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FTransferBizType'] = "InnerOrgTransfer";
       Model['FOwnerTypeOutIdHead'] = "BD_OwnerOrg";
       Model['FTransferDirect'] = "GENERAL";
+      Model['FBizType'] = "GENERAL";
       Model['FOwnerOutIdHead'] = {"FNumber": this.fOrgID};
       Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
       var FEntity = [];

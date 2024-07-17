@@ -378,6 +378,14 @@ class _ReturnDetailState extends State<ReturnDetail> {
               if(scanCode.length>4) {
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
+                element[1]['value']['value'] =barcodeData[0][14] == null? "":barcodeData[0][14];
+              }
               if(scanCode[5] == "N" ){
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
                   element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
@@ -443,6 +451,14 @@ class _ReturnDetailState extends State<ReturnDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(scanCode.length>4) {
                 element[0]['value']['barcode'].add(code);
+              }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
+                element[1]['value']['value'] =barcodeData[0][14] == null? "":barcodeData[0][14];
               }
               if(scanCode[5] == "N" ){
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
@@ -571,10 +587,10 @@ class _ReturnDetailState extends State<ReturnDetail> {
             "value": { "FProduceDate": barcodeData[0][12], "FExpiryDate": barcodeData[0][13], "label": value[1] + "- (" + value[2] + ")", "value": value[2], "barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
           });
           arr.add({
-            "title": "规格型号",
+            "title": "包装规格",
             "isHide": true,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": barcodeData[0][14], "value": barcodeData[0][14]}
           });
           arr.add({
             "title": "单位名称",
@@ -592,7 +608,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": "", "value": ""}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
           });
           arr.add({
             "title": "批号",

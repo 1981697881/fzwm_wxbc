@@ -77,31 +77,31 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
+    userMap['FilterString'] = "FCloseStatus = 'A'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FInStockQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FMaterialId.FNumber='%"+keyWord+"%' and FInStockQty>0";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FMaterialId.FNumber='%"+keyWord+"%' and FInStockQty>0";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
       }else{
         userMap['FilterString'] =
-        "FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
-    userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['FormId'] = 'STK_OutStockApply';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeptId.FNumber,FDeptId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FNote,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -119,9 +119,9 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "采购组织",
+          "title": "申请组织",
           "name": "FPurchaseOrgId",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": value[9], "value": value[8]}
 
         });
@@ -154,22 +154,6 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "name": "FQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
-        });arr.add({
-          "title": "普通申请数量",
-          "name": "FQty",
-          "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
-        });arr.add({
-          "title": "包数",
-          "name": "FQty",
-          "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
-        });
-        arr.add({
-          "title": "供应商",
-          "name": "FSupplierID",
-          "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });

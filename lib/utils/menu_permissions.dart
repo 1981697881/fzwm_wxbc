@@ -163,10 +163,17 @@ class MenuPermissions {
       "source": '',
     }); menu.add({
       "icon": Icons.loupe,
-      "text": "其他出库",
+      "text": "其他出库(无源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": ExWarehouseDetail(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "其他出库",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ExWarehousePage(),
       "source": '',
     }); menu.add({
       "icon": Icons.loupe,

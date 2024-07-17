@@ -146,10 +146,10 @@ class _StockPageState extends State<StockPage> {
       }else{
         if(fStockIds != '' && fStockIds != null){
           userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0  and FBaseQty >0 and FStockId in(" + fStockIds + ")";
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty >0  and FBaseQty >0 and FStockId in(" + fStockIds + ")";
         }else{
           userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') and FBaseQty >0";
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty >0";
         }
       }
     }else{

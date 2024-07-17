@@ -292,7 +292,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "title": "包装规格",
           "isHide": false,
           "name": "FMaterialIdFSpecification",
-          "value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
+          "value": {"label": "", "value": ""}
+          //"value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
         });
         arr.add({
           "title": "单位名称",
@@ -480,6 +481,14 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   element[3]['value']['value'] =
@@ -583,6 +592,14 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
+              }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
               }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
@@ -2085,7 +2102,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                           "title": "包装规格",
                                           "isHide": false,
                                           "name": "FMaterialIdFSpecification",
-                                          "value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
+                                          "value": {"label": "", "value": ""}
+                                          //"value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
                                         });
                                         arr.add({
                                           "title": "单位名称",
@@ -2467,7 +2485,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         orderMap['IsDeleteEntry'] = true;
         Map<String, dynamic> Model = Map();
         Model['FID'] = 0;
-        Model['F_UUAC_Combo_re5'] = "是";
+        Model['F_UUAC_Combo_re5'] = "1";
         Model['FBillTypeID'] = {"FNUMBER": "RKD01_SYS"};
         Model['FBusinessType'] = "CG";
         Model['FDate'] = FDate;

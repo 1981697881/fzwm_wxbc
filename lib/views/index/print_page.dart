@@ -128,7 +128,6 @@ class _PrintPageState extends State<PrintPage> {
             var printNum = (int.parse(fRealQty) / int.parse(packing)).ceil();
             var remainingQuantity = int.parse(fRealQty);
             for (var i = 0; i < printNum; i++) {
-
               //判断成品或原料
               var println;
               var codeCont = value['FMaterialId']['FNumber'] + ';' +value['FLot']['FNumber']+ ';' +value['FProduceDate'].substring(0, 10)+ ';' +(remainingQuantity >= int.parse(packing) ? packing : remainingQuantity).toString()+ ';' +printData['FBillNo']+ ';' +DateTime.now().millisecondsSinceEpoch.toString()+ ';' +barcodeNum.toString();

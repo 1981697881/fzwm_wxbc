@@ -343,27 +343,34 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
     if(event == ""){
       return;
     }
-    if(fBarCodeList == 1){
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length>0) {
-        _code = event;
-        this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
-        print("ChannelPage: $event");
-      }else{
-        ToastUtil.showInfo('条码不在条码清单中');
-      }
+    if(checkItem == "BillNo"){
+      Navigator.pop(context);
+      setState(() {
+        this.fBillNo = _FNumber;
+      });
     }else{
-      _code = event;
-      this.getMaterialList("",_code,"","");
-      print("ChannelPage: $event");
+      if(fBarCodeList == 1){
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length>0) {
+          _code = event;
+          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
+          print("ChannelPage: $event");
+        }else{
+          ToastUtil.showInfo('条码不在条码清单中');
+        }
+      }else{
+        _code = event;
+        this.getMaterialList("",_code,"","");
+        print("ChannelPage: $event");
+      }
     }
   }
 
@@ -443,6 +450,14 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                 if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
                 }
+                if (element[4]['value']['value'] == "") {
+                  element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                  element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                }
+                if (element[1]['value']['value'] == "") {
+                  element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                  element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                }
                 //判断条码数量
                 if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                   //判断条码是否重复
@@ -464,6 +479,14 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                   //判断是否可重复扫码
                   if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
+                  }
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                    element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
                   }
                   element[5]['value']['label'] = scanCode[1];
                   element[5]['value']['value'] = scanCode[1];
@@ -524,7 +547,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": '', "value": ''}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
           });
           arr.add({
             "title": "批号",
@@ -1198,6 +1221,8 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                               }else{
                                 ToastUtil.showInfo('请输入出库数量');
                               }
+                            }else if(checkItem=="BillNo"){
+                              this.fBillNo = _FNumber;
                             }else{
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;
@@ -1278,6 +1303,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FOwnerId'] = {"FNumber": tissue};
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
+          FEntityItem['FProductNo'] = this.fBillNo;
           FEntityItem['FKeeperId'] = {"FNumber": tissue};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           var fSerialSub = [];
@@ -1486,6 +1512,33 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text("生产订单号：$fBillNo"),
+                            trailing:Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                              IconButton(
+                                icon: new Icon(Icons.filter_center_focus),
+                                tooltip: '点击扫描',
+                                onPressed: () {
+                                  this._textNumber.text = fBillNo;
+                                  this._FNumber = fBillNo;
+                                  checkItem = 'BillNo';
+                                  scanDialog();
+                                    this._textNumber.value = _textNumber.value.copyWith(
+                                      text: fBillNo,
+                                    );
+                                },
+                              ),
+                            ])
+                        ),
+
+                      ),
+                      divider,
+                    ],
+                  ),
                   _dateItem('日期：', DateMode.YMD),
                   /*_item('客户:', this.customerList, this.customerName,
                       'customer'),

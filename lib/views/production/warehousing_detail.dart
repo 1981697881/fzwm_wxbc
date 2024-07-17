@@ -212,7 +212,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "title": "包装规格",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[24]==null?"":value[24], "value": value[24]==null?"":value[24]}
+            "value": {"label": "", "value": ""}
+            //"value": {"label": value[24]==null?"":value[24], "value": value[24]==null?"":value[24]}
           });
           arr.add({
             "title": "单位名称",
@@ -301,8 +302,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       getStockList();
       scanDialog();
     }
-    /* _onEvent("u+zeGAN0HjGOOOh3LfNGcSst+0RCbFmsR1G63psT2kLVkcuIIRcQDSTcpqu63ZW7");
-    _onEvent("u+zeGAN0HjGOOOh3LfNGcSst+0RCbFmsR1G63psT2kLVkcuIIRcQDXt3X7AnjnOD");*/
+     //_onEvent("31052;AQ407034103N1;2024-07-11;9273;MO001662,0849228108;2");
   }
 
   void _onEvent(event) async {
@@ -409,6 +409,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   element[3]['value']['value'] =
@@ -463,13 +471,13 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               (element[9]['value']['rateValue'] -
                                   double.parse(element[3]['value']['value'])))
                           .toString();
-                      element[3]['value']['label'] = (double.parse(
-                                  element[3]['value']['label']) +
+                      element[3]['value']['value'] = (double.parse(
+                                  element[3]['value']['value']) +
                               (element[9]['value']['rateValue'] -
                                   double.parse(element[3]['value']['value'])))
                           .toString();
-                      element[3]['value']['value'] =
-                          element[3]['value']['label'];
+                      element[3]['value']['label'] =
+                          element[3]['value']['value'];
                       residue = element[9]['value']['rateValue'] -
                           double.parse(element[3]['value']['value']);
                       element[0]['value']['kingDeeCode'].add(item);
@@ -512,6 +520,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
+              }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
               }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
@@ -572,13 +588,13 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                 (element[9]['value']['rateValue'] -
                                     double.parse(element[3]['value']['value'])))
                             .toString();
-                        element[3]['value']['label'] = (double.parse(
-                                    element[3]['value']['label']) +
+                        element[3]['value']['value'] = (double.parse(
+                                    element[3]['value']['value']) +
                                 (element[9]['value']['rateValue'] -
                                     double.parse(element[3]['value']['value'])))
                             .toString();
-                        element[3]['value']['value'] =
-                            element[3]['value']['label'];
+                        element[3]['value']['label'] =
+                            element[3]['value']['value'];
                         residue = element[9]['value']['rateValue'] -
                             double.parse(element[3]['value']['value']);
                         element[0]['value']['kingDeeCode'].add(item);
@@ -634,7 +650,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               "-" +
                               (element[9]['value']['rateValue'] -
                                       double.parse(
-                                          element[3]['value']['label']))
+                                          element[3]['value']['value']))
                                   .toStringAsFixed(2)
                                   .toString() +
                               "-" +
@@ -650,16 +666,16 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           barcodeNum = (double.parse(barcodeNum) -
                                   (element[9]['value']['rateValue'] -
                                       double.parse(
-                                          element[3]['value']['label'])))
+                                          element[3]['value']['value'])))
                               .toString();
-                          element[3]['value']['label'] =
+                          element[3]['value']['value'] =
                               (double.parse(element[3]['value']['value']) +
                                       (element[9]['value']['rateValue'] -
                                           double.parse(
-                                              element[3]['value']['label'])))
+                                              element[3]['value']['value'])))
                                   .toString();
-                          element[3]['value']['value'] =
-                              element[3]['value']['label'];
+                          element[3]['value']['label'] =
+                              element[3]['value']['value'];
                           residue = element[9]['value']['rateValue'] -
                               double.parse(element[3]['value']['value']);
                           element[0]['value']['kingDeeCode'].add(item);
@@ -1545,7 +1561,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
-      Model['F_UUAC_Combo_uky'] = "是";
+      Model['F_UUAC_Combo_uky'] = "1";
       // ignore: non_constant_identifier_names
       var FEntity = [];
       for (int entity = 0; entity < resData.length; entity++) {

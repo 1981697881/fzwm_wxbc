@@ -396,6 +396,14 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
               if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               //判断条码数量
               if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                 //判断条码是否重复
@@ -429,6 +437,14 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 //判断是否可重复扫码
                 if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
+                }
+                if (element[4]['value']['value'] == "") {
+                  element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                  element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                }
+                if (element[1]['value']['value'] == "") {
+                  element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                  element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
                 }
                 //判断条码数量
                 if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
@@ -512,7 +528,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": '', "value": ''}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
           });
           Map<String, dynamic> inventoryMap = Map();
           inventoryMap['FormId'] = 'STK_Inventory';

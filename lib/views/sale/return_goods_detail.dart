@@ -262,7 +262,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "title": "包装规格",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[27]==null?"":value[27], "value": value[27]==null?"":value[27]}
+          "value": {"label": "", "value": ""}
+          //"value": {"label": value[27]==null?"":value[27], "value": value[27]==null?"":value[27]}
         });
         arr.add({
           "title": "单位名称",
@@ -428,6 +429,14 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               if(scanCode.length>4) {
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               if(scanCode[5] == "N" ){
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
                   element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
@@ -493,6 +502,14 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             if(element[0]['value']['barcode'].indexOf(code) == -1){
               if(scanCode.length>4) {
                 element[0]['value']['barcode'].add(code);
+              }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
               }
               if(scanCode[5] == "N" ){
                 if(element[0]['value']['scanCode'].indexOf(code) == -1){
@@ -638,11 +655,12 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             "isHide": false,
             "value": {"label": scanCode[3].toString(), "value": scanCode[3].toString()}
           });
+
           arr.add({
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": "", "value": ""}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
           });
           arr.add({
             "title": "批号",
@@ -1263,7 +1281,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       Model['FID'] = 0;
       Model['FBillTypeID'] = {"FNUMBER": "XSTHD01_SYS"};
       Model['FDate'] = FDate;
-      Model['F_UUAC_Combo_83g'] = "是";
+      Model['F_UUAC_Combo_83g'] = "1";
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};

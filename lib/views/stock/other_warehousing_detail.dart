@@ -125,7 +125,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getBagList();
     getStockList();
     //getOrganizationsList();
-    /*_onEvent("mB@CpNDtniREhhqrndaYPT9HiXOipMKs0csC7RJ8y4eJM38mGYHuig==");*/
+    //_onEvent("31064;AQ40429304N1;2024-04-30;200;MO001348,0924469143;2");
   }
   //获取部门
   getDepartmentList() async {
@@ -527,7 +527,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": '', "value": ''}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
           });
           arr.add({
             "title": "批号",
@@ -751,7 +751,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-         /* if (j==5) {
+          if (j==5) {
             comList.add(
               Column(children: [
                 Container(
@@ -789,7 +789,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 4) {
+          } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
@@ -1190,7 +1190,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
-      Model['F_UUAC_Combo_w5c'] = "是";
+      Model['F_UUAC_Combo_w5c'] = "1";
       Model['FBillTypeID'] = {"FNUMBER": "QTRKD01_SYS"};
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -1238,6 +1238,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           };
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FQty'] = element[3]['value']['value'];
+          FEntityItem['FPRODUCEDATE'] = FDate;
           FEntityItem['FOWNERTYPEID'] = "BD_OwnerOrg";
           FEntityItem['FSTOCKSTATUSID'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FOWNERID'] = {"FNumber": tissue};
