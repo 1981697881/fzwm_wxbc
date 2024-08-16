@@ -167,20 +167,20 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
+    var initial = jsonDecode(res);
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
       fStockIds.forEach((item){
-        stockListObj.forEach((element) {
-          if(element[0].toString() == item){
-            stockList.add(element[1]);
-          }
-        });
+        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
+          stockList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
+          stockListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
+        }
       });
     }else{
-      stockListObj.forEach((element) {
+      initial.forEach((element) {
         stockList.add(element[1]);
       });
+      stockListObj = initial;
     }
   }
 
@@ -286,6 +286,24 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
           "isHide": false,
           "value": {"label": "0", "value": "0"}
         });
+        arr.add({
+          "title": "生产日期",
+          "name": "FProduceDate",
+          "isHide": false,
+          "value": {
+            "label": '',
+            "value": ''
+          }
+        });
+        arr.add({
+          "title": "有效期至",
+          "name": "FExpiryDate",
+          "isHide": false,
+          "value": {
+            "label": '',
+            "value": ''
+          }
+        });
         hobby.add(arr);
       });
       setState(() {
@@ -342,7 +360,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
           if (msg == "") {
             _code = event;
             this.getMaterialList(
-                barcodeData, barcodeData[0][10], barcodeData[0][11]);
+                barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
             print("ChannelPage: $event");
           } else {
             ToastUtil.showInfo(msg);
@@ -355,13 +373,13 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
       }
     } else {
       _code = event;
-      this.getMaterialList("", _code, '');
+      this.getMaterialList("", _code, '', '', '');
       print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
   }
 
-  getMaterialList(barcodeData, code, fsn) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');

@@ -207,7 +207,7 @@ class _ReturnPageState extends State<ReturnPage> {
         arr.add({
           "title": "生产序号",
           "name": "FProdOrder",
-          "isHide": false,
+          "isHide": true,
           "value": {
            /* "label": orderDate[value][18],
             "value": orderDate[value][18]*/

@@ -131,7 +131,7 @@ class _PrintPageState extends State<PrintPage> {
               //判断成品或原料
               var println;
               var codeCont = value['FMaterialId']['FNumber'] + ';' +value['FLot']['FNumber']+ ';' +value['FProduceDate'].substring(0, 10)+ ';' +(remainingQuantity >= int.parse(packing) ? packing : remainingQuantity).toString()+ ';' +printData['FBillNo']+ ';' +DateTime.now().millisecondsSinceEpoch.toString()+ ';' +barcodeNum.toString();
-
+              print(codeCont);
               println = 'SIZE 100.0 mm,73.0 mm\r\n' +
                   'GAP 2 mm\r\n' +
                   'CLS\r\n' +

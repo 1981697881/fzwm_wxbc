@@ -87,9 +87,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     } else {
       isScanWork = false;
       this.fBillNo = '';
-      DateTime dateTime = DateTime.now();
-      FDate =
-      "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+      FDate = formatDate(DateTime.now(), [
+        yyyy,
+        "-",
+        mm,
+        "-",
+        dd,
+      ]);
       selectData[DateMode.YMD] = formatDate(DateTime.now(), [
         yyyy,
         "-",
@@ -112,7 +116,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    //_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+    _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
     EasyLoading.dismiss();
   }
 
@@ -1270,12 +1274,29 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() async {
+        setState(() {
           switch (model) {
             case DateMode.YMD:
-              Map<String, dynamic> userMap = Map();
-              selectData[model] = '${p.year}-${p.month}-${p.day}';
-              FDate = '${p.year}-${p.month}-${p.day}';
+              selectData[model] = formatDate(
+                  DateFormat('yyyy-MM-dd')
+                      .parse('${p.year}-${p.month}-${p.day}'),
+                  [
+                    yyyy,
+                    "-",
+                    mm,
+                    "-",
+                    dd,
+                  ]);
+              FDate = formatDate(
+                  DateFormat('yyyy-MM-dd')
+                      .parse('${p.year}-${p.month}-${p.day}'),
+                  [
+                    yyyy,
+                    "-",
+                    mm,
+                    "-",
+                    dd,
+                  ]);
               break;
           }
         });
@@ -1784,16 +1805,20 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         Model['FStockOutOrgId'] = {"FNumber": orderDate[0][8].toString()};
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
       } else {
-        Model['FStockOutOrgId'] = {"FNumber": this.fOrgID};
-        Model['FStockOrgId'] = {"FNumber": this.fOrgID};
+        Model['FStockOutOrgId'] = {"FNumber": this.organizationsNumber1};
+        Model['FStockOrgId'] = {"FNumber": this.organizationsNumber2};
       }
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
-      Model['FTransferBizType'] = "InnerOrgTransfer";
+      if(organizationsNumber1 == organizationsNumber2){
+        Model['FTransferBizType'] = "InnerOrgTransfer";
+      }else{
+        Model['FTransferBizType'] = "OverOrgTransfer";
+      }
       Model['FOwnerTypeOutIdHead'] = "BD_OwnerOrg";
       Model['FTransferDirect'] = "GENERAL";
       Model['FBizType'] = "GENERAL";
-      Model['FOwnerOutIdHead'] = {"FNumber": this.fOrgID};
-      Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
+      Model['FOwnerOutIdHead'] = {"FNumber": this.organizationsNumber1};
+      Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber2};
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
@@ -1802,17 +1827,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
-          FEntityItem['FOwnerId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FOwnerId'] = {"FNumber": this.organizationsNumber2};
           FEntityItem['FOwnerTypeOutId'] = "BD_OwnerOrg";
-          FEntityItem['FOwnerOutId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FOwnerOutId'] = {"FNumber": this.organizationsNumber1};
           FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
-          FEntityItem['FKeeperId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FKeeperId'] = {"FNumber": this.organizationsNumber2};
 
           FEntityItem['FMaterialId'] = {
             "FNumber": element[0]['value']['value']
           };
           FEntityItem['FKeeperTypeOutId'] = "BD_KeeperOrg";
-          FEntityItem['FKeeperOutId'] = {"FNumber": this.fOrgID};
+          FEntityItem['FKeeperOutId'] = {"FNumber": this.organizationsNumber1};
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FBaseUnitId'] = {
             "FNumber": element[2]['value']['value']
@@ -1841,6 +1866,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "FAUXPROPID__FF100002": {"FNumber": materialDate[hobbyIndex][15]}
           };
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
+          FEntityItem['FDestLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FBaseQty'] = element[3]['value']['value'];
           FEntityItem['FProduceDate'] = element[11]['value']['value'];
@@ -1943,10 +1969,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             print(codeRes);
                           } else {
                             codeModel['FOwnerID'] = {
-                              "FNUMBER": this.fOrgID
+                              "FNUMBER": this.organizationsNumber2
                             };
                             codeModel['FStockOrgID'] = {
-                              "FNUMBER": this.fOrgID
+                              "FNUMBER": this.organizationsNumber2
                             };
                             codeModel['FStockID'] = {
                               "FNUMBER": this.hobby[i][8]['value']['value']

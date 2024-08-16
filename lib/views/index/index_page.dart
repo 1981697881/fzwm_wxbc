@@ -99,7 +99,6 @@ class _IndexPageState extends State<IndexPage> {
     }
   }
   getOrganizationsList() async {
-
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'ORG_Organizations';
     userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber';
@@ -111,7 +110,6 @@ class _IndexPageState extends State<IndexPage> {
     organizationsListObj.forEach((element) {
       organizationsList.add(element[1]);
     });
-
     var tissue = sharedPreferences.getString('tissue');
     var tissueName = sharedPreferences.getString('tissueName');
     var menuData = sharedPreferences.getString('MenuPermissions');

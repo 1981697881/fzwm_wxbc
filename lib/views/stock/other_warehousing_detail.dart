@@ -125,7 +125,6 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getBagList();
     getStockList();
     //getOrganizationsList();
-    //_onEvent("31064;AQ40429304N1;2024-04-30;200;MO001348,0924469143;2");
   }
   //获取部门
   getDepartmentList() async {
@@ -154,20 +153,20 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
+    var initial = jsonDecode(res);
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
       fStockIds.forEach((item){
-        stockListObj.forEach((element) {
-          if(element[0].toString() == item){
-            stockList.add(element[1]);
-          }
-        });
+        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
+          stockList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
+          stockListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
+        }
       });
     }else{
-      stockListObj.forEach((element) {
+      initial.forEach((element) {
         stockList.add(element[1]);
       });
+      stockListObj = initial;
     }
   }
   //获取包装规格
@@ -1099,10 +1098,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.text,
-                              inputFormatters: [
+                              keyboardType: this.hobby[checkData][checkDataChild]["title"]=="批号"? TextInputType.text: TextInputType.number,
+                              /*inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
-                              ],
+                              ],*/
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {

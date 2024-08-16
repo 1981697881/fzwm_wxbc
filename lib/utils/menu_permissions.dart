@@ -170,7 +170,7 @@ class MenuPermissions {
       "source": '',
     });menu.add({
       "icon": Icons.loupe,
-      "text": "其他出库",
+      "text": "其他出库(有源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": ExWarehousePage(),

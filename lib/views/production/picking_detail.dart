@@ -75,6 +75,9 @@ class _PickingDetailState extends State<PickingDetail> {
   var selectData = {
     DateMode.YMD: "",
   };
+  //包装规格
+  var bagList = [];
+  List<dynamic> bagListObj = [];
   var stockList = [];
   var hobbyItem = [];
   List<dynamic> stockListObj = [];
@@ -101,7 +104,7 @@ class _PickingDetailState extends State<PickingDetail> {
   var FMemoItem;
   var FBarcode;
   var fOrgID;
-
+  final controller = TextEditingController();
   _PickingDetailState(
       fBillNo, FSeq, fEntryId, fid, FProdOrder, FBarcode, FMemoItem) {
     this.fBillNo = fBillNo['value'];
@@ -128,8 +131,23 @@ class _PickingDetailState extends State<PickingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     getWorkShop();
+    getBagList();
+    /* getWorkShop();*/
   }
-
+  //获取包装规格
+  getBagList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BOS_ASSISTANTDATA_DETAIL';
+    userMap['FieldKeys'] = 'FNumber,FDataValue,FId';
+    userMap['FilterString'] = [{"Left":"(","FieldName":"FId","Compare":"67","Value":"64746193a3e99b","Right":")","Logic":"0"}];
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    bagListObj = jsonDecode(res);
+    bagListObj.forEach((element) {
+      bagList.add(element[1]);
+    });
+  }
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -170,20 +188,20 @@ class _PickingDetailState extends State<PickingDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
+    var initial = jsonDecode(res);
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
       fStockIds.forEach((item){
-        stockListObj.forEach((element) {
-          if(element[0].toString() == item){
-            stockList.add(element[1]);
-          }
-        });
+        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
+          stockList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
+          stockListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
+        }
       });
     }else{
-      stockListObj.forEach((element) {
+      initial.forEach((element) {
         stockList.add(element[1]);
       });
+      stockListObj = initial;
     }
   }
 
@@ -243,7 +261,7 @@ class _PickingDetailState extends State<PickingDetail> {
         OrderMap['FilterString'] =
         "FID='$entitysNumber' ";//and FLot.FNumber != ''
         OrderMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAUXPROPID.FF100002.FNumber,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FMoEntryId,FPPBomEntryId,FEntryWorkShopId.FNumber';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAUXPROPID.FF100002.FNumber,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FMoEntryId,FPPBomEntryId,FEntryWorkShopId.FNumber,FMaterialId.FIsKFPeriod';
         String order = await CurrencyEntity.polling({'data': OrderMap});
         this.getOrderListT(order);
       } else {
@@ -369,6 +387,7 @@ class _PickingDetailState extends State<PickingDetail> {
           "FEntryID": value[5],
           "FParentMaterialId": value[25],
           "FEntryWorkShopId": value[28],
+          "FIsKFPeriod": value[29],
           "FMoEntryId": value[26],
           "FPPBomEntryId": value[27],
           "FOwnerId": value[17],
@@ -503,6 +522,24 @@ class _PickingDetailState extends State<PickingDetail> {
           "isHide": true,
           "value": {"label": "", "value": "", "itemList": []}
         });
+        arr.add({
+          "title": "生产日期",
+          "name": "FProduceDate",
+          "isHide": !value[29],
+          "value": {
+            "label": '',
+            "value": ''
+          }
+        });
+        arr.add({
+          "title": "有效期至",
+          "name": "FExpiryDate",
+          "isHide": !value[29],
+          "value": {
+            "label": '',
+            "value": ''
+          }
+        });
         hobby.add(arr);
       };
       setState(() {
@@ -516,17 +553,11 @@ class _PickingDetailState extends State<PickingDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-     /*_onEvent("13111;G20240108科曼斯/长舟;2024-01-08;50;,0935357908;3");
-     _onEvent("13111;240429科曼斯/长舟;2024-04-29;50;CGRK02123,1108189476;2");
-     _onEvent("13111;240429科曼斯/长舟;2024-04-29;50;CGRK02123,1108189543;3");
-     _onEvent("13111;240429科曼斯/长舟;2024-04-29;50;CGRK02123,1108189946;10");
-     _onEvent("13111;240429科曼斯/长舟;2024-04-29;50;CGRK02123,1108190003;11");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084088;2");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084245;3");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084245;4");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084403;6");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084403;7");
-     _onEvent("13111;20240323旭观/长舟;2024-03-23;50;CGRK02164,1719084555;9");*/
+    /*_onEvent("13026;20240515鑫灏/滨化;2024-05-15;766;,1503170280;2");
+    _onEvent("13012;24031301鑫灏/展化;2024-03-13;235;,2121490693;4");
+     _onEvent("13012;20231213科曼斯/龙翔;2023-12-13;10;,2123054921;4");
+    _onEvent("11057;24C2493261遂悦/巴斯夫;2024-03-29;731;,2124408211;2");
+    _onEvent("11057;20240326遂悦/巴斯夫;2024-03-26;1000;,2124246395;2");*/
   }
 
   void _onEvent(event) async {
@@ -542,7 +573,7 @@ class _PickingDetailState extends State<PickingDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec,FProduceDate,FExpiryDate';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -577,7 +608,7 @@ class _PickingDetailState extends State<PickingDetail> {
             dataStockMap['data'] = stockMap;
             String stockOrder = await CurrencyEntity.polling(dataStockMap);*/
             this.getMaterialList(
-                barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13]);//jsonDecode(stockOrder)[0][0]
+                barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13], barcodeData[0][14].substring(0, 10), barcodeData[0][15].substring(0, 10));//jsonDecode(stockOrder)[0][0]
             print("ChannelPage: $event");
           } else {
             ToastUtil.showInfo(msg);
@@ -590,13 +621,13 @@ class _PickingDetailState extends State<PickingDetail> {
       }
     } else {
       _code = event;
-      this.getMaterialList("", _code, '', '');
+      this.getMaterialList("", _code, '', '', '', '');
       print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
   }
 
-  getMaterialList(barcodeData, code, fsn,fAuxPropId) async {
+  getMaterialList(barcodeData, code, fsn,fAuxPropId, fProduceDate, fExpiryDate) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -607,7 +638,7 @@ class _PickingDetailState extends State<PickingDetail> {
         tissue;
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-        'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber';
+        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FStockId.FName,FStockId.FNumber,FIsKFPeriod';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -629,6 +660,7 @@ class _PickingDetailState extends State<PickingDetail> {
       var insertIndex = 0;
       var surplus = 0.0;
       var parseEntryID = -1;
+      var fIsKFPeriod = materialDate[0][7];
       this.hobbyItem = [];
       for(var i = 0;i<this.hobby.length;i++){
         if(this.hobbyItem.length==0){
@@ -644,13 +676,18 @@ class _PickingDetailState extends State<PickingDetail> {
         }
       }
       for (var element in hobby) {
-        hobbyIndex++;
         var entryIndex;
-        if(element[0]['FEntryID'] == 0){
-          entryIndex = this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()));
+        if(this.fBillNo == ''){
+          entryIndex = hobbyIndex;
         }else{
-          entryIndex = this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['FEntryID'].toString()));
+          if(element[0]['FEntryID'] == 0){
+            entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
+          }else{
+            entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['FEntryID'].toString()))]['index'];
+          }
         }
+
+        hobbyIndex++;
         //判断是否启用批号
         if (element[5]['isHide']) {
           //不启用  && element[4]['value']['value'] == barCodeScan[6]
@@ -659,16 +696,22 @@ class _PickingDetailState extends State<PickingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if (element[1]['value']['value'] == "") {
-                element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-              }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
+                    element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
+                  }
+                  if (element[14]['value']['value'] == "") {
+                    element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
+                    element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
+                    element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
+                    element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                  }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -705,6 +748,20 @@ class _PickingDetailState extends State<PickingDetail> {
                     residue > 0) {
                   //判断条码是否重复
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                    if (element[4]['value']['value'] == "") {
+                      element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                      element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                    }
+                    if (element[1]['value']['value'] == "") {
+                      element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
+                      element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
+                    }
+                    if (element[14]['value']['value'] == "") {
+                      element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
+                      element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
+                      element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
+                      element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                    }
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
                             element[0]['value']['value'].toString()) ==
@@ -759,6 +816,7 @@ class _PickingDetailState extends State<PickingDetail> {
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       number++;
+                      break;
                     } else {
                       var item = barCodeScan[0].toString() +
                           "-" +
@@ -800,8 +858,9 @@ class _PickingDetailState extends State<PickingDetail> {
               number++;
               break;
             }
-            surplus = element[0]['value']['surplus'];
+            surplus = hobby[entryIndex][0]['value']['surplus'];
             parseEntryID = hobby[entryIndex][0]['FEntryID'];
+            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
             insertIndex = hobbyIndex;
           }
         } else {
@@ -811,16 +870,23 @@ class _PickingDetailState extends State<PickingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if (element[1]['value']['value'] == "") {
-                element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-              }
+
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
+                    element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
+                  }
+                  if (element[14]['value']['value'] == "") {
+                    element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
+                    element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
+                    element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
+                    element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                  }
                   if (element[5]['value']['value'] == "") {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
@@ -863,6 +929,20 @@ class _PickingDetailState extends State<PickingDetail> {
                       residue > 0) {
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                      if (element[4]['value']['value'] == "") {
+                        element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                        element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                      }
+                      if (element[1]['value']['value'] == "") {
+                        element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
+                        element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
+                      }
+                      if (element[14]['value']['value'] == "") {
+                        element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
+                        element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
+                        element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
+                        element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                      }
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
                               element[0]['value']['value'].toString()) ==
@@ -920,6 +1000,7 @@ class _PickingDetailState extends State<PickingDetail> {
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         number++;
+                        break;
                       } else {
                         var item = barCodeScan[0].toString() +
                             "-" +
@@ -976,6 +1057,20 @@ class _PickingDetailState extends State<PickingDetail> {
                         residue > 0) {
                       //判断条码是否重复
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                        if (element[4]['value']['value'] == "") {
+                          element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                          element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                        }
+                        if (element[1]['value']['value'] == "") {
+                          element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
+                          element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
+                        }
+                        if (element[14]['value']['value'] == "") {
+                          element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
+                          element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
+                          element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
+                          element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                        }
                         //判断末尾
                         /* if (fNumber.lastIndexOf(
                                 element[0]['value']['value'].toString()) ==
@@ -1034,6 +1129,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           number++;
+                          break;
                         } else {
                           var item = barCodeScan[0].toString() +
                               "-" +
@@ -1079,15 +1175,18 @@ class _PickingDetailState extends State<PickingDetail> {
               number++;
               break;
             }
-            surplus = element[0]['value']['surplus'];
+            surplus = hobby[entryIndex][0]['value']['surplus'];
             parseEntryID = hobby[entryIndex][0]['FEntryID'];
+            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
             insertIndex = hobbyIndex;
           }
         }
       }
       if (number == 0 ) {
         var inserNum = 0.0;
-        if(double.parse(barCodeScan[4]) >= surplus){
+        print("剩余");
+        print(surplus);
+        if(double.parse(barCodeScan[4]) >= surplus && this.fBillNo!=''){
           inserNum = surplus;
         }else{
           inserNum = double.parse(barCodeScan[4]);
@@ -1103,8 +1202,16 @@ class _PickingDetailState extends State<PickingDetail> {
             "name": "FMaterialId",
             "FEntryID": 0,
             "parseEntryID": parseEntryID,
+            "FIsKFPeriod": fIsKFPeriod,
             "isHide": false,
-            "value": {"surplus": surplus,"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
+            "value": {
+              "surplus": surplus,
+              "label": value[1] + "- (" + value[2] + ")",
+              "value": value[2],
+              "barcode": [code],
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],
+              "scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]
+            }
           });
           arr.add({
             "title": "包装规格",
@@ -1186,6 +1293,24 @@ class _PickingDetailState extends State<PickingDetail> {
             "isHide": true,
             "value": {"label": "", "value": "", "itemList": []}
           });
+          arr.add({
+            "title": "生产日期",
+            "name": "FProduceDate",
+            "isHide": !fIsKFPeriod,
+            "value": {
+              "label": fProduceDate,
+              "value": fProduceDate
+            }
+          });
+          arr.add({
+            "title": "有效期至",
+            "name": "FExpiryDate",
+            "isHide": !fIsKFPeriod,
+            "value": {
+              "label": fExpiryDate,
+              "value": fExpiryDate
+            }
+          });
           hobby.insert(insertIndex, arr);
         });
       }
@@ -1200,7 +1325,6 @@ class _PickingDetailState extends State<PickingDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    var checkItem = jsonEncode(hobby);
   }
 
   void _onError(Object error) {
@@ -1279,13 +1403,11 @@ class _PickingDetailState extends State<PickingDetail> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() async {
+        setState(()  {
           switch (model) {
             case DateMode.YMD:
-              Map<String, dynamic> userMap = Map();
               selectData[model] = '${p.year}-${p.month}-${p.day}';
               FDate = '${p.year}-${p.month}-${p.day}';
-              await getOrderList();
               break;
           }
         });
@@ -1565,6 +1687,96 @@ class _PickingDetailState extends State<PickingDetail> {
       },
     );
   }
+  setClickData(Map<dynamic,dynamic> dataItem, val) async{
+    setState(() {
+      dataItem['value']['value'] = val;
+      dataItem['value']['label'] = val;
+    });
+  }
+  Future<List<int>?> _showMultiChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    List selected = [];
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment:
+                CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0,left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.controller,
+                        decoration: new InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(
+                                bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value){
+                          options = [];
+                          for(var element in this.bagListObj){
+                            options.add(element[1]);
+                          }
+                          setState(() {
+                            options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(children: <Widget>[Text(options[index],
+                      )
+                      ], mainAxisAlignment: MainAxisAlignment.center,),
+                      onTap: () async{
+                        await this.setClickData(dataItem, options[index]);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -1700,6 +1912,34 @@ class _PickingDetailState extends State<PickingDetail> {
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
                   stock: this.hobby[i]),
+            );
+          }else if (j == 1) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.bagList = [];
+                                for(var element in this.bagListObj){
+                                  this.bagList.add(element[1]);
+                                }
+                                _showMultiChoiceModalBottomSheet(context, this.bagList,  this.hobby[i][j]);
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
             );
           } else if ( j == 11) {
             comList.add(
@@ -2061,7 +2301,7 @@ class _PickingDetailState extends State<PickingDetail> {
                   Map<String, dynamic> codeFEntityItem = Map();
                   codeFEntityItem['FBillDate'] = FDate;
                   codeFEntityItem['FOutQty'] = itemCode[1];
-                  codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                  codeFEntityItem['FEntryBillNo'] = orderDate[0][0];
                   codeFEntityItem['FEntryStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
@@ -2163,6 +2403,20 @@ class _PickingDetailState extends State<PickingDetail> {
     print(orderData);*/
     var FEntity = [];
     var hobbyIndex = 0;
+    this.hobbyItem = [];
+    for(var i = 0;i<this.hobby.length;i++){
+      if(this.hobbyItem.length==0){
+        Map<String, dynamic> hobbyMap = Map();
+        hobbyMap['number'] = this.hobby[i][0]['value']['value']+"-"+this.hobby[i][0]['FEntryID'].toString();
+        hobbyMap['index'] = i;
+        this.hobbyItem.add(hobbyMap);
+      }else if(this.hobby[i][0]['FEntryID'] != 0){
+        Map<String, dynamic> hobbyMap = Map();
+        hobbyMap['number'] = this.hobby[i][0]['value']['value']+"-"+this.hobby[i][0]['FEntryID'].toString();
+        hobbyMap['index'] = i;
+        this.hobbyItem.add(hobbyMap);
+      }
+    }
     for (var element in this.hobby) {
   /*    for (var collarOrder in orderDataList) {
         if (collarOrder[3] == element[0]['value']['value']) {*/
@@ -2209,13 +2463,13 @@ class _PickingDetailState extends State<PickingDetail> {
             }*/
             Map<String, dynamic> FEntityItem = Map();
             var entryIndex;
+
             if(element[0]['FEntryID'] == 0){
-              entryIndex = this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()));
+              entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
               print(this.hobbyItem);
               print(element[0]['value']['value']);
               print(element[0]['parseEntryID']);
               print(entryIndex);
-              print(orderDate[entryIndex]);
               FEntityItem['FParentMaterialId'] = {"FNumber": this.hobby[entryIndex][0]['FParentMaterialId']};
               FEntityItem['FEntryWorkShopId'] = {"FNumber": this.hobby[entryIndex][0]['FEntryWorkShopId']};
               FEntityItem['FMoEntryId'] = this.hobby[entryIndex][0]['FMoEntryId'];
@@ -2232,9 +2486,14 @@ class _PickingDetailState extends State<PickingDetail> {
               FEntityItem['FKeeperTypeId'] = this.hobby[entryIndex][0]['FKeeperTypeId'];
               FEntityItem['FParentOwnerTypeId'] = this.hobby[entryIndex][0]['FParentOwnerTypeId'];
               FEntityItem['FKeeperId'] = {"FNumber": this.hobby[entryIndex][0]['FKeeperId']};
+
             }
             FEntityItem['FEntryID'] = element[0]['FEntryID'];
             FEntityItem['FActualQty'] = element[3]['value']['value'];
+            if(element[0]['FIsKFPeriod']){
+              FEntityItem['FProduceDate'] = element[14]['value']['value'];
+              FEntityItem['FExpiryDate'] = element[15]['value']['value'];
+            }
             FEntityItem['FSNQty'] = element[3]['value']['value'];
             FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
             FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};

@@ -306,6 +306,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:crypto/crypto.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fzwm_wxbc/model/login_entity.dart';
 import 'package:flutter/material.dart';

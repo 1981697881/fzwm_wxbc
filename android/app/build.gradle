@@ -55,8 +55,14 @@ android {
             }
     }
     signingConfigs {
+        debug {
+            storeFile file("pda.jks")
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+        }
         release {
-            storeFile file("E:\\Android\\fzwm_wxbc\\android\\app\\pda.jks")
+            storeFile file("pda.jks")
             storePassword "123456"
             keyAlias "key0"
             keyPassword "123456"

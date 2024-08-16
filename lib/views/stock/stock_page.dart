@@ -81,26 +81,25 @@ class _StockPageState extends State<StockPage> {
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + tissue + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    warehouseListObj = jsonDecode(res);
+    var initial = jsonDecode(res);
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
     if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
       fStockIds.forEach((item){
-        warehouseListObj.forEach((element) {
-          if(element[0].toString() == item){
-            warehouseList.add(element[1]);
-          }
-        });
+        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
+          warehouseList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
+          warehouseListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
+        }
       });
     }else{
       warehouseListObj.forEach((element) {
         warehouseList.add(element[1]);
       });
+      warehouseListObj = initial;
     }
-
   }
 
   // 集合
