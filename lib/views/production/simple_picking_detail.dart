@@ -101,6 +101,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       this.getOrderList();
     }else{
       this.fBillNo = '';
+      _onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
     }
   }
 
@@ -118,7 +119,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-   /* _onEvent("13111;20240213科曼斯/长舟;2024-02-13;1338;,1451410210;2");*/
+
     /* getTypeList();*/
     getCustomer();
     getDepartmentList();
@@ -1528,6 +1529,10 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           //FEntityItem['FProductNo'] = DateTime.now().millisecondsSinceEpoch.toString();
           FEntityItem['FStockId'] = {
             "FNumber": element[4]['value']['value']
+          };
+          FEntityItem['FProductNo'] = element[13]['value']['value'];
+          FEntityItem['FProductId'] = {
+            "FNumber": element[14]['value']['value']
           };
           FEntityItem['FStockLocId'] = {
             "FSTOCKLOCID__FF100011": {
