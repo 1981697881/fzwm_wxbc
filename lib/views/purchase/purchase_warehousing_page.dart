@@ -111,7 +111,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -159,10 +159,10 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "交货数量",
+          "title": "剩余数量",
           "name": "FQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {"label": (value[12] - value[15])>0?(value[12] - value[15]): 0, "value": (value[12] - value[15])>0?(value[12] - value[15]): 0}
         });
         arr.add({
           "title": "供应商",

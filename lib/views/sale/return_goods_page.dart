@@ -84,22 +84,22 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate' and FQty != FJoinRetQty";
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FRetcustId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FBillCloseStatus='A'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FRetcustId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FBillCloseStatus='A' and FQty != FJoinRetQty";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FRetcustId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FBillCloseStatus='A'";
+        userMap['FilterString'] = "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FRetcustId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FBillCloseStatus='A' and FQty != FJoinRetQty";
       }else{
         if(this._dateSelectText != ""){
           this.startDate = this._dateSelectText.substring(0,10);
           this.endDate = this._dateSelectText.substring(26,36);
-          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FDate>= '$startDate' and FDate <= '$endDate' and FQty != FJoinRetQty";
         }else{
-          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A'";
+          userMap['FilterString'] = "FDocumentStatus ='C' and FBillCloseStatus='A' and FQty != FJoinRetQty";
         }
       }
     }
@@ -161,7 +161,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "数量",
+          "title": "销售数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -173,10 +173,10 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
           "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
-          "title": "退货数量",
+          "title": "可退数量",
           "name": "FJoinRetQty",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": (value[12] - value[14])>0?(value[12] - value[14]): 0, "value": (value[12] - value[14])>0?(value[12] - value[14]): 0}
         });
         hobby.add(arr);
       });

@@ -1316,6 +1316,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       Model['FOwnerId0'] = {"FNumber": tissue};
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FDescription'] = this._remarkContent.text;
+      Model['F_UUAC_PrivateCombo_83g'] = "1";
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {

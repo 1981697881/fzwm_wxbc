@@ -253,7 +253,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -353,13 +353,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "value": {"label": value[18], "value": value[18]}
         });
         arr.add({
-          "title": "实到数量",
+          "title": "剩余数量",
           "name": "",
           "isHide": false,
           "value": {
-            "label": value[12],
-            "value": value[12],
-            "rateValue": value[12]
+            "label": (value[12] - value[28])>0?value[12] - value[28]: 0,
+            "value": (value[12] - value[28])>0?value[12] - value[28]: 0,
+            "rateValue": (value[12] - value[28])>0?value[12] - value[28]: 0
           } /*+value[12]*0.1*/
         });
         arr.add({
@@ -495,16 +495,17 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if (element[1]['value']['value'] == "") {
-                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
-                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
-              }
+
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                    element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                  }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -532,11 +533,20 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     double.parse(barcodeNum)) >
                     0 &&
                     double.parse(barcodeNum) > 0) {
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                    element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                  }
                   if ((double.parse(element[3]['value']['value']) +
                       double.parse(barcodeNum)) >=
                       element[9]['value']['rateValue']) {
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+
                       var item = barCodeScan[0].toString() +
                           "-" +
                           (element[9]['value']['rateValue'] -
@@ -569,6 +579,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                     }
+                    break;
                   } else {
                     //数量不超出
                     //判断条码是否重复
@@ -607,16 +618,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if (element[1]['value']['value'] == "") {
-                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
-                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
-              }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
+                  if (element[4]['value']['value'] == "") {
+                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                  }
+                  if (element[1]['value']['value'] == "") {
+                    element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                    element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                  }
                   if (element[5]['value']['value'] == "") {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
@@ -649,6 +660,14 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       double.parse(barcodeNum)) >
                       0 &&
                       double.parse(barcodeNum) > 0) {
+                    if (element[4]['value']['value'] == "") {
+                      element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                      element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                    }
+                    if (element[1]['value']['value'] == "") {
+                      element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                      element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                    }
                     if ((double.parse(element[3]['value']['value']) +
                         double.parse(barcodeNum)) >=
                         element[9]['value']['rateValue']) {
@@ -686,6 +705,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                       }
+                      break;
                     } else {
                       //数量不超出
                       //判断条码是否重复
@@ -714,8 +734,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 }
               } else {
                 if (element[5]['value']['value'] == "") {
-                  element[5]['value']['label'] = scanCode[1];
-                  element[5]['value']['value'] = scanCode[1];
+
                   //判断扫描数量是否大于单据数量
                   if (double.parse(element[3]['value']['value']) >=
                       element[9]['value']['rateValue']) {
@@ -726,6 +745,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         double.parse(barcodeNum)) >
                         0 &&
                         double.parse(barcodeNum) > 0) {
+                      if (element[4]['value']['value'] == "") {
+                        element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                        element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                      }
+                      if (element[1]['value']['value'] == "") {
+                        element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                        element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+                      }
+                      element[5]['value']['label'] = scanCode[1];
+                      element[5]['value']['value'] = scanCode[1];
                       if ((double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum)) >=
                           element[9]['value']['rateValue']) {
@@ -767,6 +796,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                         }
+                        break;
                       } else {
                         //数量不超出
                         //判断条码是否重复
@@ -2103,6 +2133,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                       arr.add({
                                         "title": "物料名称",
                                         "name": "FMaterial",
+                                        "FBaseUnitID": value[17],
+                                        "FSRCBILLTYPEID": value[24],
+                                        "FSRCBillNo": value[0],
+                                        "FPOQTY": value[12],
+                                        "FPOOrderNo": value[17],
+                                        "FTaxPrice": value[18],
+                                        "FEntryTaxRate": value[19],
+                                        "FNote": value[23],
+                                        "FID": value[14],
+                                        "FEntryId": value[4],
                                         "isHide": false,
                                         "value": {
                                           "label": value[6] + "- (" + value[5] + ")",

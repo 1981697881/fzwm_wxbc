@@ -101,7 +101,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       this.getOrderList();
     }else{
       this.fBillNo = '';
-      _onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
+      //_onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
     }
   }
 
@@ -216,16 +216,16 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"' and FCategoryID = 241";
+    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"' and FCategoryID in (241, 239)";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-    'FNumber';
+    'FNumber,FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     commodityListObj = jsonDecode(res);
     commodityListObj.forEach((element) {
-      commodityList.add(element[0]);
+      commodityList.add(element[0]+"-"+element[1]);
     });
   }
   //获取组织
@@ -1026,7 +1026,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                         onSubmitted: (value){
                           options = [];
                           for(var element in this.commodityListObj){
-                            options.add(element[0]);
+                            options.add(element[0]+"-"+element[1]);
                           }
                           setState(() {
                             options = options.where((item) => item.contains(value)).toList();
@@ -1219,7 +1219,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                                 this.commodityList = [];
                                 for(var element in this.commodityListObj){
 
-                                  this.commodityList.add(element[0]);
+                                  this.commodityList.add(element[0]+"-"+element[1]);
                                 }
                                 _showMultiChoiceProduceBottomSheet(context, this.commodityList,  this.hobby[i][j]);
                               },
@@ -1506,6 +1506,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       Model['FWorkShopId'] = {"FNumber": this.departmentNumber};
       Model['FOwnerTypeId0'] = "BD_OwnerOrg";
       Model['FDescription'] = this._remarkContent.text;
+      Model['F_UUAC_Combo_apv'] = "1";
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {

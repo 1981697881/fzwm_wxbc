@@ -116,7 +116,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+   // _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
     EasyLoading.dismiss();
   }
 

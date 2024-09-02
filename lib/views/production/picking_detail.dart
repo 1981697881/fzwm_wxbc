@@ -2480,13 +2480,11 @@ class _PickingDetailState extends State<PickingDetail> {
               FEntityItem['FUnitID'] = {"FNumber": this.hobby[entryIndex][0]['FUnitID']};
               FEntityItem['FBaseUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FBaseUnitId']};
               FEntityItem['FStockUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FStockUnitId']};
-              FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
               FEntityItem['FOwnerTypeId'] = this.hobby[entryIndex][0]['FOwnerTypeId'];
               FEntityItem['FMoBillNo'] =  this.hobby[entryIndex][0]['FMoBillNo'];
               FEntityItem['FKeeperTypeId'] = this.hobby[entryIndex][0]['FKeeperTypeId'];
               FEntityItem['FParentOwnerTypeId'] = this.hobby[entryIndex][0]['FParentOwnerTypeId'];
               FEntityItem['FKeeperId'] = {"FNumber": this.hobby[entryIndex][0]['FKeeperId']};
-
             }
             FEntityItem['FEntryID'] = element[0]['FEntryID'];
             FEntityItem['FActualQty'] = element[3]['value']['value'];
@@ -2496,6 +2494,7 @@ class _PickingDetailState extends State<PickingDetail> {
             }
             FEntityItem['FSNQty'] = element[3]['value']['value'];
             FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+            FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
             FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
             FEntityItem['FAuxPropId'] = {
               "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}

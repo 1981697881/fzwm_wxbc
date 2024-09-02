@@ -274,7 +274,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             "barcode": [],
             "kingDeeCode": [],
             "scanCode": [],
-            "surplus": value[12] - value[14]
+            "surplus": (value[12] - value[14])>0?(value[12] - value[14]): 0
           }
         });
         arr.add({
@@ -330,7 +330,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "title": "可退数量",
           "name": "",
           "isHide": false,
-          "value": {"label":  value[12] - value[14], "value":  value[12] - value[14]}
+          "value": {"label":  (value[12] - value[14])>0?(value[12] - value[14]): 0, "value":  (value[12] - value[14])>0?(value[12] - value[14]): 0}
         });
         arr.add({
           "title": "最后扫描数量",
