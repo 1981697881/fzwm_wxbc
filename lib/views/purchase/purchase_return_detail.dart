@@ -1018,6 +1018,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           return;
         }
         for (var value in materialDate) {
+          var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
+          hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
         //materialDate.forEach((value) {
           List arr = [];
           arr.add({

@@ -1186,16 +1186,21 @@ class _PickingDetailState extends State<PickingDetail> {
         var inserNum = 0.0;
         print("剩余");
         print(surplus);
+
+
         if(double.parse(barCodeScan[4]) >= surplus && this.fBillNo!=''){
           inserNum = surplus;
         }else{
           inserNum = double.parse(barCodeScan[4]);
         }
+
         if(inserNum == 0){
           ToastUtil.showInfo('该物料领料数量已达上限');
           return;
         }
         materialDate.forEach((value) {
+          var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
+          hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
           List arr = [];
           arr.add({
             "title": "物料编码",
@@ -1263,7 +1268,7 @@ class _PickingDetailState extends State<PickingDetail> {
           arr.add({
             "title": "用量",
             "name": "FPrdOrgId",
-            "isHide": true,
+            "isHide": false,
             "value": {"label": surplus, "value": surplus}
           });
           arr.add({
