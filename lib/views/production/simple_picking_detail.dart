@@ -1533,7 +1533,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           };
           FEntityItem['FProductNo'] = element[13]['value']['value'];
           FEntityItem['FProductId'] = {
-            "FNumber": element[14]['value']['value']
+            "FNumber": element[14]['value']['value'].split("-")[0]
           };
           FEntityItem['FStockLocId'] = {
             "FSTOCKLOCID__FF100011": {
