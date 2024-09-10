@@ -375,9 +375,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       } else {
         barCodeScan = scanCode;
       }
-      var barcodeNum = scanCode[3];
-      var barcodeQuantity = scanCode[3];
-      var residue = double.parse(scanCode[3]);
+      var barcodeNum = barCodeScan[4];
+      var barcodeQuantity = barCodeScan[4];
+      var residue = double.parse(barCodeScan[4]);
       var hobbyIndex = 0;
       var insertIndex = 0;
       var surplus = 0.0;
@@ -909,8 +909,10 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           return;
         }
         for (var value in materialDate) {
-          var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
-          hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
+          if(this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString())) != -1){
+            var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
+            hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
+          }
           List arr = [];
           arr.add({
             "title": "物料名称",
@@ -1763,6 +1765,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FAppQty'] = element[3]['value']['value'];
           FEntityItem['FActualQty'] = element[3]['value']['value'];
           if(element[0]['FIsKFPeriod']){
             FEntityItem['FProduceDate'] = element[11]['value']['value'];

@@ -495,7 +495,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               if (scanCode.length > 4) {
                 element[0]['value']['barcode'].add(code);
               }
-
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   if (element[4]['value']['value'] == "") {
@@ -567,13 +566,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           (element[9]['value']['rateValue'] -
                               double.parse(element[3]['value']['value'])))
                           .toString();
-                      element[3]['value']['label'] = (double.parse(
-                          element[3]['value']['label']) +
+                      element[3]['value']['value'] = (double.parse(
+                          element[3]['value']['value']) +
                           (element[9]['value']['rateValue'] -
                               double.parse(element[3]['value']['value'])))
                           .toString();
-                      element[3]['value']['value'] =
-                      element[3]['value']['label'];
+                      element[3]['value']['label'] = element[3]['value']['value'];
                       residue = element[9]['value']['rateValue'] -
                           double.parse(element[3]['value']['value']);
                       element[0]['value']['kingDeeCode'].add(item);
@@ -584,12 +582,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     //数量不超出
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                      element[3]['value']['label'] =
+                      element[3]['value']['value'] =
                           (double.parse(element[3]['value']['value']) +
                               double.parse(barcodeNum))
                               .toString();
-                      element[3]['value']['value'] =
-                      element[3]['value']['label'];
+                      element[3]['value']['label'] =
+                      element[3]['value']['value'];
                       var item = barCodeScan[0].toString() +
                           "-" +
                           barcodeNum +
@@ -693,13 +691,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                             (element[9]['value']['rateValue'] -
                                 double.parse(element[3]['value']['value'])))
                             .toString();
-                        element[3]['value']['label'] = (double.parse(
-                            element[3]['value']['label']) +
+                        element[3]['value']['value'] = (double.parse(
+                            element[3]['value']['value']) +
                             (element[9]['value']['rateValue'] -
                                 double.parse(element[3]['value']['value'])))
                             .toString();
-                        element[3]['value']['value'] =
-                        element[3]['value']['label'];
+                        element[3]['value']['label'] =
+                        element[3]['value']['value'];
                         residue = element[9]['value']['rateValue'] -
                             double.parse(element[3]['value']['value']);
                         element[0]['value']['kingDeeCode'].add(item);
@@ -710,12 +708,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       //数量不超出
                       //判断条码是否重复
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                        element[3]['value']['label'] =
+                        element[3]['value']['value'] =
                             (double.parse(element[3]['value']['value']) +
                                 double.parse(barcodeNum))
                                 .toString();
-                        element[3]['value']['value'] =
-                        element[3]['value']['label'];
+                        element[3]['value']['label'] =
+                        element[3]['value']['value'];
                         var item = barCodeScan[0].toString() +
                             "-" +
                             barcodeNum +
@@ -765,7 +763,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               "-" +
                               (element[9]['value']['rateValue'] -
                                   double.parse(
-                                      element[3]['value']['label']))
+                                      element[3]['value']['value']))
                                   .toStringAsFixed(2)
                                   .toString() +
                               "-" +
@@ -781,16 +779,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           barcodeNum = (double.parse(barcodeNum) -
                               (element[9]['value']['rateValue'] -
                                   double.parse(
-                                      element[3]['value']['label'])))
+                                      element[3]['value']['value'])))
                               .toString();
-                          element[3]['value']['label'] =
+                          element[3]['value']['value'] =
                               (double.parse(element[3]['value']['value']) +
                                   (element[9]['value']['rateValue'] -
                                       double.parse(
-                                          element[3]['value']['label'])))
+                                          element[3]['value']['value'])))
                                   .toString();
-                          element[3]['value']['value'] =
-                          element[3]['value']['label'];
+                          element[3]['value']['label'] =
+                          element[3]['value']['value'];
                           residue = element[9]['value']['rateValue'] -
                               double.parse(element[3]['value']['value']);
                           element[0]['value']['kingDeeCode'].add(item);
@@ -802,12 +800,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         //判断条码是否重复
                         if (element[0]['value']['scanCode'].indexOf(code) ==
                             -1) {
-                          element[3]['value']['label'] =
+                          element[3]['value']['value'] =
                               (double.parse(element[3]['value']['value']) +
                                   double.parse(barcodeNum))
                                   .toString();
-                          element[3]['value']['value'] =
-                          element[3]['value']['label'];
+                          element[3]['value']['label'] =
+                          element[3]['value']['value'];
                           var item = barCodeScan[0].toString() +
                               "-" +
                               barcodeNum +
@@ -2859,11 +2857,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       number++;
                     }
                   }
-                  if (number==0) {
+                  saveOrder(false);
+                  /*if (number==0) {
                     saveOrder(false);
                   } else {
                     saveOrder(true);
-                  }
+                  }*/
                 },
               )
             ],

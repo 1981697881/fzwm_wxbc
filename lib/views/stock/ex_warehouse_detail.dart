@@ -370,7 +370,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "剩余数量",
+          "title": "申请数量",
           "name": "",
           "isHide": false,
           "value": {"label": value[12] - value[18], "value": value[12] - value[18]}
@@ -480,7 +480,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     userMap['FilterString'] = "FNumber='" + scanCode[0] + "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-    'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FIsKFPeriod';
+    'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FIsKFPeriod';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -1025,8 +1025,10 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           return;
         }
         for (var value in materialDate) {
-          var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
-          hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
+          if(this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString())) != -1){
+            var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
+            hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
+          }
           List arr = [];
           arr.add({
             "title": "物料名称",
@@ -1092,7 +1094,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "value": {"label": value[4], "value": value[5]}
           });
           arr.add({
-            "title": "剩余数量",
+            "title": "申请数量",
             "name": "",
             "isHide": false,
             "value": {"label": surplus, "value": surplus}
