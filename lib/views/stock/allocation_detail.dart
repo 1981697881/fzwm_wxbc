@@ -563,8 +563,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       } else {
         barCodeScan = scanCode;
       }
-      var barcodeNum = scanCode[3];
-      var residue = double.parse(scanCode[3]);
+      var barcodeNum = barCodeScan[4];
+      var residue = double.parse(barCodeScan[4]);
       var hobbyIndex = 0;
       var errorTitle = "";
       for (var element in hobby) {
@@ -1097,7 +1097,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               "label": value[0] + "- (" + value[1] + ")",
               "value": value[1],
               "barcode": [_code],
-              "kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]],
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]],
               "codeList": []
             }
           });
@@ -1161,7 +1161,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "isHide": false,
             "value": {
               "label": barcodeNum.toString(),
-              "value": barcodeNum.toString(),"remainder": "0","representativeQuantity": scanCode[3].toString()
+              "value": barcodeNum.toString(),"remainder": "0","representativeQuantity": barCodeScan[4].toString()
             }
           });
           arr.add({

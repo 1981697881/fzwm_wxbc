@@ -424,7 +424,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
         barCodeScan = scanCode;
       }
       var fIsKFPeriod = materialDate[0][7];
-      var barcodeNum = scanCode[3];
+      var barcodeNum = barCodeScan[4];
       for (var element in hobby) {
         var residue = 0.0;
         //判断是否启用批号
@@ -556,7 +556,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "name": "FMaterial",
             "FIsKFPeriod": fIsKFPeriod,
             "isHide": false,
-            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
+            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]]}
           });
           arr.add({
             "title": "包装规格",
@@ -574,7 +574,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "title": "出库数量",
             "name": "FRealQty",
             "isHide": false,
-            "value": {"label": scanCode[3].toString(), "value": scanCode[3].toString()}
+            "value": {"label": barCodeScan[4].toString(), "value": barCodeScan[4].toString()}
           });
           arr.add({
             "title": "仓库",
@@ -631,8 +631,8 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
             "name": "FLastQty",
             "isHide": false,
             "value": {
-              "label": scanCode[3].toString(),
-              "value": scanCode[3].toString(),"remainder": "0","representativeQuantity": scanCode[3].toString()
+              "label": barCodeScan[4].toString(),
+              "value": barCodeScan[4].toString(),"remainder": "0","representativeQuantity": barCodeScan[4].toString()
             }
           });
           arr.add({

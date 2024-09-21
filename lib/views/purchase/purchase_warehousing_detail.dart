@@ -253,7 +253,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockQty';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockQty,FGiveAway';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -293,6 +293,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "FNote": value[23],
           "FID": value[14],
           "FEntryId": value[4],
+          "FGiveAway": value[29],
           "isHide": false,
           "value": {
             "label": value[6] + "- (" + value[5] + ")",
@@ -2141,6 +2142,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                         "FNote": value[23],
                                         "FID": value[14],
                                         "FEntryId": value[4],
+                                        "FGiveAway": value[29],
                                         "isHide": false,
                                         "value": {
                                           "label": value[6] + "- (" + value[5] + ")",
@@ -2630,6 +2632,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];
             FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
             FEntityItem['FNote'] = element[0]['FNote'];
+            FEntityItem['FGiveAway'] = element[0]['FGiveAway'];
             FEntityItem['FProduceDate'] = element[11]['value']['value'];
             //FEntityItem['FExpiryDate'] = orderDate[hobbyIndex][27];
             /*FEntityItem['FPrice'] = orderDate[hobbyIndex][20];*/

@@ -347,15 +347,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             "value": ""
           }
         });
-        arr.add({
-          "title": "有效期至",
-          "name": "FExpiryDate",
-          "isHide": !value[28],
-          "value": {
-            "label": "",
-            "value": ""
-          }
-        });
         hobby.add(arr);
       });
       setState(() {
@@ -1062,15 +1053,6 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               "value": fProduceDate
             }
           });
-          arr.add({
-            "title": "有效期至",
-            "name": "FExpiryDate",
-            "isHide": !fIsKFPeriod,
-            "value": {
-              "label": fExpiryDate,
-              "value": fExpiryDate
-            }
-          });
           hobby.insert(insertIndex, arr);
         }
       }
@@ -1224,6 +1206,85 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           }
         });
       },
+    );
+  }
+  void _onDateChildClickItem(model,hobby) {
+    Pickers.showDatePicker(
+      context,
+      mode: model,
+      suffix: Suffix.normal(),
+      // selectDate: PDuration(month: 2),
+      minDate: PDuration(year: 2020, month: 2, day: 10),
+      maxDate: PDuration(second: 22),
+      selectDate: (hobby['value']['label'] == '' || hobby['value']['label'] == null
+          ? PDuration(year: 2021, month: 2, day: 10)
+          : PDuration.parse(DateTime.parse(hobby['value']['label']))),
+      // minDate: PDuration(hour: 12, minute: 38, second: 3),
+      // maxDate: PDuration(hour: 12, minute: 40, second: 36),
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        setState(() {
+          hobby['value']['label'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+          hobby['value']['value'] = formatDate(
+              DateFormat('yyyy-MM-dd')
+                  .parse('${p.year}-${p.month}-${p.day}'),
+              [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+        });
+      },
+      // onChanged: (p) => print(p),
+    );
+  }
+  Widget _dateChildItem(title, model, hobby) {
+    GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () {
+              _onDateChildClickItem(model,hobby);
+            },
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(
+                    (hobby == ""
+                        ? selectData[model]
+                        : formatDate(
+                        DateFormat('yyyy-MM-dd')
+                            .parse(hobby['value']['label']),
+                        [
+                          yyyy,
+                          "-",
+                          mm,
+                          "-",
+                          dd,
+                        ]))!,
+                    color: Colors.grey,
+                    rightpadding: 18);
+              }),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
     );
   }
   setClickData(Map<dynamic,dynamic> dataItem, val) async{
@@ -1381,6 +1442,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
+            );
+          }else if (j == 11) {
+            comList.add(
+              _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
             );
           }else if (j == 1) {
             comList.add(

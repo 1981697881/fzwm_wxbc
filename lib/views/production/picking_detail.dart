@@ -261,7 +261,7 @@ class _PickingDetailState extends State<PickingDetail> {
         OrderMap['FilterString'] =
         "FID='$entitysNumber' ";//and FLot.FNumber != ''
         OrderMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAUXPROPID.FF100002.FNumber,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FMoEntryId,FPPBomEntryId,FEntryWorkShopId.FNumber,FMaterialId.FIsKFPeriod';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAUXPROPID.FF100002.FNumber,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FMoEntryId,FPPBomEntryId,FEntryWorkShopId.FNumber,FMaterialId.FIsKFPeriod,FEntrySrcInterId';
         String order = await CurrencyEntity.polling({'data': OrderMap});
         this.getOrderListT(order);
       } else {
@@ -400,6 +400,7 @@ class _PickingDetailState extends State<PickingDetail> {
           "FKeeperTypeId": value[23],
           "FParentOwnerTypeId": value[22],
           "FKeeperId": value[24],
+          "FEntrySrcInterId": value[25],
           "parseEntryID": -1,
           "isHide": false,
           "value": {
@@ -1216,8 +1217,8 @@ class _PickingDetailState extends State<PickingDetail> {
               "label": value[1] + "- (" + value[2] + ")",
               "value": value[2],
               "barcode": [code],
-              "kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],
-              "scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]+"-"+fsn],
+              "scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]]
             }
           });
           arr.add({
@@ -2492,6 +2493,15 @@ class _PickingDetailState extends State<PickingDetail> {
               FEntityItem['FKeeperTypeId'] = this.hobby[entryIndex][0]['FKeeperTypeId'];
               FEntityItem['FParentOwnerTypeId'] = this.hobby[entryIndex][0]['FParentOwnerTypeId'];
               FEntityItem['FKeeperId'] = {"FNumber": this.hobby[entryIndex][0]['FKeeperId']};
+              FEntityItem['FEntity_Link'] = [
+                {
+                  "FEntity_Link_FRuleId": "PRD_IssueMtr2PickMtrl",
+                  "FEntity_Link_FSTableName": "T_PRD_PPBOMENTRY",
+                  "FEntity_Link_FSBillId": this.hobby[entryIndex][0]['FEntrySrcInterId'],
+                  "FEntity_Link_FSId": this.hobby[entryIndex][0]['FPPBomEntryId'],
+                  "FEntity_Link_FBaseActualQty": element[3]['value']['value']
+                }
+              ];
             }
             FEntityItem['FEntryID'] = element[0]['FEntryID'];
             FEntityItem['FActualQty'] = element[3]['value']['value'];
