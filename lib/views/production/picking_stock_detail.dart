@@ -1354,7 +1354,12 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          auditOrder(auditMap);
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
+          //auditOrder(auditMap);
         } else {
           setState(() {
             this.isSubmit = false;

@@ -2691,13 +2691,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             //提交
             HandlerOrder.orderHandler(context, submitMap, 1, "STK_InStock",
                 SubmitEntity.submit(submitMap))
-                .then((submitResult) {
+                .then((submitResult) async{
               if (submitResult) {
                 //审核
-                HandlerOrder.orderHandler(context, submitMap, 1,
+                /*HandlerOrder.orderHandler(context, submitMap, 1,
                     "STK_InStock", SubmitEntity.audit(submitMap))
                     .then((auditResult) async {
-                  if (auditResult) {
+                  if (auditResult) {*/
                     //打印确认
                     _showPrintDialog(context);
                     /*var errorMsg = "";
@@ -2755,7 +2755,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     ToastUtil.errorDialog(context, errorMsg);
                     this.isSubmit = false;
                   }*/
-                  } else {
+                  /*} else {
                     //失败后反审
                     HandlerOrder.orderHandler(context, submitMap, 0,
                         "STK_InStock", SubmitEntity.unAudit(submitMap))
@@ -2767,7 +2767,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       }
                     });
                   }
-                });
+                });*/
               } else {
                 this.isSubmit = false;
               }

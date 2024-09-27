@@ -1524,13 +1524,28 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
-                                  var entryIndex;
-                                  if(this.hobby[checkData][0]['FEntryID'] == 0){
-                                    entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[checkData][0]['value']['value']+'-'+this.hobby[checkData][0]['parseEntryID'].toString()))]['index'];
-                                  }else{
-                                    entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[checkData][0]['value']['value']+'-'+this.hobby[checkData][0]['FEntryID'].toString()))]['index'];
+                                  if(this.fBillNo!="") {
+                                    var entryIndex;
+                                    if (this.hobby[checkData][0]['FEntryID'] ==
+                                        0) {
+                                      entryIndex =
+                                      this.hobbyItem[this.hobbyItem.indexWhere((
+                                          v) => v['number'] == (this
+                                          .hobby[checkData][0]['value']['value'] +
+                                          '-' + this
+                                          .hobby[checkData][0]['parseEntryID']
+                                          .toString()))]['index'];
+                                    } else {
+                                      entryIndex =
+                                      this.hobbyItem[this.hobbyItem.indexWhere((
+                                          v) => v['number'] == (this
+                                          .hobby[checkData][0]['value']['value'] +
+                                          '-' +
+                                          this.hobby[checkData][0]['FEntryID']
+                                              .toString()))]['index'];
+                                    }
+                                    hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[checkData][3]['value']['value']) * 100) / 100;
                                   }
-                                  hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[checkData][3]['value']['value']) * 100) / 100;
                                   this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
                                   this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
                                   this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
@@ -1702,6 +1717,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   //提交
   submitOrder(Map<String, dynamic> submitMap, billNo) async {
     var subData = await SubmitEntity.submit(submitMap);
+    //获取登录信息
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
     print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
@@ -1715,7 +1733,65 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          auditOrder(auditMap, billNo);
+          //auditOrder(auditMap, billNo);
+          var errorMsg = "";
+          if (fBarCodeList == 1) {
+            for (int i = 0; i < this.hobby.length; i++) {
+              if (this.hobby[i][3]['value']['value'] != '0' &&
+                  this.hobby[i][4]['value']['value'] != '') {
+                var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                for (int j = 0; j < kingDeeCode.length; j++) {
+                  Map<String, dynamic> dataCodeMap = Map();
+                  dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                  Map<String, dynamic> orderCodeMap = Map();
+                  orderCodeMap['NeedReturnFields'] = [];
+                  orderCodeMap['IsDeleteEntry'] = false;
+                  Map<String, dynamic> codeModel = Map();
+                  var itemCode = kingDeeCode[j].split("-");
+                  codeModel['FID'] = itemCode[0];
+                  codeModel['FOwnerID'] = {"FNUMBER": tissue};
+                  codeModel['FStockOrgID'] = {"FNUMBER": tissue};
+                  codeModel['FStockID'] = {
+                    "FNUMBER": this.hobby[i][4]['value']['value']
+                  };
+                  Map<String, dynamic> codeFEntityItem = Map();
+                  codeFEntityItem['FBillDate'] = FDate;
+                  codeFEntityItem['FInQty'] = itemCode[1];
+                  codeFEntityItem['FEntryBillNo'] = billNo;
+                  codeFEntityItem['FEntryStockID'] = {
+                    "FNUMBER": this.hobby[i][4]['value']['value']
+                  };
+                  var codeFEntity = [codeFEntityItem];
+                  codeModel['FEntity'] = codeFEntity;
+                  orderCodeMap['Model'] = codeModel;
+                  dataCodeMap['data'] = orderCodeMap;
+                  String codeRes = await SubmitEntity.save(dataCodeMap);
+                  var barcodeRes = jsonDecode(codeRes);
+                  if (!barcodeRes['Result']['ResponseStatus']
+                  ['IsSuccess']) {
+                    errorMsg += "错误反馈：" +
+                        itemCode[1] +
+                        ":" +
+                        barcodeRes['Result']['ResponseStatus']['Errors'][0]
+                        ['Message'];
+                  }
+                  print(codeRes);
+                }
+              }
+            }
+          }
+          if (errorMsg != "") {
+            ToastUtil.errorDialog(context, errorMsg);
+          }
+          //提交清空页面
+          setState(() {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            this.FSaleOrderNo = '';
+            ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
+          });
         } else {
           deleteOrder(submitMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
           /*setState(() {

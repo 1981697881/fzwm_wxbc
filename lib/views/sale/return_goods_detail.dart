@@ -1900,11 +1900,11 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           }
         };
         //提交
-        HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.submit(submitMap)).then((submitResult) {
+        HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.submit(submitMap)).then((submitResult) async{
           if(submitResult){
             //审核
-            HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.audit(submitMap)).then((auditResult) async{
-              if(auditResult){
+            /*HandlerOrder.orderHandler(context,submitMap,1,"SAL_RETURNSTOCK",SubmitEntity.audit(submitMap)).then((auditResult) async{
+              if(auditResult){*/
                 var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
@@ -1968,7 +1968,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                   ToastUtil.showInfo('提交成功');
                   Navigator.of(context).pop("refresh");
                 });
-              }else{
+              /*}else{
                 //失败后反审
                 HandlerOrder.orderHandler(context,submitMap,0,"SAL_RETURNSTOCK",SubmitEntity.unAudit(submitMap)).then((unAuditResult) {
                   if(unAuditResult){
@@ -1978,7 +1978,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                   }
                 });
               }
-            });
+            });*/
           }else{
             this.isSubmit = false;
           }

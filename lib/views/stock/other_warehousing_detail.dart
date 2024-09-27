@@ -1288,17 +1288,17 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             1,
             "STK_MISCELLANEOUS",
             SubmitEntity.submit(submitMap))
-            .then((submitResult) {
+            .then((submitResult) async{
           if (submitResult) {
             //审核
-            HandlerOrder.orderHandler(
+           /* HandlerOrder.orderHandler(
                 context,
                 submitMap,
                 1,
                 "STK_MISCELLANEOUS",
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async{
-              if (auditResult) {
+              if (auditResult) {*/
                 var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
@@ -1360,7 +1360,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                   ToastUtil.showInfo('提交成功');
                   Navigator.of(context).pop("refresh");
                 });
-              } else {
+              /*} else {
                 //失败后反审
                 HandlerOrder.orderHandler(
                     context,
@@ -1371,13 +1371,12 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     .then((unAuditResult) {
                   if (unAuditResult) {
                     this.isSubmit = false;
-
                   }else{
                     this.isSubmit = false;
                   }
                 });
               }
-            });
+            });*/
           } else {
             this.isSubmit = false;
           }

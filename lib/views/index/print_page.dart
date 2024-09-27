@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:date_format/date_format.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
@@ -135,25 +136,28 @@ class _PrintPageState extends State<PrintPage> {
               println = 'SIZE 100.0 mm,73.0 mm\r\n' +
                   'GAP 2 mm\r\n' +
                   'CLS\r\n' +
-                  'BOX 5, 5, 800, 550, 3\r\n' +
-                  'BAR 140, 100, 460, 1\r\n' +
-                  'BAR 140, 180, 460, 1\r\n' +
-                  'BAR 140, 260, 460, 1\r\n' +
-                  'BAR 220, 340, 380, 1\r\n' +
-                  'BAR 190, 420, 410, 1\r\n' +
-                  'BAR 140, 500, 460, 1\r\n' +
-                  'TEXT 10,50,"TSS24.BF2",0,2,2,"品名:"\r\n' +
-                  'TEXT 10,130,"TSS24.BF2",0,2,2,"批号:"\r\n' +
-                  'TEXT 10,210,"TSS24.BF2",0,2,2,"净重:"\r\n' +
-                  'TEXT 10,290,"TSS24.BF2",0,2,2,"到货日期:"\r\n' +
-                  'TEXT 10,370,"TSS24.BF2",0,2,2,"有效期:"\r\n' +
-                  'TEXT 10,450,"TSS24.BF2",0,2,2,"备注:"\r\n' +
-                  'TEXT 150,50,"TSS24.BF2",0,2,2,"${value['FMaterialName']}"\r\n' +
-                  'TEXT 150,130,"TSS24.BF2",0,2,2,"${value['FLot']['FNumber']}"\r\n' +
-                  'TEXT 150,210,"TSS24.BF2",0,2,2,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                  'TEXT 230,290,"TSS24.BF2",0,2,2,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 200,370,"TSS24.BF2",0,2,2,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 150,450,"TSS24.BF2",0,2,2,"${value['FNote']}"\r\n' +
+                  /*'BOX 5, 5, 800, 550, 3\r\n' +*/
+                  'BAR 140, 90, 460, 1\r\n' +
+                  'BAR 140, 160, 460, 1\r\n' +
+                  'BAR 140, 230, 460, 1\r\n' +
+                  'BAR 220, 300, 380, 1\r\n' +
+                  'BAR 190, 370, 410, 1\r\n' +
+                  'BAR 140, 440, 460, 1\r\n' +
+                  'BAR 190, 510, 410, 1\r\n' +
+                  'TEXT 10,40,"TSS16.BF2",0,2,2,"品名:"\r\n' +
+                  'TEXT 10,110,"TSS16.BF2",0,2,2,"批号:"\r\n' +
+                  'TEXT 10,180,"TSS16.BF2",0,2,2,"净重:"\r\n' +
+                  'TEXT 10,250,"TSS16.BF2",0,2,2,"到货日期:"\r\n' +
+                  'TEXT 10,320,"TSS16.BF2",0,2,2,"有效期:"\r\n' +
+                  'TEXT 10,390,"TSS16.BF2",0,2,2,"备注:"\r\n' +
+                  'TEXT 10,460,"TSS16.BF2",0,2,2,"流水号:"\r\n' +
+                  'TEXT 150,40,"TSS16.BF2",0,2,2,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 150,110,"TSS16.BF2",0,2,2,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 150,180,"TSS16.BF2",0,2,2,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 230,250,"TSS16.BF2",0,2,2,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 200,320,"TSS16.BF2",0,2,2,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 150,390,"TSS16.BF2",0,2,2,"${value['FNote']}"\r\n' +
+                  'TEXT 150,460,"TSS16.BF2",0,2,2,"${barcodeNum}"\r\n' +
                   'QRCODE 610,180,M,5,A,0,"${codeCont}"\r\n' +
                   'PRINT 1,1\r\n';
              /* println = "! 0 200 200 580 1\n" +
@@ -254,70 +258,67 @@ class _PrintPageState extends State<PrintPage> {
         }
       }else{
         var barcodeNum = 1.0;
-        for(var ii=0;ii<printData['FInStockType'].length;ii++){
-          var fRealQty;
-          if(printData['FInStockType'][ii]['FInStockType'] == "1"){
-            fRealQty = value['FFailQty'];
-          }else{
-            fRealQty = value['FQuaQty'];
-          }
-          var packing = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
-          //获取条码流水号
-          Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] =
-              "FMATERIALID.FNUMBER='" + value['FMaterialId']['FNumber'] + "'";
-          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          barcodeMap['OrderString'] = 'FOrder DESC';
-          barcodeMap['FieldKeys'] = 'FID,FOrder';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = barcodeMap;
-          String order = await CurrencyEntity.polling(dataMap);
-          var barcodeData = jsonDecode(order);
-          if (barcodeData.length > 0) {
-            barcodeNum = barcodeData[0][1] + 1.0;
-          } else {
-            barcodeNum = 1.0;
-          }
-          //判断规格重量
+        var fRealQty = value['FQty'].toString();
+        var packing = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
+        //获取条码流水号
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] =
+            "FMATERIALID.FNUMBER='" + value['FMaterialId']['FNumber'] + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['OrderString'] = 'FOrder DESC';
+        barcodeMap['FieldKeys'] = 'FID,FOrder';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          barcodeNum = barcodeData[0][1] + 1.0;
+        } else {
+          barcodeNum = 1.0;
+        }
+        //判断规格重量
+        if (cnIsNumber(packing) == true) {
+          print(fRealQty);
+          print(packing.toUpperCase());
+        } else {
+          packing = packing.toUpperCase();
+          packing = packing.replaceAll("KG", '');
+          //处理后判断规格重量是否数字
           if (cnIsNumber(packing) == true) {
-            print(fRealQty);
-            print(packing.toUpperCase());
-          } else {
-            packing = packing.toUpperCase();
-            packing = packing.replaceAll("KG", '');
-            //处理后判断规格重量是否数字
-            if (cnIsNumber(packing) == true) {
-              var printNum = (int.parse(fRealQty) / int.parse(packing)).ceil();
-              var remainingQuantity = int.parse(fRealQty);
-              for (var i = 0; i < printNum; i++) {
-                remainingQuantity = remainingQuantity - int.parse(packing);
-                //判断成品或原料
-                var println;
-                var codeCont = value['FMaterialId']['FNumber'] + ';' +value['FLot']['FNumber']+ ';' +value['FProduceDate'].substring(0, 10)+ ';' +(remainingQuantity >= int.parse(packing) ? packing : remainingQuantity).toString()+ ';' +printData['FBillNo']+ ';' +DateTime.now().millisecondsSinceEpoch.toString()+ ';' +barcodeNum.toString();
-                println = 'SIZE 100.0 mm,73.0 mm\r\n' +
-                    'GAP 2 mm\r\n' +
-                    'CLS\r\n' +
-                    'BOX 5, 5, 800, 550, 3\r\n' +
-                    'BAR 140, 100, 460, 1\r\n' +
-                    'BAR 140, 180, 460, 1\r\n' +
-                    'BAR 140, 260, 460, 1\r\n' +
-                    'BAR 220, 340, 380, 1\r\n' +
-                    'BAR 190, 420, 410, 1\r\n' +
-                    'BAR 140, 500, 460, 1\r\n' +
-                    'TEXT 10,50,"TSS24.BF2",0,2,2,"品名:"\r\n' +
-                    'TEXT 10,130,"TSS24.BF2",0,2,2,"批号:"\r\n' +
-                    'TEXT 10,210,"TSS24.BF2",0,2,2,"净重:"\r\n' +
-                    'TEXT 10,290,"TSS24.BF2",0,2,2,"入库日期:"\r\n' +
-                    'TEXT 10,370,"TSS24.BF2",0,2,2,"有效期:"\r\n' +
-                    'TEXT 10,450,"TSS24.BF2",0,2,2,"备注:"\r\n' +
-                    'TEXT 150,50,"TSS24.BF2",0,2,2,"${value['FMaterialName']}"\r\n' +
-                    'TEXT 150,130,"TSS24.BF2",0,2,2,"${value['FLot']['FNumber']}"\r\n' +
-                    'TEXT 150,210,"TSS24.BF2",0,2,2,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                    'TEXT 230,290,"TSS24.BF2",0,2,2,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                    'TEXT 200,370,"TSS24.BF2",0,2,2,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                    'TEXT 150,450,"TSS24.BF2",0,2,2,"${value['FNote']}"\r\n' +
-                    'QRCODE 610,180,M,8,A,0,"${codeCont}"\r\n' +
-                    'PRINT 1,1\r\n';
+            var printNum = (double.parse(fRealQty) / int.parse(packing)).ceil();
+            var remainingQuantity = double.parse(fRealQty);
+            for (var i = 0; i < printNum; i++) {
+              //判断成品或原料
+              var println;
+              var codeCont = value['FMaterialId']['FNumber'] + ';' +value['FLot']['FNumber']+ ';' +value['FProduceDate'].substring(0, 10)+ ';' +(remainingQuantity >= int.parse(packing) ? packing : remainingQuantity).toString()+ ';' +printData["data"]["Model"]['FBillNo']+ ';' +DateTime.now().millisecondsSinceEpoch.toString()+ ';' +barcodeNum.toString();
+              print(codeCont);
+              println = 'SIZE 100.0 mm,73.0 mm\r\n' +
+                  'GAP 2 mm\r\n' +
+                  'CLS\r\n' +
+                  /*'BOX 5, 5, 800, 550, 3\r\n' +*/
+                  'BAR 140, 90, 460, 1\r\n' +
+                  'BAR 140, 160, 460, 1\r\n' +
+                  'BAR 140, 230, 460, 1\r\n' +
+                  'BAR 220, 300, 380, 1\r\n' +
+                  'BAR 190, 370, 410, 1\r\n' +
+                  'BAR 140, 440, 460, 1\r\n' +
+                  'BAR 190, 510, 410, 1\r\n' +
+                  'TEXT 10,40,"TSS16.BF2",0,2,2,"品名:"\r\n' +
+                  'TEXT 10,110,"TSS16.BF2",0,2,2,"批号:"\r\n' +
+                  'TEXT 10,180,"TSS16.BF2",0,2,2,"净重:"\r\n' +
+                  'TEXT 10,250,"TSS16.BF2",0,2,2,"入库日期:"\r\n' +
+                  'TEXT 10,320,"TSS16.BF2",0,2,2,"有效期:"\r\n' +
+                  'TEXT 10,390,"TSS16.BF2",0,2,2,"备注:"\r\n' +
+                  'TEXT 10,460,"TSS16.BF2",0,2,2,"流水号:"\r\n' +
+                  'TEXT 150,40,"TSS16.BF2",0,2,2,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 150,110,"TSS16.BF2",0,2,2,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 150,180,"TSS16.BF2",0,2,2,"${value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 230,250,"TSS16.BF2",0,2,2,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 200,320,"TSS16.BF2",0,2,2,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 150,390,"TSS16.BF2",0,2,2,"${value['FNote']}"\r\n' +
+                  'TEXT 150,460,"TSS16.BF2",0,2,2,"${barcodeNum}"\r\n' +
+                  'QRCODE 610,180,M,5,A,0,"${codeCont}"\r\n' +
+                  'PRINT 1,1\r\n';
                 /*println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +
                     "LEFT\n" +
@@ -346,75 +347,74 @@ class _PrintPageState extends State<PrintPage> {
                     "B QR 450 170 M 3 U 6\n MA,${codeCont}\nENDQR\n" +
                     "FORM\n" +
                     "PRINT\n";*/
-                Map<String, dynamic> dataCodeMap = Map();
-                dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
-                Map<String, dynamic> orderCodeMap = Map();
-                orderCodeMap['NeedReturnFields'] = [];
-                orderCodeMap['IsDeleteEntry'] = false;
-                Map<String, dynamic> codeModel = Map();
-                codeModel['FID'] = 0;
-                codeModel['FMATERIALID'] = {
-                  "FNUMBER": value['FMaterialId']['FNumber']
-                };
-                codeModel['FBatchNo'] = value['FLot']['FNumber'];
-                codeModel['FSrcBillNo'] = printData['type'];
-                codeModel['FBarCode'] = codeCont;
-                codeModel['FBarCodeEn'] = codeCont;
-                codeModel['FSourceBill'] = printData['FBillNo'];
-                codeModel['FOrder'] = barcodeNum;
-                codeModel['FProduceDate'] = value['FProduceDate'];
-                codeModel['FExpiryDate'] = value['FExpiryDate'];
-                codeModel['FPackageSpec'] = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
-                codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
-                    ? packing
-                    : remainingQuantity;
-                codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
-                    ? packing
-                    : remainingQuantity;
-                codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
-                codeModel['FStockOrgID'] = {
-                  "FNUMBER": value['FOwnerId']['FNumber']
-                };
-                codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
-                Map<String, dynamic> codeFEntityItem = Map();
-                codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
-                  yyyy,
-                  "-",
-                  mm,
-                  "-",
-                  dd,
-                ]);
-                codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
-                    ? packing
-                    : remainingQuantity;
-                codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
-                codeFEntityItem['FEntryStockID'] = {
-                  "FNUMBER": value['FStockId']['FNumber']
-                };
-                var codeFEntity = [codeFEntityItem];
-                codeModel['FEntity'] = codeFEntity;
-                orderCodeMap['Model'] = codeModel;
-                dataCodeMap['data'] = orderCodeMap;
-                print(dataCodeMap);
-                String codeRes = await SubmitEntity.save(dataCodeMap);
-                var res = jsonDecode(codeRes);
-                if (res['Result']['ResponseStatus']['IsSuccess']) {
-                  barcodeNum++;
-                  remainingQuantity = remainingQuantity - int.parse(packing);
-                  await this.printGraphics(gbk.encode(println));
-                } else {
-                  setState(() {
-                    ToastUtil.errorDialog(context,
-                        res['Result']['ResponseStatus']['Errors'][0]['Message']);
-                  });
-                }
+              Map<String, dynamic> dataCodeMap = Map();
+              dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+              Map<String, dynamic> orderCodeMap = Map();
+              orderCodeMap['NeedReturnFields'] = [];
+              orderCodeMap['IsDeleteEntry'] = false;
+              Map<String, dynamic> codeModel = Map();
+              codeModel['FID'] = 0;
+              codeModel['FMATERIALID'] = {
+                "FNUMBER": value['FMaterialId']['FNumber']
+              };
+              codeModel['FBatchNo'] = value['FLot']['FNumber'];
+              codeModel['FSrcBillNo'] = printData['type'];
+              codeModel['FBarCode'] = codeCont;
+              codeModel['FBarCodeEn'] = codeCont;
+              codeModel['FSourceBill'] = printData['FBillNo'];
+              codeModel['FOrder'] = barcodeNum;
+              codeModel['FProduceDate'] = value['FProduceDate'];
+              codeModel['FExpiryDate'] = value['FExpiryDate'];
+              codeModel['FPackageSpec'] = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
+              codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
+                  ? packing
+                  : remainingQuantity;
+              codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
+                  ? packing
+                  : remainingQuantity;
+              codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
+              codeModel['FStockOrgID'] = {
+                "FNUMBER": value['FOwnerId']['FNumber']
+              };
+              codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
+              Map<String, dynamic> codeFEntityItem = Map();
+              codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
+                yyyy,
+                "-",
+                mm,
+                "-",
+                dd,
+              ]);
+              codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
+                  ? packing
+                  : remainingQuantity;
+              codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
+              codeFEntityItem['FEntryStockID'] = {
+                "FNUMBER": value['FStockId']['FNumber']
+              };
+              var codeFEntity = [codeFEntityItem];
+              codeModel['FEntity'] = codeFEntity;
+              orderCodeMap['Model'] = codeModel;
+              dataCodeMap['data'] = orderCodeMap;
+              print(dataCodeMap);
+              String codeRes = await SubmitEntity.save(dataCodeMap);
+              var res = jsonDecode(codeRes);
+              if (res['Result']['ResponseStatus']['IsSuccess']) {
+                barcodeNum++;
+                remainingQuantity = remainingQuantity - int.parse(packing);
+                await this.printGraphics(gbk.encode(println));
+              } else {
+                setState(() {
+                  ToastUtil.errorDialog(context,
+                      res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                });
               }
-            } else {
+            }
+          } else {
               ToastUtil.showInfo('包装规格有误,无法换算,请检查！');
             }
           }
         }
-      }
     }
     //println.codeUnits.toList();
     //return gbk.encode(println);
@@ -481,7 +481,7 @@ class _PrintPageState extends State<PrintPage> {
                         color: this.connected
                             ? Theme.of(context).primaryColor
                             : Colors.grey,
-                        onPressed: connected ? this.getGraphicsTicket : null,
+                        onPressed: connected ?getGraphicsTicket: null,
                       ),
                     ),
                   ],

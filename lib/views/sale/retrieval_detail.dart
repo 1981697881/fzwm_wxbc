@@ -1834,14 +1834,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
-                                  var entryIndex;
-                                  if(this.hobby[checkData][0]['FEntryID'] == 0){
-                                    entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[checkData][0]['value']['value']+'-'+this.hobby[checkData][0]['parseEntryID'].toString()))]['index'];
-                                  }else{
-                                    entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[checkData][0]['value']['value']+'-'+this.hobby[checkData][0]['FEntryID'].toString()))]['index'];
+                                  if(this.fBillNo!="") {
+                                    var entryIndex;
+                                    if (this.hobby[checkData][0]['FEntryID'] ==
+                                        0) {
+                                      entryIndex =
+                                      this.hobbyItem[this.hobbyItem.indexWhere((
+                                          v) => v['number'] == (this
+                                          .hobby[checkData][0]['value']['value'] +
+                                          '-' + this
+                                          .hobby[checkData][0]['parseEntryID']
+                                          .toString()))]['index'];
+                                    } else {
+                                      entryIndex =
+                                      this.hobbyItem[this.hobbyItem.indexWhere((
+                                          v) => v['number'] == (this
+                                          .hobby[checkData][0]['value']['value'] +
+                                          '-' +
+                                          this.hobby[checkData][0]['FEntryID']
+                                              .toString()))]['index'];
+                                    }
+                                    hobby[entryIndex][0]['value']['surplus'] =
+                                        (hobby[entryIndex][9]['value']['value'] *
+                                            100 - double.parse(this
+                                            .hobby[checkData][3]['value']['value']) *
+                                            100) / 100;
                                   }
-                                  hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[checkData][3]['value']['value']) * 100) / 100;
-
                                   this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
                                   this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
                                   this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];

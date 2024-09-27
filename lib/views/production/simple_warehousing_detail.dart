@@ -1403,18 +1403,17 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             1,
             "SP_InStock",
             SubmitEntity.submit(submitMap))
-            .then((submitResult) {
+            .then((submitResult) async{
           if (submitResult) {
             //审核
-            HandlerOrder.orderHandler(
+            /*HandlerOrder.orderHandler(
                 context,
                 submitMap,
                 1,
                 "SP_InStock",
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async{
-              if (auditResult) {
-                print(auditResult);
+              if (auditResult) {*/
                 var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
@@ -1474,7 +1473,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                   ToastUtil.showInfo('提交成功');
                   Navigator.of(context).pop("refresh");
                 });
-              } else {
+              /*} else {
                 //失败后反审
                 HandlerOrder.orderHandler(
                     context,
@@ -1490,7 +1489,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                   }
                 });
               }
-            });
+            });*/
           } else {
             this.isSubmit = false;
           }

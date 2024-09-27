@@ -116,10 +116,10 @@ class _StockPageState extends State<StockPage> {
       if(keyWord.split(";").length>1){
         if(fStockIds != '' && fStockIds != null){
           userMap['FilterString'] =
-              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0 and FStockId in(" + fStockIds + ")";
+              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0 and FStockId in(" + fStockIds + ")";
         }else{
           userMap['FilterString'] =
-              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty >0";
+              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0";
         }
 
         if (batchNo != '') {
@@ -128,16 +128,16 @@ class _StockPageState extends State<StockPage> {
                 keyWord.split(";")[0] +
                 "' and FStockID.FNumber='" +
                 this.warehouseNumber +
-                "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+                "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
           } else {
             if(fStockIds != '' && fStockIds != null){
               userMap['FilterString'] = "FMaterialId.FNumber='" +
                   keyWord.split(";")[0] +
-                  "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
+                  "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
             }else{
               userMap['FilterString'] = "FMaterialId.FNumber='" +
                   keyWord.split(";")[0] +
-                  "' and FBaseQty >0 and FLot.FNumber= '"+batchNo+"'"; /**/
+                  "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
             }
 
           }
@@ -145,22 +145,22 @@ class _StockPageState extends State<StockPage> {
       }else{
         if(fStockIds != '' && fStockIds != null){
           userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty >0  and FBaseQty >0 and FStockId in(" + fStockIds + ")";
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockId in(" + fStockIds + ")";
         }else{
           userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty >0";
+              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0";
         }
       }
     }else{
       if (this.warehouseNumber != null) {
         userMap['FilterString'] = "FStockID.FNumber='" +
             this.warehouseNumber +
-            "' and FBaseQty >0 "; /**/
+            "' and FBaseQty>0 "; /**/
       } else {
         if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] = "FBaseQty >0  and FStockId in(" + fStockIds + ")";
+          userMap['FilterString'] = "FBaseQty>0  and FStockId in(" + fStockIds + ")";
         }else{
-          userMap['FilterString'] = "FBaseQty >0";
+          userMap['FilterString'] = "FBaseQty>0";
         }
       }
     }
