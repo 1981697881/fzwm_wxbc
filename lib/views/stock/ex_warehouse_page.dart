@@ -77,25 +77,25 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FCloseStatus = 'A'";
+    userMap['FilterString'] = "FCloseStatus = 'A' and FDocumentStatus ='C'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FCloseStatus = 'A' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FDocumentStatus ='C'";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FDocumentStatus ='C'";
       }else{
         userMap['FilterString'] =
-        "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FCloseStatus = 'A' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'STK_OutStockApply';

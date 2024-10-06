@@ -2135,14 +2135,16 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
     var res = jsonDecode(subData);
     if (res != null) {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
-        setState(() {
-          this.hobby = [];
-          this.orderDate = [];
-          this.FBillNo = '';
-          this.FSaleOrderNo = '';
-        });
-        ToastUtil.showInfo('提交成功');
-        Navigator.of(context).pop("refresh");
+        if(index == 1){
+          setState(() {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            this.FSaleOrderNo = '';
+          });
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
+        }
         /*if (type) {
           if (index == 1) {
             var errorMsg = "";
@@ -2367,21 +2369,29 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
       for (int entity = 0; entity < resData.length; entity++) {
         for (int element = 0; element < this.hobby.length; element++) {
           if (resData[entity][1].toString() == this.hobby[element][0]['value']['value'].toString()) {
-            if (this.hobby[element][3]['value']['value'] != '0') {
+            if (this.hobby[element][3]['value']['value'] != '0' || this.hobby[element][6]['value']['value'] != '0') {
               // ignore: non_constant_identifier_names
-              //判断不良品还是良品
+
               Map<String, dynamic> FEntityItem = Map();
               FEntityItem['FEntryID'] = resData[entity][0];
               FEntityItem['FReportType'] = {"FNumber": this.reportTypeNumber};
-              FEntityItem['FInStockType'] = '1';
-              /*FEntityItem['FWorkshipId'] = {"FNumber": "BM00018"};*/
-              FEntityItem['FFinishQty'] =
-              this.hobby[element][3]['value']['value'];
-              FEntityItem['FQuaQty'] = this.hobby[element][3]['value']['value'];
 
-              FEntityItem['FStockId'] = {
-                "FNumber": this.hobby[element][4]['value']['value']
-              };
+              //判断不良品还是良品
+              if (type == "defective") {
+                FEntityItem['FInStockType'] = '1';
+                FEntityItem['FFinishQty'] = this.hobby[element][3]['value']['value'];
+                FEntityItem['FQuaQty'] = this.hobby[element][3]['value']['value'];
+                FEntityItem['FStockId'] = {
+                  "FNumber": this.hobby[element][4]['value']['value']
+                };
+              }else{
+                FEntityItem['FInStockType'] = '2';
+                FEntityItem['FFinishQty'] = this.hobby[element][6]['value']['value'];
+                FEntityItem['FQuaQty'] = this.hobby[element][6]['value']['value'];
+                FEntityItem['FStockId'] = {
+                  "FNumber": this.hobby[element][7]['value']['value']
+                };
+              }
               FEntityItem['FLot'] = {
                 "FNumber": this.hobby[element][5]['value']['value']
               };
@@ -2391,10 +2401,12 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
               FEntityItem['FHrPrepareTime'] = this.hobby[element][8]['value']['value'];//人员工时
               FEntityItem['FHrWorkTime'] = this.hobby[element][11]['value']['value'];//电费分摊
               FEntityItem['FMacWorkTime'] = this.hobby[element][12]['value']['value'];//加热时间
-              FEntityItem['F_UUAC_Decimal_83g'] = this.hobby[element][13]['value']['value']+"KW";//功率
+              FEntityItem['F_UUAC_Decimal_83g'] = this.hobby[element][13]['value']['value'];//功率
               FEntityItem['F_UUAC_Decimal_re5'] = this.hobby[element][14]['value']['value'];//机器工时
-              FEntityItem['F_UUAC_Assistant_qtr'] = this.hobby[element][15]['value']['value'];//设备号
-              FEntityItem['FShiftGroupId '] = {
+              FEntityItem['F_UUAC_Assistant_qtr'] = {
+                "FNumber": this.hobby[element][15]['value']['value']
+              };//设备号
+              FEntityItem['FShiftGroupId'] = {
                 "FNumber": this.hobby[element][18]['value']['value']
               };//班组
               FEntity.add(FEntityItem);
@@ -2439,6 +2451,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
       orderMap['Model'] = Model;
       dataMap = {"formid": "PRD_MORPT", "data": orderMap, "isBool": true};
       print(jsonEncode(dataMap));
+      var submitData = jsonEncode(dataMap);
       //返回保存参数
       return dataMap;
     } else {

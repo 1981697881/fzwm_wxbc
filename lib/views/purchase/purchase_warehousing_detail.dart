@@ -2625,7 +2625,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FSRCBillNo'] = element[0]['FSRCBillNo'];
             //FEntityItem['FPOQTY'] = orderDate[hobbyIndex][12];
             FEntityItem['FPOORDERENTRYID'] = element[0]['FEntryId'];
-            FEntityItem['FPOOrderNo'] = element[0]['FSRCBillNo'];
+            FEntityItem['FPOOrderNo'] = element[0]['FPOOrderNo'];
             FEntityItem['FRealQty'] = element[3]['value']['value'];
             FEntityItem['FSerialSubEntity'] = fSerialSub;
             /*FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";*/

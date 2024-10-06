@@ -283,7 +283,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
           "title": "条码数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {"label": value[12].toString(), "value": value[12].toString()}
         });
         arr.add({
           "title": "仓库",
@@ -382,7 +382,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
         };
         if(msg ==  ""){
           _code = event;
-          this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10));
+          //this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10));
           print("ChannelPage: $event");
         }else{
           ToastUtil.showInfo(msg);
@@ -1830,7 +1830,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
           var entryIndex;
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
-          FEntityItem['FMaterialName'] = orderDate[entryIndex][1];
+          FEntityItem['FMaterialName'] = orderDate[hobbyIndex][6];
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FReturnType'] = 1;
           FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
