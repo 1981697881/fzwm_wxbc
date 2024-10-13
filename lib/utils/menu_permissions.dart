@@ -6,6 +6,7 @@ import 'package:fzwm_wxbc/views/production/picking_out_sourcing_page.dart';
 import 'package:fzwm_wxbc/views/production/picking_page.dart';
 import 'package:fzwm_wxbc/views/production/picking_stock_page.dart';
 import 'package:fzwm_wxbc/views/production/production_order_page.dart';
+import 'package:fzwm_wxbc/views/production/production_print_page.dart';
 import 'package:fzwm_wxbc/views/production/production_report_page.dart';
 import 'package:fzwm_wxbc/views/production/replenishment_page.dart';
 import 'package:fzwm_wxbc/views/production/return_detail.dart';
@@ -101,10 +102,17 @@ class MenuPermissions {
       "source": '',
     }); menu.add({
       "icon": Icons.loupe,
-      "text": "生产订单",
+      "text": "生产订单(未打印)",
       "parentId": 1,
       "color": Colors.pink.withOpacity(0.7),
       "router": ProductionOrderPage(),
+      "source": '',
+    }); menu.add({
+      "icon": Icons.loupe,
+      "text": "生产订单(已打印)",
+      "parentId": 1,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ProductionPrintPage(),
       "source": '',
     });
     menu.add({

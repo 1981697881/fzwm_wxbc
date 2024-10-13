@@ -489,59 +489,72 @@ class _MyHomePageState extends State {
       map['acctID'] =  sharedPreferences.getString('acctId');
       map['lcid'] =  "2052";
       map['password'] = _getpsw;
-      ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
-      print(entity.data!.loginResultType);
-      if (entity.data!.loginResultType == 1) {
-        Map<String, dynamic> userMap = Map();
-        userMap['FormId'] = 'BD_Empinfo';
-        userMap['FilterString'] =
-        "FStaffNumber='$username' and FPwd='$password'";
-        userMap['FieldKeys'] = 'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX,FStockIds';
-        Map<String, dynamic> dataMap = Map();
-        dataMap['data'] = userMap;
-        String UserEntity = await CurrencyEntity.polling(dataMap);
-        var resUser =jsonDecode(UserEntity);
-        print(resUser);
-        if (resUser.length > 0) {
-          if (resUser[0][2] == 'A') {
-            /* sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+      try{
+        ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
+        print(entity.data!.loginResultType);
+        if (entity.data!.loginResultType == 1) {
+          Map<String, dynamic> userMap = Map();
+          userMap['FormId'] = 'BD_Empinfo';
+          userMap['FilterString'] =
+          "FStaffNumber='$username' and FPwd='$password'";
+          userMap['FieldKeys'] = 'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX,FStockIds';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          String UserEntity = await CurrencyEntity.polling(dataMap);
+          var resUser =jsonDecode(UserEntity);
+          print(resUser);
+          if (resUser.length > 0) {
+            if (resUser[0][2] == 'A') {
+              /* sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
             sharedPreferences.setString('FWorkShopName', resUser[0][3]);*/
-            //  print("登录成功");
-            Map<String, dynamic> authorMap = Map();
-            authorMap['auth'] = resUser[0][3];
-            ApiResponse<AuthorizeEntity> author =
-            await AuthorizeEntity.getAuthorize(authorMap);
-            if (author.data!.data.fStatus == "0") {
-              Map<String, dynamic> empMap = Map();
-              empMap['FormId'] = 'BD_Empinfo';
-              empMap['FilterString'] =
-                  "FAuthCode='"+resUser[0][3]+"'";
-              empMap['FieldKeys'] =
-              'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
-              Map<String, dynamic> empDataMap = Map();
-              empDataMap['data'] = empMap;
-              String EmpEntity = await CurrencyEntity.polling(empDataMap);
-              var resEmp = jsonDecode(EmpEntity);
-              if(author.data!.data.fAuthNums >= resEmp.length && resEmp.length > 0){
-                sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
-                sharedPreferences.setString('MenuPermissions', UserEntity);
-                sharedPreferences.setString('FStockIds', jsonEncode(resUser[0][27]));
-                if(author.data!.data.fMessage == null){
-                  ToastUtil.showInfo('登录成功');
+              //  print("登录成功");
+              Map<String, dynamic> authorMap = Map();
+              authorMap['auth'] = resUser[0][3];
+              ApiResponse<AuthorizeEntity> author =
+              await AuthorizeEntity.getAuthorize(authorMap);
+              if (author.data!.data.fStatus == "0") {
+                Map<String, dynamic> empMap = Map();
+                empMap['FormId'] = 'BD_Empinfo';
+                empMap['FilterString'] =
+                    "FAuthCode='"+resUser[0][3]+"'";
+                empMap['FieldKeys'] =
+                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
+                Map<String, dynamic> empDataMap = Map();
+                empDataMap['data'] = empMap;
+                String EmpEntity = await CurrencyEntity.polling(empDataMap);
+                var resEmp = jsonDecode(EmpEntity);
+                if(author.data!.data.fAuthNums >= resEmp.length && resEmp.length > 0){
+                  sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
+                  sharedPreferences.setString('MenuPermissions', UserEntity);
+                  sharedPreferences.setString('FStockIds', jsonEncode(resUser[0][27]));
+                  if(author.data!.data.fMessage == null){
+                    ToastUtil.showInfo('登录成功');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return IndexPage();
+                        },
+                      ),
+                    );
+                  }else{
+                    this.message = author.data!.data.fMessage;
+                    showExitDialog();
+                  }
+                }else{
+                  ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return IndexPage();
+                        return LoginPage();
                       },
                     ),
                   );
-                }else{
-                  this.message = author.data!.data.fMessage;
-                  showExitDialog();
                 }
               }else{
-                ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
+                ToastUtil.errorDialog(context,
+                    author.data!.data.fMessage);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -551,9 +564,8 @@ class _MyHomePageState extends State {
                   ),
                 );
               }
-            }else{
-              ToastUtil.errorDialog(context,
-                  author.data!.data.fMessage);
+            } else {
+              ToastUtil.showInfo('该账号无登录权限');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -563,7 +575,7 @@ class _MyHomePageState extends State {
                 ),
               );
             }
-          } else {
+          }else{
             ToastUtil.showInfo('该账号无登录权限');
             Navigator.pushReplacement(
               context,
@@ -574,8 +586,8 @@ class _MyHomePageState extends State {
               ),
             );
           }
-        }else{
-          ToastUtil.showInfo('该账号无登录权限');
+        } else {
+          ToastUtil.showInfo('登录失败，重新登录');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -585,7 +597,7 @@ class _MyHomePageState extends State {
             ),
           );
         }
-      } else {
+      }catch (e, stack){
         ToastUtil.showInfo('登录失败，重新登录');
         Navigator.pushReplacement(
           context,

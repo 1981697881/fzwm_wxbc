@@ -136,7 +136,6 @@ class _PickingPageState extends State<PickingPage> {
     hobby = [];
     if (orderDate.length > 0) {
       for (var value = 0; value < orderDate.length; value++) {
-
         Map<String, dynamic> pickmtrlMap = Map();
         pickmtrlMap['FilterString'] =
         "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][18]}'";
@@ -518,7 +517,14 @@ class _PickingPageState extends State<PickingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-     var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

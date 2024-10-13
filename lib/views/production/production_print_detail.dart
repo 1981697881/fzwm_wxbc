@@ -27,19 +27,19 @@ import 'package:qrscan/qrscan.dart' as scanner;
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
-class ProductionOrderDetail extends StatefulWidget {
+class ProductionPrintDetail extends StatefulWidget {
   var FBillNo;
   var FSeq;
 
-  ProductionOrderDetail({Key ?key, @required this.FBillNo, @required this.FSeq})
+  ProductionPrintDetail({Key ?key, @required this.FBillNo, @required this.FSeq})
       : super(key: key);
 
   @override
-  _ProductionOrderDetailState createState() =>
-      _ProductionOrderDetailState(FBillNo, FSeq);
+  _ProductionPrintDetailState createState() =>
+      _ProductionPrintDetailState(FBillNo, FSeq);
 }
 
-class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
+class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
   var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
@@ -93,7 +93,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
-  _ProductionOrderDetailState(fBillNo, FSeq) {
+  _ProductionPrintDetailState(fBillNo, FSeq) {
     if (fBillNo != null) {
       this.fBillNo = fBillNo['value'];
       this.FSeq = FSeq['value'];
@@ -111,7 +111,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
   @override
   void initState() {
     super.initState();
-   /* DateTime dateTime = DateTime.now();
+    /* DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;*/
     EasyLoading.dismiss();
@@ -1786,21 +1786,15 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
       });
 
       Map<String, dynamic> dataMap = Map();
-      Map<String, dynamic> saveDataMap = Map();
       dataMap['formid'] = 'PRD_MO';
       Map<String, dynamic> orderMap = Map();
-      Map<String, dynamic> saveOrderMap = Map();
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
-      Map<String, dynamic> saveModel = Map();
       Model['FID'] = 0;
       Model['FBillType'] = {"FNUMBER": "SCTLD01_SYS"};
       Model['FDate'] = FDate;
       Model['FBillNo'] = fBillNo;
-      saveModel['FID'] = orderDate[0][14];
-      saveModel['F_UUAC_CheckBox_qtr'] = 1;
-      saveModel['F_UUAC_Date_83g'] = {"FNumber": 'PRE001'};
       //获取登录信息
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var tissue = sharedPreferences.getString('tissue');
@@ -1870,35 +1864,22 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
-      saveOrderMap['Model'] = saveModel;
-      saveDataMap['data'] = saveOrderMap;
       var datass = jsonEncode(dataMap);
       this.printData = dataMap;
-      String order = await SubmitEntity.save(saveDataMap);
-      var res = jsonDecode(order);
-      print(res);
-      if (res['Result']['ResponseStatus']['IsSuccess']) {
-        setState(() {
-          this.isSubmit = false;
-        });
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return PrintPage(data: printData
-                // 路由参数
-              );
-            },
-          ),
-        ).then((data) {});
-      } else {
-        setState(() {
-          this.isSubmit = false;
-          ToastUtil.errorDialog(context,
-              res['Result']['ResponseStatus']['Errors'][0]['Message']);
-        });
-      }
+      setState(() {
+        this.isSubmit = false;
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
 
+            return PrintPage(data: printData
+              // 路由参数
+            );
+          },
+        ),
+      ).then((data) {});
     } else {
       ToastUtil.showInfo('无提交数据');
     }

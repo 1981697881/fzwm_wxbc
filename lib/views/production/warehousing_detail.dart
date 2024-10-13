@@ -257,10 +257,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   getOrderList(fid) async {
       Map<String, dynamic> userMap = Map();
       userMap['FilterString'] = "FID='$fid'";
-      userMap['FormId'] = 'PRD_INSTOCK';
+        userMap['FormId'] = 'PRD_INSTOCK';
       userMap['OrderString'] = 'FMaterialId.FNumber ASC';
       userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FMoBillNo,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopId1.FNumber,FWorkShopId1.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FProduceDate,FExpiryDate,FSrcBillNo,FRealQty,FID,FDocumentStatus,FStockId.FNumber,FStockId.FName,FStockOrgId.FNumber,FMaterialId.FIsBatchManage,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,FMoEntryId,FStockUnitId.FNumber,FOwnerId.FNumber,FBaseUnitId.FNumber,FOwnerTypeId,FMoBillNo,FKeeperTypeId,FKeeperId.FNumber';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FMoBillNo,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopId1.FNumber,FWorkShopId1.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FProduceDate,FExpiryDate,FSrcBillNo,FRealQty,FID,FDocumentStatus,FStockId.FNumber,FStockId.FName,FStockOrgId.FNumber,FMaterialId.FIsBatchManage,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,FMoEntryId,FStockUnitId.FNumber,FOwnerId.FNumber,FBaseUnitId.FNumber,FOwnerTypeId,FMoBillNo,FKeeperTypeId,FKeeperId.FNumber,FStockStatusId.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -2242,7 +2242,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FStockUnitId']};
-          FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          /*FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};*/
           FEntityItem['FOwnerId'] = {"FNumber": this.hobby[entryIndex][0]['FOwnerId']};
           FEntityItem['FBaseUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FBaseUnitId']};
           FEntityItem['FOwnerTypeId'] = this.hobby[entryIndex][0]['FOwnerTypeId'];
@@ -2251,8 +2251,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           FEntityItem['FKeeperId'] = {"FNumber": this.hobby[entryIndex][0]['FKeeperId']};
 
         }
-        FEntityItem['FInStockType'] = '1';
-
+        //FEntityItem['FInStockType'] = '1';
         FEntityItem['FRealQty'] = element[3]['value']['value'];
         if(element[0]['FIsKFPeriod']){
           FEntityItem['FProduceDate'] = element[8]['value']['value'];

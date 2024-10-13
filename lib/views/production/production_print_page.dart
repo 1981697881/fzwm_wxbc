@@ -7,31 +7,32 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm_wxbc/views/production/production_report_detail.dart';
+import 'package:fzwm_wxbc/views/production/picking_detail.dart';
+import 'package:fzwm_wxbc/views/production/production_order_detail.dart';
+import 'package:fzwm_wxbc/views/production/return_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
-final String _fontFamily = Platform.isWindows ? "Roboto" : "";
+import 'production_print_detail.dart';
 
-class ProductionReportPage extends StatefulWidget {
-  ProductionReportPage({Key ?key}) : super(key: key);
+class ProductionPrintPage extends StatefulWidget {
+  ProductionPrintPage({Key ?key}) : super(key: key);
 
   @override
-  _ProductionReportPageState createState() => _ProductionReportPageState();
+  _ProductionPrintPageState createState() => _ProductionPrintPageState();
 }
 
-class _ProductionReportPageState extends State<ProductionReportPage> {
+class _ProductionPrintPageState extends State<ProductionPrintPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
   String endDate = '';
+  var isScan = false;
   //生产车间
   String FName = '';
   String FNumber = '';
   String username = '';
-  var isScan = false;
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -47,9 +48,10 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
-    DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    DateTime dateTime = DateTime.now();
+    DateTime newDate = dateTime.add(Duration(days: 1));
+    _dateSelectText =
+    "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
@@ -80,6 +82,7 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
 
   // 集合
   List hobby = [];
+
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -90,81 +93,95 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
       }
     });
   }
+
   getOrderList() async {
-    EasyLoading.show(status: 'loading...');
+    setState(() {
+      hobby = [];
+      this._getHobby();
+    });
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FRptFinishQty != FQty";
+    userMap['FilterString'] = "FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
     }
     if(this.isScan){
-      userMap['FilterString'] =
-      "FStatus in (4) and FRptFinishQty != FQty";
+      userMap['FilterString'] = "FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FStatus in (4) and FRptFinishQty != FQty";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FStatus in (4) and FRptFinishQty != FQty";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       }else{
-        userMap['FilterString'] =
-        "FStatus in (4) and FRptFinishQty != FQty and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] = "FDocumentStatus ='C' and F_UUAC_Date_83g>= '$startDate' and F_UUAC_Date_83g <= '$endDate' and F_UUAC_CheckBox_qtr = 1";
+        }else{
+          userMap['FilterString'] = "FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
+        }
       }
     }
     this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['Limit'] = '20';
+    userMap['OrderString'] = 'FBillNo DESC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,FMemoItem';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,F_UUAC_Date_83g';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
+    print(orderDate);
+    //获取当前的时间
+    DateTime now = DateTime.now();
+    DateTime start = DateTime(2022, 05, 30);
+    final difference = start.difference(now).inDays;
     hobby = [];
     if (orderDate.length > 0) {
-      orderDate.forEach((value) {
+      for (var value = 0; value < orderDate.length; value++) {
         List arr = [];
         arr.add({
           "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
-          "value": {"label": value[0], "value": value[0]}
+          "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
         });
         arr.add({
           "title": "生产组织",
           "name": "FPrdOrgId",
           "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
         });
         arr.add({
           "title": "单据日期",
           "name": "FDate",
           "isHide": false,
-          "value": {"label": value[3], "value": value[3]}
+          "value": {"label": orderDate[value][3], "value": orderDate[value][3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": orderDate[value][6] + "- (" + orderDate[value][5] + ")", "value": orderDate[value][5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
-          "value": {"label": value[6], "value": value[6]}
+          "isHide": true,
+          "value": {"label": orderDate[value][7], "value": orderDate[value][7]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
           "value": {
-            "label": value[11],
-            "value": value[10]
+            "label": orderDate[value][11],
+            "value": orderDate[value][10]
           }
         });
         arr.add({
@@ -172,8 +189,8 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
           "name": "FBaseQty",
           "isHide": false,
           "value": {
-            "label": value[12],
-            "value": value[12]
+            "label": orderDate[value][12],
+            "value": orderDate[value][12]
           }
         });
         arr.add({
@@ -181,8 +198,8 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
           "name": "FProdOrder",
           "isHide": true,
           "value": {
-            "label": value[1],/*value[18]*/
-            "value": value[1]
+            /* "label": orderDate[value][18],
+            "value": orderDate[value][18]*/
           }
         });
         arr.add({
@@ -190,17 +207,17 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
           "name": "FBaseQty",
           "isHide": true,
           "value": {
-            "label": value[13],
-            "value": value[13]
+            "label": orderDate[value][13],
+            "value": orderDate[value][13]
           }
         });
         arr.add({
           "title": "未入库数量",
           "name": "FBaseQty",
-          "isHide": false,
+          "isHide": true,
           "value": {
-            "label": value[16],
-            "value": value[16]
+            "label": orderDate[value][16],
+            "value": orderDate[value][16]
           }
         });
         arr.add({
@@ -208,45 +225,37 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
           "name": "FSeq",
           "isHide": true,
           "value": {
-            "label": value[18],
-            "value": value[18]
+            "label": orderDate[value][18],
+            "value": orderDate[value][18]
           }
         });
         arr.add({
           "title": "分录内码",
           "name": "FEntryId",
           "isHide": true,
-          "value": {"label": value[4], "value": value[4]}
+          "value": {"label": orderDate[value][4], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "FID",
           "name": "FID",
           "isHide": true,
           "value": {
-            "label": value[17],
-            "value": value[17]
+            "label": orderDate[value][17],
+            "value": orderDate[value][17]
           }
         });
         arr.add({
-          "title": "状态",
-          "name": "FStatus",
+          "title": "打印日期",
+          "name": "printData",
           "isHide": false,
           "value": {
-            "label": value[19] == "3" ? "下达" : "开工",
-            "value": value[19]
-          }
-        });
-        arr.add({
-          "title": "备注",
-          "name": "FID",
-          "isHide": false,
-          "value": {
-            "label": value[20] == null?"":value[20],
-            "value":value[20] == null?"":value[20],
+            "label": orderDate[value][20],
+            "value": orderDate[value][20]
           }
         });
         hobby.add(arr);
-      });
+      }
+      print(hobby);
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -261,40 +270,13 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
   }
 
   void _onEvent(event) async {
+    /*  setState(() {*/
+    _code = event;
     EasyLoading.show(status: 'loading...');
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var deptData = sharedPreferences.getString('menuList');
-    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
-    var fBarCodeList = menuList['FBarCodeList'];
-    if(event == ""){
-      return;
-    }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FSrcBillNo,FSN,FMATERIALID.FNUMBER';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-          keyWord = barcodeData[0][0];
-          this.controller.text = barcodeData[0][0];
-          this.isScan = true;
-          await this.getOrderList();
-      } else {
-        ToastUtil.showInfo('条码不在条码清单中');
-      }
-    } else {
-      keyWord = _code;
-      this.controller.text = _code;
-      _code = event;
-      await this.getOrderList();
-      print("ChannelPage: $event");
-    }
-    EasyLoading.dismiss();
+    keyWord = _code;
+    this.controller.text = _code;
+    await getOrderList();
+    /*});*/
   }
 
   void _onError(Object error) {
@@ -319,31 +301,21 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ProductionReportDetail(
-                            FBillNo: this.hobby[i][0]
-                            ['value'],
-                            FBarcode: _code,
-                            FSeq: this.hobby[i][10]
-                            ['value'],
-                            FEntryId: this.hobby[i][11]
-                            ['value'],
-                            FID: this.hobby[i][12]['value'],
-                            FProdOrder: this.hobby[i][7]['value'],
-                            FMemoItem: this.hobby[i][14]['value'],
+                          return ProductionPrintDetail(
+                            FBillNo: this.hobby[i][0]['value'],
+                            FSeq: this.hobby[i][10]['value'],
                             // 路由参数
                           );
                         },
                       ),
                     ).then((data) {
                       //延时500毫秒执行
-                      Future.delayed(
-                          const Duration(milliseconds: 500),
-                              () {
-                            setState(() {
-                              //延时更新状态
-                              this._initState();
-                            });
-                          });
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        setState(() {
+                          //延时更新状态
+                          this._initState();
+                        });
+                      });
                     });
                   },
                   title: Text(this.hobby[i][j]["title"] +
@@ -422,7 +394,6 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
       //选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
-    print(_dateSelectText);
     setState(() {});
   }
   double hc_ScreenWidth() {
@@ -444,7 +415,7 @@ class _ProductionReportPageState extends State<ProductionReportPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产汇报"),
+            title: Text("生产订单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

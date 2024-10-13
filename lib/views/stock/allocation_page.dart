@@ -312,6 +312,14 @@ class _RetrievalPageState extends State<AllocationPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -324,7 +332,7 @@ class _RetrievalPageState extends State<AllocationPage> {
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
-        initialDateRange: DateTimeRange(start: start, end: end));
+        initialDateRange: DateTimeRange(start: DateTime.parse(seDate[0]), end: DateTime.parse(seDate[1])));
     //结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();
