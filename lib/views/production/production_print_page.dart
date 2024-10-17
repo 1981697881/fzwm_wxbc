@@ -109,12 +109,12 @@ class _ProductionPrintPageState extends State<ProductionPrintPage> {
       userMap['FilterString'] = "FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FLot.FNumber like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FLot.FNumber like '%"+keyWord+"%') and FDocumentStatus ='C' and F_UUAC_CheckBox_qtr = 1";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
@@ -130,7 +130,7 @@ class _ProductionPrintPageState extends State<ProductionPrintPage> {
     userMap['Limit'] = '20';
     userMap['OrderString'] = 'FBillNo DESC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,F_UUAC_Date_83g';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,F_UUAC_Date_83g,FLot.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -245,6 +245,15 @@ class _ProductionPrintPageState extends State<ProductionPrintPage> {
           }
         });
         arr.add({
+          "title": "批号",
+          "name": "FLot",
+          "isHide": false,
+          "value": {
+            "label": orderDate[value][21],
+            "value": orderDate[value][21]
+          }
+        });
+        arr.add({
           "title": "打印日期",
           "name": "printData",
           "isHide": false,
@@ -253,6 +262,7 @@ class _ProductionPrintPageState extends State<ProductionPrintPage> {
             "value": orderDate[value][20]
           }
         });
+
         hobby.add(arr);
       }
       print(hobby);

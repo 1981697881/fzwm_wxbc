@@ -137,28 +137,32 @@ class _PrintPageState extends State<PrintPage> {
                   'GAP 2 mm\r\n' +
                   'CLS\r\n' +
                   /*'BOX 5, 5, 800, 550, 3\r\n' +*/
-                  'BAR 135, 90, 455, 1\r\n' +
-                  'BAR 135, 160, 455, 1\r\n' +
-                  'BAR 135, 230, 455, 1\r\n' +
-                  'BAR 215, 300, 375, 1\r\n' +
-                  'BAR 185, 370, 405, 1\r\n' +
-                  'BAR 135, 440, 455, 1\r\n' +
-                  'BAR 185, 510, 405, 1\r\n' +
+
+                  'BAR 115, 80, 435, 1\r\n' +
+                  'BAR 115, 140, 435, 1\r\n' +
+                  'BAR 115, 200, 435, 1\r\n' +
+                  'BAR 195, 260, 355, 1\r\n' +
+                  'BAR 195, 320, 355, 1\r\n' +
+                  'BAR 165, 380, 385, 1\r\n' +
+                  'BAR 115, 440, 435, 1\r\n' +
+                  'BAR 165, 500, 485, 1\r\n' +
                   'TEXT 5,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
-                  'TEXT 5,110,"TSS24.BF2",0,1,1,"批号:"\r\n' +
-                  'TEXT 5,180,"TSS24.BF2",0,1,1,"净重:"\r\n' +
-                  'TEXT 5,250,"TSS24.BF2",0,1,1,"到货日期:"\r\n' +
-                  'TEXT 5,320,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
-                  'TEXT 5,390,"TSS24.BF2",0,1,1,"备注:"\r\n' +
+                  'TEXT 5,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
+                  'TEXT 5,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
+                  'TEXT 5,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
+                  'TEXT 5,280,"TSS24.BF2",0,1,1,"到货日期:"\r\n' +
+                  'TEXT 5,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
+                  'TEXT 5,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
                   'TEXT 5,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
-                  'TEXT 145,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
-                  'TEXT 145,110,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
-                  'TEXT 145,180,"TSS24.BF2",0,1,1,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                  'TEXT 225,250,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 195,320,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 145,390,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
-                  'TEXT 195,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
-                  'QRCODE 605,180,M,5,A,0,"${codeCont}"\r\n' +
+                  'TEXT 125,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 125,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 125,160,"TSS24.BF2",0,1,1,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 205,220,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 205,280,"TSS24.BF2",0,1,1,""\r\n' +
+                  'TEXT 175,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 125,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
+                  'TEXT 175,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
+                  'QRCODE 590,140,M,5,A,0,"${codeCont}"\r\n' +
                   'PRINT 1,1\r\n';
              /* println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +
@@ -296,28 +300,31 @@ class _PrintPageState extends State<PrintPage> {
                   'GAP 2 mm\r\n' +
                   'CLS\r\n' +
                   /*'BOX 5, 5, 800, 550, 3\r\n' +*/
-                  'BAR 135, 90, 455, 1\r\n' +
-                  'BAR 135, 160, 455, 1\r\n' +
-                  'BAR 135, 230, 455, 1\r\n' +
-                  'BAR 215, 300, 375, 1\r\n' +
-                  'BAR 185, 370, 405, 1\r\n' +
-                  'BAR 135, 440, 455, 1\r\n' +
-                  'BAR 185, 510, 405, 1\r\n' +
+                  'BAR 115, 80, 435, 1\r\n' +
+                  'BAR 115, 140, 435, 1\r\n' +
+                  'BAR 115, 200, 435, 1\r\n' +
+                  'BAR 195, 260, 355, 1\r\n' +
+                  'BAR 195, 320, 355, 1\r\n' +
+                  'BAR 165, 380, 385, 1\r\n' +
+                  'BAR 115, 440, 435, 1\r\n' +
+                  'BAR 165, 500, 485, 1\r\n' +
                   'TEXT 5,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
-                  'TEXT 5,110,"TSS24.BF2",0,1,1,"批号:"\r\n' +
-                  'TEXT 5,180,"TSS24.BF2",0,1,1,"净重:"\r\n' +
-                  'TEXT 5,250,"TSS24.BF2",0,1,1,"生产日期:"\r\n' +
-                  'TEXT 5,320,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
-                  'TEXT 5,390,"TSS24.BF2",0,1,1,"备注:"\r\n' +
+                  'TEXT 5,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
+                  'TEXT 5,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
+                  'TEXT 5,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
+                  'TEXT 5,280,"TSS24.BF2",0,1,1,"生产日期:"\r\n' +
+                  'TEXT 5,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
+                  'TEXT 5,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
                   'TEXT 5,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
-                  'TEXT 145,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
-                  'TEXT 145,110,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
-                  'TEXT 145,180,"TSS24.BF2",0,1,1,"${value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                  'TEXT 225,250,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 195,320,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 145,390,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
-                  'TEXT 195,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
-                  'QRCODE 605,180,M,5,A,0,"${codeCont}"\r\n' +
+                  'TEXT 125,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 125,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 125,160,"TSS24.BF2",0,1,1,"${value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 205,220,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 205,280,"TSS24.BF2",0,1,1,""\r\n' +
+                  'TEXT 175,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 125,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
+                  'TEXT 175,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
+                  'QRCODE 590,140,M,5,A,0,"${codeCont}"\r\n' +
                   'PRINT 1,1\r\n';
                 /*println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +

@@ -278,7 +278,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
       userMap['FormId'] = 'PRD_MO';
       userMap['OrderString'] = 'FMaterialId.FNumber ASC';
       userMap['FieldKeys'] =
-      'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FRptFinishQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber,FMaterialId.FIsBatchManage,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod';
+      'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FRptFinishQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber,FMaterialId.FIsBatchManage,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FLot.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -346,7 +346,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
             "title": "批号",
             "name": "FLot",
             "isHide": value[23] != true,
-            "value": {"label": "", "value": ""}
+            "value": {"label": value[26], "value": value[26]}
           });
           arr.add({
             "title": "不合格数量",
@@ -1347,7 +1347,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
     });
   }
   Future<List<int>?> _showMultiChoiceModalBottomSheet(
-      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem, List<dynamic> dataList, String type) async {
     List selected = [];
     /*var selectList = this.hobby;
     for (var select in selectList) {
@@ -1403,11 +1403,15 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                             border: InputBorder.none),
                         onSubmitted: (value){
                           options = [];
-                          for(var element in this.bagListObj){
+                          for(var element in dataList){
                             options.add(element[1]);
                           }
                           setState(() {
-                            options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            if(type =="0"){
+                              options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            }else{
+                              options = options.where((item) => item.contains(value)).toList();
+                            }
                             //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
                           });
                         },
@@ -1511,7 +1515,35 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                 for(var element in this.bagListObj){
                                   this.bagList.add(element[1]);
                                 }
-                                _showMultiChoiceModalBottomSheet(context, this.bagList,  this.hobby[i][j]);
+                                _showMultiChoiceModalBottomSheet(context, this.bagList,this.hobby[i][j],this.bagListObj,"0");
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 15) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.deviceList = [];
+                                for(var element in this.deviceListObj){
+                                  this.deviceList.add(element[1]);
+                                }
+                                _showMultiChoiceModalBottomSheet(context, this.deviceList,this.hobby[i][j],this.deviceListObj,"1");
                               },
                             ),
                           ])),
@@ -1535,13 +1567,13 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
             comList.add(
               _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i]),
             );
-          }else if (j == 15) {
+          }/*else if (j == 15) {
             comList.add(
               _item(this.hobby[i][j]['title'], deviceList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
                   stock: this.hobby[i]),
             );
-          }else if (j == 18) {
+          }*/else if (j == 18) {
             comList.add(
               _item(this.hobby[i][j]['title'], groupList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],

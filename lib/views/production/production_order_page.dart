@@ -108,12 +108,12 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
       "FDocumentStatus ='C'";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FLot.FNumber like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FDocumentStatus ='C'";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FLot.FNumber like '%"+keyWord+"%') and FDocumentStatus ='C'";
       }else{
         userMap['FilterString'] =
         "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
@@ -124,7 +124,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
     userMap['Limit'] = '20';
     userMap['OrderString'] = 'FBillNo DESC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,FLot.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -296,6 +296,15 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
             }
           });
         }*/
+        arr.add({
+          "title": "批号",
+          "name": "FLot",
+          "isHide": false,
+          "value": {
+            "label": orderDate[value][20],
+            "value": orderDate[value][20]
+          }
+        });
         hobby.add(arr);
       }
       /*)*/;
