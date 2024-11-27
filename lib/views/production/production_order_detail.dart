@@ -202,7 +202,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
     if(fOrgID == null){
       this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A'  and FUseOrgId.FNumber ='"+tissue+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'  and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -309,8 +309,10 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
           "isHide": value[21] != true,
           "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
         });
-        var parseNum = (30 * value[22]);
-        var kerTime = DateTime.parse(selectData[DateMode.YMD].toString()).add(Duration(days: parseNum.toInt()));
+        DateTime _selectedDate = DateTime.parse(selectData[DateMode.YMD].toString());
+        var cNum = 0;
+        cNum = value[22];
+        var kerTime = DateTime(_selectedDate.year, _selectedDate.month + cNum, _selectedDate.day);
         arr.add({
           "title": "有效期至",
           "name": "FExpiryDate",
@@ -1213,9 +1215,10 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
                 "-",
                 dd,
               ]);
-          var formatter = DateFormat('yyyy-MM-dd');
-          var parseNum = (30 * hobby[8]['num']);
-          var kerTime = DateTime.parse(hobby[7]['value']['label']).add(Duration(days: parseNum.toInt()));
+          DateTime _selectedDate = DateTime.parse(hobby[7]['value']['label']);
+          var cNum = 0;
+          cNum = hobby[8]['num'];
+          var kerTime = DateTime(_selectedDate.year, _selectedDate.month + cNum, _selectedDate.day);
           hobby[8]['value']['label'] = formatDate(kerTime, [
             yyyy,
             "-",
@@ -1788,6 +1791,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
       Map<String, dynamic> dataMap = Map();
       Map<String, dynamic> saveDataMap = Map();
       dataMap['formid'] = 'PRD_MO';
+      saveDataMap['formid'] = 'PRD_MO';
       Map<String, dynamic> orderMap = Map();
       Map<String, dynamic> saveOrderMap = Map();
       orderMap['NeedReturnFields'] = [];
@@ -1800,7 +1804,7 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
       Model['FBillNo'] = fBillNo;
       saveModel['FID'] = orderDate[0][14];
       saveModel['F_UUAC_CheckBox_qtr'] = 1;
-      saveModel['F_UUAC_Date_83g'] = {"FNumber": 'PRE001'};
+      saveModel['F_UUAC_Date_83g'] = FDate;
       //获取登录信息
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var tissue = sharedPreferences.getString('tissue');

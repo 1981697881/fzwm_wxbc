@@ -170,7 +170,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     if(fOrgID == null){
       this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);

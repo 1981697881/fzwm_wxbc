@@ -131,7 +131,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       this.fOrgID = tissue;
     }
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + fOrgID + "'";//
+        "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='" + fOrgID + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);

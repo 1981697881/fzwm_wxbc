@@ -229,7 +229,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber =" + organizationsNumber;
+        "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber =" + organizationsNumber;
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);

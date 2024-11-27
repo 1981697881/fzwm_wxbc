@@ -202,7 +202,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
     if(fOrgID == null){
       this.fOrgID = tissue;
     }
-    userMap['FilterString'] = "FForbidStatus = 'A'  and FUseOrgId.FNumber ='"+tissue+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -309,8 +309,10 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
           "isHide": value[21] != true,
           "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
         });
-        var parseNum = (30 * value[22]);
-        var kerTime = DateTime.parse(selectData[DateMode.YMD].toString()).add(Duration(days: parseNum.toInt()));
+        DateTime _selectedDate = DateTime.parse(selectData[DateMode.YMD].toString());
+        var cNum = 0;
+        cNum = value[22];
+        var kerTime = DateTime(_selectedDate.year, _selectedDate.month + cNum, _selectedDate.day);
         arr.add({
           "title": "有效期至",
           "name": "FExpiryDate",
@@ -1213,9 +1215,10 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
                 "-",
                 dd,
               ]);
-          var formatter = DateFormat('yyyy-MM-dd');
-          var parseNum = (30 * hobby[8]['num']);
-          var kerTime = DateTime.parse(hobby[7]['value']['label']).add(Duration(days: parseNum.toInt()));
+          DateTime _selectedDate = DateTime.parse(hobby[7]['value']['label']);
+          var cNum = 0;
+          cNum = hobby[8]['num'];
+          var kerTime = DateTime(_selectedDate.year, _selectedDate.month + cNum, _selectedDate.day);
           hobby[8]['value']['label'] = formatDate(kerTime, [
             yyyy,
             "-",

@@ -166,7 +166,7 @@ class _PurchaseOutSourcingDetailState extends State<PurchaseOutSourcingDetail> {
     if(fOrgID == null){
       this.fOrgID = deptData[1];
     }
-    userMap['FilterString'] = "FForbidStatus = 'A'";// and FUseOrgId.FNumber='"+fOrgID+"'
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";// and FUseOrgId.FNumber='"+fOrgID+"'
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);

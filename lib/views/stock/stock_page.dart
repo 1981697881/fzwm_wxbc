@@ -60,7 +60,7 @@ class _StockPageState extends State<StockPage> {
     }
     EasyLoading.dismiss();
     getStockList();
-    //_onEvent("247230329291267");
+    //_onEvent("33006;AQ40527303N1;2024-05-28;700;MO001456,1627265218;2");
   }
 
   @override
@@ -81,7 +81,7 @@ class _StockPageState extends State<StockPage> {
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + tissue + "'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='" + tissue + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -106,59 +106,44 @@ class _StockPageState extends State<StockPage> {
   List hobby = [];
 
   getOrderList(keyWord, batchNo, fSn) async {
-    print(fSn);
-    print("123333");
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
+    userMap['FilterString'] = "FBaseQty>0";
     if (keyWord != '') {
       if(keyWord.split(";").length>1){
         if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] =
-              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0 and FStockId in(" + fStockIds + ")";
+          userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0 and FStockId in(" + fStockIds + ")";
         }else{
-          userMap['FilterString'] =
-              "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0";
+          userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0";
         }
 
         if (batchNo != '') {
           if (this.warehouseNumber != null) {
-            userMap['FilterString'] = "FMaterialId.FNumber='" +
-                keyWord.split(";")[0] +
-                "' and FStockID.FNumber='" +
-                this.warehouseNumber +
-                "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
+            userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FStockID.FNumber='" + this.warehouseNumber + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
           } else {
             if(fStockIds != '' && fStockIds != null){
-              userMap['FilterString'] = "FMaterialId.FNumber='" +
-                  keyWord.split(";")[0] +
-                  "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
+              userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
             }else{
-              userMap['FilterString'] = "FMaterialId.FNumber='" +
-                  keyWord.split(";")[0] +
-                  "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
+              userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
             }
 
           }
         }
       }else{
         if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockId in(" + fStockIds + ")";
+          userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockId in(" + fStockIds + ")";
         }else{
-          userMap['FilterString'] =
-              "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%') or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0";
+          userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0";
         }
       }
     }else{
       if (this.warehouseNumber != null) {
-        userMap['FilterString'] = "FStockID.FNumber='" +
-            this.warehouseNumber +
-            "' and FBaseQty>0 "; /**/
+        userMap['FilterString'] = "FStockID.FNumber='" + this.warehouseNumber + "' and FBaseQty>0 "; /**/
       } else {
         if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] = "FBaseQty>0  and FStockId in(" + fStockIds + ")";
+          userMap['FilterString'] = "FBaseQty>0 and FStockId in(" + fStockIds + ")";
         }else{
           userMap['FilterString'] = "FBaseQty>0";
         }

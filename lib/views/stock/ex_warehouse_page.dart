@@ -92,7 +92,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FDocumentStatus ='C'";
+        "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
       }else{
         userMap['FilterString'] =
         "FCloseStatus = 'A' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";

@@ -151,7 +151,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber ='"+tissue+"'";//
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -311,7 +311,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-
+  /*  _onEvent("11059;240515053能投/青途;2024-05-15;950;CGRK02227,1512598138;2");
+    _onEvent("31504;AQ40802203N1;2024-08-02;1080;,1044581817;2");*/
   }
 
   void _onEvent(event) async {
@@ -1518,31 +1519,21 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                                     var qty = item.split("-")[1];
                                     realQty += double.parse(qty);
                                   });
-                                  realQty = realQty - double.parse(this.hobby[checkData][10]
-                                  ["value"]["label"]);
+                                  realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
                                   realQty = realQty + double.parse(_FNumber);
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
                                   if(this.fBillNo!="") {
                                     var entryIndex;
-                                    if (this.hobby[checkData][0]['FEntryID'] ==
-                                        0) {
-                                      entryIndex =
-                                      this.hobbyItem[this.hobbyItem.indexWhere((
-                                          v) => v['number'] == (this
-                                          .hobby[checkData][0]['value']['value'] +
-                                          '-' + this
-                                          .hobby[checkData][0]['parseEntryID']
-                                          .toString()))]['index'];
+                                    if (this.hobby[checkData][0]['FEntryID'] == 0) {
+                                      if(this.hobby[checkData][0]['parseEntryID'] == -1){
+                                        entryIndex = checkData;
+                                      }else{
+                                        entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v) => v['number'] == (this.hobby[checkData][0]['value']['value'] + '-' + this.hobby[checkData][0]['parseEntryID'].toString()))]['index'];
+                                      }
                                     } else {
-                                      entryIndex =
-                                      this.hobbyItem[this.hobbyItem.indexWhere((
-                                          v) => v['number'] == (this
-                                          .hobby[checkData][0]['value']['value'] +
-                                          '-' +
-                                          this.hobby[checkData][0]['FEntryID']
-                                              .toString()))]['index'];
+                                      entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v) => v['number'] == (this.hobby[checkData][0]['value']['value'] + '-' + this.hobby[checkData][0]['FEntryID'].toString()))]['index'];
                                     }
                                     hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[checkData][3]['value']['value']) * 100) / 100;
                                   }

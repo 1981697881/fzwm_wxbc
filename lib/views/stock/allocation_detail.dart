@@ -116,7 +116,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-   // _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+  /* _onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
+   _onEvent("11010;2024091401迪美/迪美;2024-09-14;75;,1437551116;2");*/
+   // _onEvent("13125;20240905安德/本溪黑马;2024-09-05;25;,1730336671;2");
     EasyLoading.dismiss();
   }
 
@@ -133,9 +135,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       this.fOrgID = deptData[1];
     }
     if(this.organizationsNumber2 != null){
-      userMap['FilterString'] = "FForbidStatus = 'A' and FUseOrgId.FNumber="+this.organizationsNumber2.toString();
+      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber="+this.organizationsNumber2.toString();
     }else{
-      userMap['FilterString'] = "FForbidStatus = 'A'";
+      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
     }
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -1821,6 +1823,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber2};
       var FEntity = [];
       var hobbyIndex = 0;
+      print(materialDate);
       this.hobby.forEach((element) {
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[7]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
@@ -1863,7 +1866,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             };
           }
           FEntityItem['FAuxPropID'] = {
-            "FAUXPROPID__FF100002": {"FNumber": materialDate[hobbyIndex][15]}
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FDestLot'] = {"FNumber": element[5]['value']['value']};

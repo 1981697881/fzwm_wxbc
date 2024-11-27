@@ -148,7 +148,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       this.fOrgID = tissue;
     }
     userMap['FilterString'] =
-        "FForbidStatus = 'A' and FUseOrgId.FNumber ='" + fOrgID + "'";//
+        "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='" + fOrgID + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -401,7 +401,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+    /*_onEvent("31013;AQ40617304N1;2024-06-17;150;MO001588,1346511898;25");
+    _onEvent("31013;AQ40618304N1;2024-06-18;200;MO001594,1436218597;2");*/
     getStockList();
+
   }
 
   void _onEvent(event) async {
@@ -417,7 +420,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
       barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
       barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate';
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = barcodeMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -441,7 +444,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           if (msg == "") {
             _code = event;
             this.getMaterialList(
-                barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
+                barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15]);
+
             print("ChannelPage: $event");
           } else {
             ToastUtil.showInfo(msg);
@@ -454,7 +458,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       }
     } else {
       _code = event;
-      this.getMaterialList("", _code, "", "", "");
+      this.getMaterialList("", _code, "", "", "", "");
       print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
@@ -466,7 +470,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fLoc) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -478,7 +482,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         "'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
-        'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FIsKFPeriod';
+        'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FIsKFPeriod';//F_UUAC_Text
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -529,6 +533,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           this.hobbyItem.add(hobbyMap);
         }
       }
+      var errorTitle = "";
       for (var element in hobby) {
         var entryIndex;
         if(this.fBillNo == ''){
@@ -540,7 +545,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['FEntryID'].toString()))]['index'];
           }
         }
-
         hobbyIndex++;
         print(entryIndex);
         //判断是否启用批号
@@ -567,6 +571,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                     element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                     element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                  }
+                  //判断是否启用保质期
+                  if (!element[14]['isHide']) {
+                    if (element[14]['value']['value'] == fProduceDate &&
+                        element[15]['value']['value'] == fExpiryDate) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "保质期不一致";
+                      continue;
+                    }
+                  }
+                  //判断是否启用仓位
+                  if (element[6]['value']['hide']) {
+                    if (element[6]['value']['label'] == fLoc) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "仓位不一致";
+                      continue;
+                    }
+                  }
+                  //判断包装规格
+                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                    errorTitle = "";
+                  } else {
+                    errorTitle = "包装规格不一致";
+                    continue;
                   }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
@@ -612,6 +642,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                       element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                       element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                    }
+                    //判断是否启用保质期
+                    if (!element[14]['isHide']) {
+                      if (element[14]['value']['value'] == fProduceDate &&
+                          element[15]['value']['value'] == fExpiryDate) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "保质期不一致";
+                        continue;
+                      }
+                    }
+                    //判断是否启用仓位
+                    if (element[6]['value']['hide']) {
+                      if (element[6]['value']['label'] == fLoc) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "仓位不一致";
+                        continue;
+                      }
+                    }
+                    //判断包装规格
+                    if (element[1]['value']['label'] == barcodeData[0][12]) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "包装规格不一致";
+                      continue;
                     }
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
@@ -740,6 +796,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
                   }
+                  //判断是否启用保质期
+                  if (!element[14]['isHide']) {
+                    if (element[14]['value']['value'] == fProduceDate &&
+                        element[15]['value']['value'] == fExpiryDate) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "保质期不一致";
+                      continue;
+                    }
+                  }
+                  //判断是否启用仓位
+                  if (element[6]['value']['hide']) {
+                    if (element[6]['value']['label'] == fLoc) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "仓位不一致";
+                      continue;
+                    }
+                  }
+                  //判断包装规格
+                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                    errorTitle = "";
+                  } else {
+                    errorTitle = "包装规格不一致";
+                    continue;
+                  }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -786,6 +868,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                         element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                         element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                      }
+                      //判断是否启用保质期
+                      if (!element[14]['isHide']) {
+                        if (element[14]['value']['value'] == fProduceDate &&
+                            element[15]['value']['value'] == fExpiryDate) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "保质期不一致";
+                          continue;
+                        }
+                      }
+                      //判断是否启用仓位
+                      if (element[6]['value']['hide']) {
+                        if (element[6]['value']['label'] == fLoc) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "仓位不一致";
+                          continue;
+                        }
+                      }
+                      //判断包装规格
+                      if (element[1]['value']['label'] == barcodeData[0][12]) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "包装规格不一致";
+                        continue;
                       }
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
@@ -909,6 +1017,32 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                           element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                           element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                        }
+                        //判断是否启用保质期
+                        if (!element[14]['isHide']) {
+                          if (element[14]['value']['value'] == fProduceDate &&
+                              element[15]['value']['value'] == fExpiryDate) {
+                            errorTitle = "";
+                          } else {
+                            errorTitle = "保质期不一致";
+                            continue;
+                          }
+                        }
+                        //判断是否启用仓位
+                        if (element[6]['value']['hide']) {
+                          if (element[6]['value']['label'] == fLoc) {
+                            errorTitle = "";
+                          } else {
+                            errorTitle = "仓位不一致";
+                            continue;
+                          }
+                        }
+                        //判断包装规格
+                        if (element[1]['value']['label'] == barcodeData[0][12]) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "包装规格不一致";
+                          continue;
                         }
                         //判断末尾
                        /* if (fNumber.lastIndexOf(
