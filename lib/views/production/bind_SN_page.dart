@@ -1709,7 +1709,7 @@ class _BindSNPageState extends State<BindSNPage> {
                                   this._FNumber = this
                                       .hobby[i][j]["value"]["label"]
                                       .toString();
-                                  checkItem = 'FNumber';
+                                  checkItem = 'position';
                                   this.show = false;
                                   checkData = i;
                                   checkDataChild = j;

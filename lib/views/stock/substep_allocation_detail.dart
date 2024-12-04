@@ -743,6 +743,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -819,7 +820,7 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                                   this.hobby[i][j]["value"]["label"].toString();
                               this._FNumber =
                                   this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
+                              checkItem = 'position';
                               this.show = false;
                               checkData = i;
                               checkDataChild = j;

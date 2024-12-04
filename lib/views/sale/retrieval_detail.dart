@@ -207,7 +207,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -232,7 +232,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       this.FBillNo = orderDate[0][0];
       this.cusName = orderDate[0][17];
       this.fOrgID = orderDate[0][8];
-
       hobby = [];
       for (var value in orderDate) {
         fNumber.add(value[5]);
@@ -246,6 +245,9 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "FSoorDerno": value[29],
           "FEntrynote": value[31],
           "FID": value[15],
+          "F_UUAC_Text_83g": value[34],
+          "FCustMatID": value[35],
+          "FCustMatName": value[36],
           "FIsKFPeriod": value[33],
           "parseEntryID": -1,
           "isHide": false,
@@ -288,7 +290,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "name": "FStockId",
           "isHide": false,
           /*"value": {"label": value[18], "value": value[19]}*/
-          "value": {"label": "", "value": ""}
+          "value": {"label": "", "value": "", "dimension": ""}
         });
         /*Map<String, dynamic> inventoryMap = Map();
         inventoryMap['FormId'] = 'STK_Inventory';
@@ -326,7 +328,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "title": "仓位",
           "name": "FStockLocID",
           "isHide": false,
-          "value": {"label": "", "value": "", "hide": value[21]}
+          "value": {"label": "", "value": "", "hide": false}//value[21]
         });
         arr.add({
           "title": "操作",
@@ -401,8 +403,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+    //_onEvent("33500;AQ40426305N1;2024-04-26;155;,1655394901;2");
     /*_onEvent("31013;AQ40617304N1;2024-06-17;150;MO001588,1346511898;25");
     _onEvent("31013;AQ40618304N1;2024-06-18;200;MO001594,1436218597;2");*/
+    _onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
     getStockList();
 
   }
@@ -415,51 +419,57 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     if (event == "") {
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        if (barcodeData[0][4] > 0) {
-          var msg = "";
-          var orderIndex = 0;
-          for (var value in orderDate) {
-            if (value[5] == barcodeData[0][8]) {
-              msg = "";
-              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-                break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          if (barcodeData[0][4] > 0) {
+            var msg = "";
+            var orderIndex = 0;
+            for (var value in orderDate) {
+              if (value[5] == barcodeData[0][8]) {
+                msg = "";
+                if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                  break;
+                }
+              } else {
+                msg = '条码不在单据物料中';
               }
-            } else {
-              msg = '条码不在单据物料中';
+              orderIndex++;
             }
-            orderIndex++;
-          }
-          ;
-          if (msg == "") {
-            _code = event;
-            this.getMaterialList(
-                barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15]);
-
-            print("ChannelPage: $event");
+            ;
+            if (msg == "") {
+              _code = event;
+              this.getMaterialList(
+                  barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15],barcodeData[0][16]);
+              print("ChannelPage: $event");
+            } else {
+              ToastUtil.showInfo(msg);
+            }
           } else {
-            ToastUtil.showInfo(msg);
+            ToastUtil.showInfo('该条码已出库或没入库，数量为零');
           }
         } else {
-          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code, "", "", "", "",false);
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code, "", "", "", "");
-      print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
   }
@@ -470,7 +480,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fLoc) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -572,6 +582,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                     element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                   }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   //判断是否启用保质期
                   if (!element[14]['isHide']) {
                     if (element[14]['value']['value'] == fProduceDate &&
@@ -642,6 +658,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                       element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                       element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                    }
+                    if(fIsOpenLocation){
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = fLoc == null? "":fLoc;
+                        element[6]['value']['value'] =fLoc == null? "":fLoc;
+                      }
                     }
                     //判断是否启用保质期
                     if (!element[14]['isHide']) {
@@ -796,6 +818,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
                   }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   //判断是否启用保质期
                   if (!element[14]['isHide']) {
                     if (element[14]['value']['value'] == fProduceDate &&
@@ -868,6 +896,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                         element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                         element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                      }
+                      if(fIsOpenLocation){
+                        if (element[6]['value']['value'] == "") {
+                          element[6]['value']['label'] = fLoc == null? "":fLoc;
+                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                        }
                       }
                       //判断是否启用保质期
                       if (!element[14]['isHide']) {
@@ -1017,6 +1051,12 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                           element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                           element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                        }
+                        if(fIsOpenLocation){
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = fLoc == null? "":fLoc;
+                            element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          }
                         }
                         //判断是否启用保质期
                         if (!element[14]['isHide']) {
@@ -1212,7 +1252,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "title": "仓库",
             "name": "FStockId",
             "isHide": false,
-            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
+            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7], "dimension": ""}
           });
           arr.add({
             "title": "批号",
@@ -1224,7 +1264,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": true,
-            "value": {"label": "", "value": "", "hide": false}
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",
@@ -1436,6 +1476,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1812,7 +1853,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                                   this._FNumber = this
                                       .hobby[i][j]["value"]["label"]
                                       .toString();
-                                  checkItem = 'FNumber';
+                                  checkItem = 'position';
                                   this.show = false;
                                   checkData = i;
                                   checkDataChild = j;
@@ -2183,9 +2224,30 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           FEntityItem['FReturnType'] = 1;
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FStockID'] = {"FNumber": element[4]['value']['value']};
-          FEntityItem['FStockLocId'] = {
-            "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
-          };
+          if (element[6]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[4]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[6]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
+            }
+          }
           FEntityItem['FAuxPropId'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
@@ -2198,10 +2260,14 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           FEntityItem['FSrcBillNo'] = this.FBillNo;
           if(element[0]['FEntryID'] == 0){
             entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
+            FEntityItem['FCustMatID'] = {"FNumber": this.hobby[entryIndex][0]['FCustMatID']};
+            //FEntityItem['FCustMatName'] = this.hobby[entryIndex][0]['FCustMatName'];
             FEntityItem['FTaxPrice'] = this.hobby[entryIndex][0]['FTaxPrice'];
             FEntityItem['FEntryTaxRate'] = this.hobby[entryIndex][0]['FEntryTaxRate'];
             FEntityItem['FSoorDerno'] = this.hobby[entryIndex][0]['FSoorDerno'];
             FEntityItem['FEntrynote'] = this.hobby[entryIndex][0]['FEntrynote'];
+            FEntityItem['F_UUAC_Text_qtr1'] = this.hobby[entryIndex][0]['F_UUAC_Text_83g'];
+
             FEntityItem['FEntity_Link'] = [
               {
                 "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",
@@ -2212,10 +2278,13 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
               }
             ];
           }else{
+            FEntityItem['FCustMatID'] = {"FNumber": element[0]['FCustMatID']};
+            //FEntityItem['FCustMatName'] = element[0]['FCustMatName'];
             FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];
             FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
             FEntityItem['FSoorDerno'] = element[0]['FSoorDerno'];
             FEntityItem['FEntrynote'] = element[0]['FEntrynote'];
+            FEntityItem['F_UUAC_Text_qtr1'] = element[0]['F_UUAC_Text_83g'];
             FEntityItem['FEntity_Link'] = [
               {
                 "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",

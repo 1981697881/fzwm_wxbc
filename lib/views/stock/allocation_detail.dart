@@ -116,9 +116,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-  /* _onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
-   _onEvent("11010;2024091401迪美/迪美;2024-09-14;75;,1437551116;2");*/
-   // _onEvent("13125;20240905安德/本溪黑马;2024-09-05;25;,1730336671;2");
+   //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
+    _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+    //_onEvent("13125;20240905安德/本溪黑马;2024-09-05;25;,1730336671;2");
     EasyLoading.dismiss();
   }
 
@@ -127,7 +127,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
@@ -239,7 +239,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         Map<String, dynamic> stockMap = Map();
         stockMap['FormId'] = 'BD_STOCK';
         stockMap['FieldKeys'] =
-        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
+        'FStockID,FName,FNumber,FIsOpenLocation';
         stockMap['FilterString'] = "FNumber = '" +
             item[1] +
             "' and FUseOrgId.FNumber = '" +
@@ -436,7 +436,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber,FPackageSpec';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber,FPackageSpec,FStockLocIDH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -469,7 +469,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 barcodeData[0][12].substring(0, 10),
                 barcodeData[0][13].substring(0, 10),
                 barcodeData[0][14],
-                barcodeData[0][7]);
+                barcodeData[0][17],
+                barcodeData[0][18]);
             print("ChannelPage: $event");
           } else {
             ToastUtil.showInfo(msg);
@@ -479,7 +480,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         }
       } else {
         _code = event;
-        this.getMaterialList("", _code, '', '', '', '', '');
+        this.getMaterialList("", _code, '', '', '', '', '', false);
         print("ChannelPage: $event");
       }
     }
@@ -493,7 +494,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fBatchNo, fLoc) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fBatchNo, fLoc, fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
@@ -513,7 +514,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     String res = await CurrencyEntity.polling(stockDataMap);
     var stocks = jsonDecode(res);
     if (stocks.length > 0) {
-      if (stocks[0][4] != null) {
+      if (stocks[0][4] != null && barcodeData[0][17] != 0 ) {
+        var position = barcodeData[0][17].split(".");
         userMap['FilterString'] = "FMaterialId.FNumber='" +
             barcodeData[0][8] +
             "' and FStockID.FNumber='" +
@@ -521,7 +523,19 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "' and FStockLocId." +
             stocks[0][4] +
             ".FNumber = '" +
-            barcodeData[0][7] +
+            position[0] +
+            "' and FStockLocId." +
+            stocks[1][4] +
+            ".FNumber = '" +
+            position[1] +
+            "' and FStockLocId." +
+            stocks[2][4] +
+            ".FNumber = '" +
+            position[2] +
+            "' and FStockLocId." +
+            stocks[3][4] +
+            ".FNumber = '" +
+            position[3] +
             "' and FLot.FNumber = '" +
             fBatchNo +
             "' and FBaseQty > 0";
@@ -1143,7 +1157,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "title": "移出仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": value[9], "value": value[10], "hide": false}
+            "value": {"label": value[9], "value": value[10], "hide": value[16]}
           });
           arr.add({
             "title": "移入仓库",
@@ -1350,9 +1364,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             print(data);
             data.forEach((element) {
               if (element == p) {
-                print(stockListObj[elementIndex]);
                 hobby['value']['value'] = stockListObj[elementIndex][2];
-                hobby['value']['dimension'] = stockListObj[elementIndex][4];
+                stock[9]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1454,7 +1468,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 maintainSize: false,
                 maintainState: false,
                 maintainAnimation: false,
-                visible: this.hobby[i][j]["value"]["label"] != null,
+                visible: this.hobby[i][j]["value"]["hide"],
                 child: Column(children: [
                   Container(
                     color: Colors.white,
@@ -1492,6 +1506,26 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                 },
                               ),
                             ])),
+                  ),
+                  divider,
+                ]),
+              ),
+            );
+          }else if (j == 7) {
+            comList.add(
+              Visibility(
+                maintainSize: false,
+                maintainState: false,
+                maintainAnimation: false,
+                visible: this.hobby[i][j]["value"]["hide"],
+                child: Column(children: [
+                  Container(
+                    color: Colors.white,
+                    child: ListTile(
+                        title: Text(this.hobby[i][j]["title"] +
+                            '：' +
+                            this.hobby[i][j]["value"]["label"].toString()),
+                        ),
                   ),
                   divider,
                 ]),
@@ -1824,7 +1858,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       var FEntity = [];
       var hobbyIndex = 0;
       print(materialDate);
-      this.hobby.forEach((element) {
+      for (var element in this.hobby) {
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[7]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
 
@@ -1848,22 +1882,56 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           FEntityItem['FSrcStockId'] = {
             "FNumber": element[6]['value']['value']
           };
-          if (element[6]['value']['dimension'] != null) {
-            FEntityItem['FSrcStockLocId'] = {
-              "FSRCSTOCKLOCID__" + element[6]['value']['dimension']: {
-                "FNumber": element[7]['value']['value']
+          if (element[7]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[6]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[7]['value']['value'].split(".");
+              FEntityItem['FSrcStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FSrcStockLocId']["FSRCSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
               }
-            };
+            }
           }
           FEntityItem['FDestStockId'] = {
             "FNumber": element[8]['value']['value']
           };
-          if (element[8]['value']['dimension'] != null) {
-            FEntityItem['FDestStockLocId'] = {
-              "FDESTSTOCKLOCID__" + element[8]['value']['dimension']: {
-                "FNumber": element[9]['value']['value']
+          if (element[9]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[8]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[9]['value']['value'].split(".");
+              FEntityItem['FDestStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FDestStockLocId']["FDESTSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
               }
-            };
+            }
           }
           FEntityItem['FAuxPropID'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
@@ -1886,7 +1954,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      };
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量,仓库');
@@ -1944,15 +2012,31 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             codeFEntityItem['FEntryStockID'] = {
                               "FNUMBER": this.hobby[i][6]['value']['value']
                             };
-                            if (this.hobby[i][8]['value']['dimension'] !=
-                                null) {
-                              codeFEntityItem['FStockLocID'] = {
-                                "FSTOCKLOCID__" +
-                                    this.hobby[i][8]['value']['dimension']: {
-                                  "FNumber": this.hobby[i][7]['value']['value']
+                            if (this.hobby[i][7]['value']['hide']) {
+                              Map<String, dynamic> stockMap = Map();
+                              stockMap['FormId'] = 'BD_STOCK';
+                              stockMap['FieldKeys'] =
+                              'FFlexNumber';
+                              stockMap['FilterString'] = "FNumber = '" +
+                                  this.hobby[i][6]['value']['value'] +
+                                  "'";
+                              Map<String, dynamic> stockDataMap = Map();
+                              stockDataMap['data'] = stockMap;
+                              String res = await CurrencyEntity.polling(stockDataMap);
+                              var stockRes = jsonDecode(res);
+                              if (stockRes.length > 0) {
+                                var postionList = this.hobby[i][7]['value']['value'].split(".");
+                                codeFEntityItem['FStockLocID'] = {};
+                                var positonIndex = 0;
+                                for(var dimension in postionList){
+                                  codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                                    "FNumber": dimension
+                                  };
+                                  positonIndex++;
                                 }
-                              };
+                              }
                             }
+
                             var codeFEntity = [codeFEntityItem];
                             codeModel['FEntity'] = codeFEntity;
                             orderCodeMap['Model'] = codeModel;
@@ -1989,20 +2073,40 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             codeFEntityItem['FEntryStockID'] = {
                               "FNUMBER": this.hobby[i][8]['value']['value']
                             };
-                            if (this.hobby[i][8]['value']['dimension'] !=
-                                null) {
-                              codeFEntityItem['FStockLocID'] = {
-                                "FSTOCKLOCID__" +
-                                    this.hobby[i][8]['value']['dimension']: {
-                                  "FNumber": this.hobby[i][9]['value']['value']
+                            if (this.hobby[i][9]['value']['hide']) {
+                              Map<String, dynamic> stockMap = Map();
+                              stockMap['FormId'] = 'BD_STOCK';
+                              stockMap['FieldKeys'] =
+                              'FFlexNumber';
+                              stockMap['FilterString'] = "FNumber = '" +
+                                  this.hobby[i][8]['value']['value'] +
+                                  "'";
+                              Map<String, dynamic> stockDataMap = Map();
+                              stockDataMap['data'] = stockMap;
+                              String res = await CurrencyEntity.polling(stockDataMap);
+                              var stockRes = jsonDecode(res);
+                              if (stockRes.length > 0) {
+                                var postionList = this.hobby[i][9]['value']['value'].split(".");
+                                codeModel['FStockLocIDH'] = {};
+                                codeFEntityItem['FStockLocID'] = {};
+                                var positonIndex = 0;
+                                for(var dimension in postionList){
+                                  codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + stockRes[positonIndex][0]] = {
+                                    "FNumber": dimension
+                                  };
+                                  codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                                    "FNumber": dimension
+                                  };
+                                  positonIndex++;
                                 }
-                              };
+                              }
                             }
                             var codeFEntity = [codeFEntityItem];
                             codeModel['FEntity'] = codeFEntity;
                             orderCodeMap['Model'] = codeModel;
                             dataCodeMap['data'] = orderCodeMap;
                             print(dataCodeMap);
+                            var paramsvalve=jsonEncode(dataCodeMap);
                             String codeRes =
                             await SubmitEntity.save(dataCodeMap);
                             var barcodeRes = jsonDecode(codeRes);

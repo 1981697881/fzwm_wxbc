@@ -334,7 +334,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         "title": "仓位",
         "name": "FStockLocID",
         "isHide": false,
-        "value": {"label": "", "value": "","hide": value[21]}
+        "value": {"label": "", "value": "","hide": false}/*value[21]*/
         });
         arr.add({
           "title": "操作",
@@ -414,48 +414,55 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     if(event == ""){
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        if (barcodeData[0][4] > 0) {
-          var msg = "";
-          var orderIndex = 0;
-          for (var value in orderDate) {
-            if(value[5] == barcodeData[0][8]){
-              msg = "";
-              if(fNumber.lastIndexOf(barcodeData[0][8])  == orderIndex){
-                break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          if (barcodeData[0][4] > 0) {
+            var msg = "";
+            var orderIndex = 0;
+            for (var value in orderDate) {
+              if(value[5] == barcodeData[0][8]){
+                msg = "";
+                if(fNumber.lastIndexOf(barcodeData[0][8])  == orderIndex){
+                  break;
+                }
+              }else{
+                msg = '条码不在单据物料中';
               }
+              orderIndex++;
+            };
+            if(msg ==  ""){
+              _code = event;
+              this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
+              print("ChannelPage: $event");
             }else{
-              msg = '条码不在单据物料中';
+              ToastUtil.showInfo(msg);
             }
-            orderIndex++;
-          };
-          if(msg ==  ""){
-            _code = event;
-            this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15]);
-            print("ChannelPage: $event");
-          }else{
-            ToastUtil.showInfo(msg);
+          } else {
+            ToastUtil.showInfo('该条码已出库或没入库，数量为零');
           }
         } else {
-          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code,"","","","",false);
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code,"","","","");
-      print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
   }
@@ -465,7 +472,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData,code, fsn, fProduceDate, fExpiryDate, fLoc) async {
+  getMaterialList(barcodeData,code, fsn, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -552,6 +559,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     element[14]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                     element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                   }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   //判断是否启用保质期
                   if (!element[13]['isHide']) {
                     if (element[13]['value']['value'] == fProduceDate &&
@@ -622,6 +635,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       element[13]['value']['value'] =fProduceDate == null? "":fProduceDate;
                       element[14]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                       element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                    }
+                    if(fIsOpenLocation){
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = fLoc == null? "":fLoc;
+                        element[6]['value']['value'] =fLoc == null? "":fLoc;
+                      }
                     }
                     //判断是否启用保质期
                     if (!element[13]['isHide']) {
@@ -776,6 +795,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
                   }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   //判断是否启用保质期
                   if (!element[13]['isHide']) {
                     if (element[13]['value']['value'] == fProduceDate &&
@@ -848,6 +873,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         element[13]['value']['value'] =fProduceDate == null? "":fProduceDate;
                         element[14]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                         element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                      }
+                      if(fIsOpenLocation){
+                        if (element[6]['value']['value'] == "") {
+                          element[6]['value']['label'] = fLoc == null? "":fLoc;
+                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                        }
                       }
                       //判断是否启用保质期
                       if (!element[13]['isHide']) {
@@ -997,6 +1028,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           element[13]['value']['value'] =fProduceDate == null? "":fProduceDate;
                           element[14]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                           element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                        }
+                        if(fIsOpenLocation){
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = fLoc == null? "":fLoc;
+                            element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          }
                         }
                         //判断是否启用保质期
                         if (!element[13]['isHide']) {
@@ -1206,7 +1243,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": true,
-            "value": {"label": "", "value": "", "hide": false}
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",
@@ -1811,6 +1848,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -2215,7 +2254,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                                   this.hobby[i][j]["value"]["label"].toString();
                               this._FNumber =
                                   this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
+                              checkItem = 'position';
                               this.show = false;
                               checkData = i;
                               checkDataChild = j;
@@ -2574,7 +2613,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           this.hobbyItem.add(hobbyMap);
         }
       }
-      this.hobby.forEach((element) {
+      for(var element in this.hobby){
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
             element[4]['value']['value'] != '') {
           var entryIndex;
@@ -2585,11 +2624,30 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FSRCBillTypeId'] = "PUR_MRAPP";
 
-          FEntityItem['FSTOCKLOCID'] = {
-            "FSTOCKLOCID__FF100011": {
-              "FNumber": element[6]['value']['value']
+          if (element[6]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[4]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[6]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
             }
-          };
+          }
           FEntityItem['FAuxPropID'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
@@ -2649,7 +2707,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      };
       if(FEntity.length==0){
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量,仓库');

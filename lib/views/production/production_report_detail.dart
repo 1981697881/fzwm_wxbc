@@ -483,46 +483,54 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
     if (event == "") {
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        var msg = "";
-        var orderIndex = 0;
-        for (var value in orderDate) {
-          if (value[6] == barcodeData[0][8]) {
-            msg = "";
-            if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-              break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if (value[6] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
+              }
+            } else {
+              msg = '条码不在单据物料中';
             }
-          } else {
-            msg = '条码不在单据物料中';
+            orderIndex++;
           }
-          orderIndex++;
-        }
-        ;
-        if (msg == "") {
-          _code = event;
-          this.getMaterialList(
-              barcodeData, barcodeData[0][10], barcodeData[0][11]);
+          ;
+          if (msg == "") {
+            _code = event;
+            this.getMaterialList(
+                barcodeData, barcodeData[0][10], barcodeData[0][11]);
+          } else {
+            ToastUtil.showInfo(msg);
+          }
         } else {
-          ToastUtil.showInfo(msg);
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code, '');
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code, '');
-      print("ChannelPage: $event");
     }
+
   }
 
   getMaterialList(barcodeData, code, fsn) async {
@@ -1307,7 +1315,8 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = deviceListObj[elementIndex][2];
-                /*stock[6]['value']['hide'] = stockListObj[elementIndex][3];*/
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1319,7 +1328,8 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = groupListObj[elementIndex][1];
-                /*stock[6]['value']['hide'] = stockListObj[elementIndex][3];*/
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1331,7 +1341,8 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
-                /*stock[6]['value']['hide'] = stockListObj[elementIndex][3];*/
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1474,7 +1485,12 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                 this._FNumber = this
                                     .hobby[i][j]["value"]["label"]
                                     .toString();
-                                checkItem = 'FNumber';
+                                if(j==6){
+                                  checkItem = 'position';
+                                }else{
+                                  checkItem = 'FNumber';
+                                }
+
                                 this.show = false;
                                 checkData = i;
                                 checkDataChild = j;

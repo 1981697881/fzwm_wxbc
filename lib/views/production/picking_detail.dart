@@ -569,35 +569,41 @@ class _PickingDetailState extends State<PickingDetail> {
     if (event == "") {
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec,FProduceDate,FExpiryDate';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        if (barcodeData[0][4] > 0) {
-          var msg = "";
-          var orderIndex = 0;
-          for (var value in orderDate) {
-            if (value[7] == barcodeData[0][8]) {
-              msg = "";
-              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-                break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          if (barcodeData[0][4] > 0) {
+            var msg = "";
+            var orderIndex = 0;
+            for (var value in orderDate) {
+              if (value[7] == barcodeData[0][8]) {
+                msg = "";
+                if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                  break;
+                }
+              } else {
+                msg = '条码不在单据物料中';
               }
-            } else {
-              msg = '条码不在单据物料中';
+              orderIndex++;
             }
-            orderIndex++;
-          }
-          ;
-          if (msg == "") {
-            _code = event;
-            /*Map<String, dynamic> stockMap = Map();
+            ;
+            if (msg == "") {
+              _code = event;
+              /*Map<String, dynamic> stockMap = Map();
             stockMap['FilterString'] = "FMaterialId.FNumber='" + barcodeData[0][8]+
                 "' and FBaseQty >0 and FLot.FNumber= '"+barcodeData[0][12]+"'"; *//**//*
             stockMap['FormId'] = 'STK_Inventory';
@@ -608,27 +614,28 @@ class _PickingDetailState extends State<PickingDetail> {
             Map<String, dynamic> dataStockMap = Map();
             dataStockMap['data'] = stockMap;
             String stockOrder = await CurrencyEntity.polling(dataStockMap);*/
-            this.getMaterialList(
-                barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13], barcodeData[0][14].substring(0, 10), barcodeData[0][15].substring(0, 10));//jsonDecode(stockOrder)[0][0]
-            print("ChannelPage: $event");
+              this.getMaterialList(
+                  barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13], barcodeData[0][14].substring(0, 10), barcodeData[0][15].substring(0, 10), barcodeData[0][16], barcodeData[0][17]);//jsonDecode(stockOrder)[0][0]
+              print("ChannelPage: $event");
+            } else {
+              ToastUtil.showInfo(msg);
+            }
           } else {
-            ToastUtil.showInfo(msg);
+            ToastUtil.showInfo('该条码已出库或没入库，数量为零');
           }
         } else {
-          ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code, '', '', '', '', '', false);
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code, '', '', '', '');
-      print("ChannelPage: $event");
     }
     print("ChannelPage: $event");
   }
 
-  getMaterialList(barcodeData, code, fsn,fAuxPropId, fProduceDate, fExpiryDate) async {
+  getMaterialList(barcodeData, code, fsn,fAuxPropId, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -676,6 +683,7 @@ class _PickingDetailState extends State<PickingDetail> {
           this.hobbyItem.add(hobbyMap);
         }
       }
+      var errorTitle = "";
       for (var element in hobby) {
         var entryIndex;
         if(this.fBillNo == ''){
@@ -712,6 +720,38 @@ class _PickingDetailState extends State<PickingDetail> {
                     element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                     element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                     element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                  }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
+                  //判断是否启用保质期
+                  if (!element[14]['isHide']) {
+                    if (element[14]['value']['value'] == fProduceDate &&
+                        element[15]['value']['value'] == fExpiryDate) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "保质期不一致";
+                      continue;
+                    }
+                  }
+                  //判断是否启用仓位
+                  if (element[6]['value']['hide']) {
+                    if (element[6]['value']['label'] == fLoc) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "仓位不一致";
+                      continue;
+                    }
+                  }
+                  //判断包装规格
+                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                    errorTitle = "";
+                  } else {
+                    errorTitle = "包装规格不一致";
+                    continue;
                   }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
@@ -762,6 +802,38 @@ class _PickingDetailState extends State<PickingDetail> {
                       element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                       element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                       element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                    }
+                    if(fIsOpenLocation){
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = fLoc == null? "":fLoc;
+                        element[6]['value']['value'] =fLoc == null? "":fLoc;
+                      }
+                    }
+                    //判断是否启用保质期
+                    if (!element[14]['isHide']) {
+                      if (element[14]['value']['value'] == fProduceDate &&
+                          element[15]['value']['value'] == fExpiryDate) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "保质期不一致";
+                        continue;
+                      }
+                    }
+                    //判断是否启用仓位
+                    if (element[6]['value']['hide']) {
+                      if (element[6]['value']['label'] == fLoc) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "仓位不一致";
+                        continue;
+                      }
+                    }
+                    //判断包装规格
+                    if (element[1]['value']['label'] == barcodeData[0][12]) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "包装规格不一致";
+                      continue;
                     }
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
@@ -892,6 +964,38 @@ class _PickingDetailState extends State<PickingDetail> {
                     element[5]['value']['label'] = scanCode[1];
                     element[5]['value']['value'] = scanCode[1];
                   }
+                  if(fIsOpenLocation){
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
+                  //判断是否启用保质期
+                  if (!element[14]['isHide']) {
+                    if (element[14]['value']['value'] == fProduceDate &&
+                        element[15]['value']['value'] == fExpiryDate) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "保质期不一致";
+                      continue;
+                    }
+                  }
+                  //判断是否启用仓位
+                  if (element[6]['value']['hide']) {
+                    if (element[6]['value']['label'] == fLoc) {
+                      errorTitle = "";
+                    } else {
+                      errorTitle = "仓位不一致";
+                      continue;
+                    }
+                  }
+                  //判断包装规格
+                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                    errorTitle = "";
+                  } else {
+                    errorTitle = "包装规格不一致";
+                    continue;
+                  }
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -943,6 +1047,38 @@ class _PickingDetailState extends State<PickingDetail> {
                         element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                         element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                         element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                      }
+                      if(fIsOpenLocation){
+                        if (element[6]['value']['value'] == "") {
+                          element[6]['value']['label'] = fLoc == null? "":fLoc;
+                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                        }
+                      }
+                      //判断是否启用保质期
+                      if (!element[14]['isHide']) {
+                        if (element[14]['value']['value'] == fProduceDate &&
+                            element[15]['value']['value'] == fExpiryDate) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "保质期不一致";
+                          continue;
+                        }
+                      }
+                      //判断是否启用仓位
+                      if (element[6]['value']['hide']) {
+                        if (element[6]['value']['label'] == fLoc) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "仓位不一致";
+                          continue;
+                        }
+                      }
+                      //判断包装规格
+                      if (element[1]['value']['label'] == barcodeData[0][12]) {
+                        errorTitle = "";
+                      } else {
+                        errorTitle = "包装规格不一致";
+                        continue;
                       }
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
@@ -1071,6 +1207,38 @@ class _PickingDetailState extends State<PickingDetail> {
                           element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
                           element[15]['value']['label'] =fExpiryDate == null? "":fExpiryDate;
                           element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
+                        }
+                        if(fIsOpenLocation){
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = fLoc == null? "":fLoc;
+                            element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          }
+                        }
+                        //判断是否启用保质期
+                        if (!element[14]['isHide']) {
+                          if (element[14]['value']['value'] == fProduceDate &&
+                              element[15]['value']['value'] == fExpiryDate) {
+                            errorTitle = "";
+                          } else {
+                            errorTitle = "保质期不一致";
+                            continue;
+                          }
+                        }
+                        //判断是否启用仓位
+                        if (element[6]['value']['hide']) {
+                          if (element[6]['value']['label'] == fLoc) {
+                            errorTitle = "";
+                          } else {
+                            errorTitle = "仓位不一致";
+                            continue;
+                          }
+                        }
+                        //判断包装规格
+                        if (element[1]['value']['label'] == barcodeData[0][12]) {
+                          errorTitle = "";
+                        } else {
+                          errorTitle = "包装规格不一致";
+                          continue;
                         }
                         //判断末尾
                         /* if (fNumber.lastIndexOf(
@@ -1254,7 +1422,7 @@ class _PickingDetailState extends State<PickingDetail> {
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": true,
-            "value": {"label": "", "value": "", "hide": false}
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",

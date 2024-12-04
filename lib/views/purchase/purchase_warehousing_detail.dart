@@ -188,6 +188,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
   //获取仓库
   getStockList() async {
+    this.stockList = [];
+    this.stockListObj = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockId,FName,FNumber,FIsOpenLocation';
@@ -329,7 +331,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "title": "仓库",
           "name": "FStockID",
           "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": "", "value": "", "dimension": ""}
         });
         arr.add({
           "title": "批号",
@@ -403,46 +405,54 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     if (event == "") {
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        var msg = "";
-        var orderIndex = 0;
-        for (var value in orderDate) {
-          if (value[5] == barcodeData[0][8]) {
-            msg = "";
-            if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-              break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if (value[5] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
+              }
+            } else {
+              msg = '条码不在单据物料中';
             }
-          } else {
-            msg = '条码不在单据物料中';
+            orderIndex++;
           }
-          orderIndex++;
-        }
-        ;
-        if (msg == "") {
-          _code = event;
-          this.getMaterialList(
-              barcodeData, barcodeData[0][10], barcodeData[0][11]);
+          ;
+          if (msg == "") {
+            _code = event;
+            this.getMaterialList(
+                barcodeData, barcodeData[0][10], barcodeData[0][11]);
+          } else {
+            ToastUtil.showInfo(msg);
+          }
         } else {
-          ToastUtil.showInfo(msg);
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code, "");
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code, "");
-      print("ChannelPage: $event");
     }
+
     print("ChannelPage: $event");
   }
 
@@ -1820,6 +1830,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -2081,7 +2092,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                   this._FNumber = this
                                       .hobby[i][j]["value"]["label"]
                                       .toString();
-                                  checkItem = 'FNumber';
+                                  checkItem = 'position';
                                   this.show = false;
                                   checkData = i;
                                   checkDataChild = j;
@@ -2603,7 +2614,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         }
         var FEntity = [];
         var hobbyIndex = 0;
-        this.hobby.forEach((element) {
+        for(var element in this.hobby){
           if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
               element[4]['value']['value'] != '') {
             Map<String, dynamic> FEntityItem = Map();
@@ -2621,9 +2632,30 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FSettleOrgId'] = {"FNumber": this.fOrgID};
             FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
             FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-            FEntityItem['FStockLocId'] = {
-              "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
-            };
+            if (element[6]['value']['hide']) {
+              Map<String, dynamic> stockMap = Map();
+              stockMap['FormId'] = 'BD_STOCK';
+              stockMap['FieldKeys'] =
+              'FFlexNumber';
+              stockMap['FilterString'] = "FNumber = '" +
+                  element[4]['value']['value'] +
+                  "'";
+              Map<String, dynamic> stockDataMap = Map();
+              stockDataMap['data'] = stockMap;
+              String res = await CurrencyEntity.polling(stockDataMap);
+              var stockRes = jsonDecode(res);
+              if (stockRes.length > 0) {
+                var postionList = element[6]['value']['value'].split(".");
+                FEntityItem['FStockLocId'] = {};
+                var positonIndex = 0;
+                for(var dimension in postionList){
+                  FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                    "FNumber": dimension
+                  };
+                  positonIndex++;
+                }
+              }
+            }
             FEntityItem['FAuxPropId'] = {
               "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
             };
@@ -2674,7 +2706,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntity.add(FEntityItem);
           }
           hobbyIndex++;
-        });
+        };
         if (FEntity.length == 0) {
           this.isSubmit = false;
           ToastUtil.showInfo('请输入数量和仓库');

@@ -402,45 +402,52 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     if (event == "") {
       return;
     }
-    if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FExpiryDate,FPackageSpec';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        var msg = "";
-        var orderIndex = 0;
-        for (var value in orderDate) {
-          if (value[6] == barcodeData[0][8]) {
-            msg = "";
-            if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
-              break;
+    if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
+    }else{
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FExpiryDate,FPackageSpec';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          var msg = "";
+          var orderIndex = 0;
+          for (var value in orderDate) {
+            if (value[6] == barcodeData[0][8]) {
+              msg = "";
+              if (fNumber.lastIndexOf(barcodeData[0][8]) == orderIndex) {
+                break;
+              }
+            } else {
+              msg = '条码不在单据物料中';
             }
-          } else {
-            msg = '条码不在单据物料中';
+            orderIndex++;
           }
-          orderIndex++;
-        }
-        ;
-        if (msg == "") {
-          _code = event;
-          this.getMaterialList(
-              barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
+          ;
+          if (msg == "") {
+            _code = event;
+            this.getMaterialList(
+                barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
+          } else {
+            ToastUtil.showInfo(msg);
+          }
         } else {
-          ToastUtil.showInfo(msg);
+          ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+        _code = event;
+        this.getMaterialList("", _code, '', '');
+        print("ChannelPage: $event");
       }
-    } else {
-      _code = event;
-      this.getMaterialList("", _code, '', '');
-      print("ChannelPage: $event");
     }
   }
 
@@ -1270,7 +1277,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
-                /*stock[6]['value']['hide'] = stockListObj[elementIndex][3];*/
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1491,7 +1499,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                   this._FNumber = this
                                       .hobby[i][j]["value"]["label"]
                                       .toString();
-                                  checkItem = 'FNumber';
+                                  checkItem = 'position';
                                   this.show = false;
                                   checkData = i;
                                   checkDataChild = j;
@@ -1526,8 +1534,133 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             new FlatButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              child: new Text('复制行'),
+                              onPressed: () {
+                                setState(() {
+                                  if(this.hobby[i][3]["value"]["value"] != "0"){
+                                    if(double.parse(this.hobby[i][3]["value"]["value"]) < this.hobby[i][9]["value"]['rateValue']){
+                                      var orderDataItem = List.from(this.orderDate);
+                                      this.orderDate.insert(i, orderDataItem[i]);
+                                      this.fNumber = [];
+                                      var childItemNumber = 0;
+                                      for(var value in orderDate){
+                                        fNumber.add(value[5]);
+                                        if(childItemNumber == i){
+                                          List arr = [];
+                                          arr.add({
+                                            "title": "物料名称",
+                                            "name": "FMaterial",
+                                            "FEntryID": value[5],
+                                            "FID": value[18],
+                                            "FMoEntryId": value[26],
+                                            "FStockUnitId": value[27],
+                                            "FOwnerId": value[28],
+                                            "FBaseUnitId": value[29],
+                                            "FOwnerTypeId": value[30],
+                                            "FMoBillNo": value[31],
+                                            "FKeeperTypeId": value[32],
+                                            "FKeeperId": value[33],
+                                            "FIsKFPeriod": value[25],
+                                            "parseEntryID": -1,
+                                            "isHide": false,
+                                            "value": {
+                                              "label": value[7] + "- (" + value[6] + ")",
+                                              "value": value[6],
+                                              "barcode": [],
+                                              "surplus": value[13],
+                                              "kingDeeCode": [],
+                                              "scanCode": []
+                                            }
+                                          });
+                                          arr.add({
+                                            "title": "包装规格",
+                                            "isHide": false,
+                                            "name": "FMaterialIdFSpecification",
+                                            "value": {"label": "", "value": ""}
+                                            //"value": {"label": value[24]==null?"":value[24], "value": value[24]==null?"":value[24]}
+                                          });
+                                          arr.add({
+                                            "title": "单位名称",
+                                            "name": "FUnitId",
+                                            "isHide": false,
+                                            "value": {"label": value[12], "value": value[11]}
+                                          });
+                                          arr.add({
+                                            "title": "入库数量",
+                                            "name": "FRealQty",
+                                            "isHide": false,
+                                            /*value[12]*/
+                                            "value": {"label": "", "value": "0"}
+                                          });
+                                          arr.add({
+                                            "title": "仓库",
+                                            "name": "FStockID",
+                                            "isHide": false,
+                                            "value": {"label": "", "value": ""}
+                                          });
+                                          arr.add({
+                                            "title": "批号",
+                                            "name": "FLot",
+                                            "isHide": value[23] != true,
+                                            "value": {"label": "", "value": ""}
+                                          });
+                                          arr.add({
+                                            "title": "仓位",
+                                            "name": "FStockLocID",
+                                            "isHide": false,
+                                            "value": {"label": "", "value": "", "hide": false}
+                                          });
+                                          arr.add({
+                                            "title": "操作",
+                                            "name": "",
+                                            "isHide": false,
+                                            "value": {"label": "", "value": ""}
+                                          });
+                                          arr.add({
+                                            "title": "生产日期",
+                                            "name": "",
+                                            "isHide": !value[25],
+                                            "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
+                                          });
+                                          arr.add({
+                                            "title": "应收数量",
+                                            "name": "",
+                                            "isHide": false,
+                                            "value": {
+                                              "label": this.hobby[i][9]["value"]['rateValue'] - double.parse(this.hobby[i][3]["value"]["value"]),
+                                              "value": this.hobby[i][9]["value"]['rateValue'] - double.parse(this.hobby[i][3]["value"]["value"]),
+                                              "rateValue": this.hobby[i][9]["value"]['rateValue'] - double.parse(this.hobby[i][3]["value"]["value"])
+                                            } /*+value[12]*0.1*/
+                                          });
+                                          arr.add({
+                                            "title": "最后扫描数量",
+                                            "name": "FLastQty",
+                                            "isHide": false,
+                                            "value": {"label": "0", "value": "0"}
+                                          });
+                                          hobby.insert(i, arr);
+                                          break;
+                                        }
+                                        childItemNumber++;
+                                      }
+                                      this._getHobby();
+                                      print(this.orderDate);
+                                      print(this.hobby);
+                                    }else{
+                                      ToastUtil.showInfo('当前分录数量已达上限，不可增加行');
+                                    }
+                                  }else{
+                                    ToastUtil.showInfo('为了避免总入库数量统计错误，请先录入当前分录数量再增加行');
+                                  }
+                                });
+                              },
+                            ),
+                            new FlatButton(
                               color: Colors.red,
                               textColor: Colors.white,
+
                               child: new Text('删除'),
                               onPressed: () {
                                 this.hobby.removeAt(i);

@@ -349,6 +349,11 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       setState(() {
         this.fBillNo = _FNumber;
       });
+    } else if(checkItem == "position"){
+      setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+      });
     }else{
       if(fBarCodeList == 1){
         Map<String, dynamic> barcodeMap = Map();
@@ -851,6 +856,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
             });
@@ -1130,7 +1136,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                                   this.hobby[i][j]["value"]["label"].toString();
                               this._FNumber =
                                   this.hobby[i][j]["value"]["label"].toString();
-                              checkItem = 'FNumber';
+                              checkItem = 'position';
                               this.show = false;
                               checkData = i;
                               checkDataChild = j;
@@ -1319,7 +1325,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       Model['F_UUAC_PrivateCombo_83g'] = "1";
       var FEntity = [];
       var hobbyIndex = 0;
-      this.hobby.forEach((element) {
+      for(var element in this.hobby){
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
             element[4]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
@@ -1338,11 +1344,30 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           FEntityItem['FStockId'] = {
             "FNumber": element[4]['value']['value']
           };
-          FEntityItem['FStockLocId'] = {
-            "FSTOCKLOCID__FF100011": {
-              "FNumber": element[6]['value']['value']
+          if (element[6]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[4]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[6]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
             }
-          };
+          }
           FEntityItem['FAuxPropId'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
@@ -1375,7 +1400,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      };
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量,仓库,入库类别');
