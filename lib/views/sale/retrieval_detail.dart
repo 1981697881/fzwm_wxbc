@@ -403,10 +403,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    //_onEvent("33500;AQ40426305N1;2024-04-26;155;,1655394901;2");
+    //_onEvent("41001;C165042401;2024-06-14;163;CGRK02637;1720770358392;3.0");
     /*_onEvent("31013;AQ40617304N1;2024-06-17;150;MO001588,1346511898;25");
     _onEvent("31013;AQ40618304N1;2024-06-18;200;MO001594,1436218597;2");*/
-    _onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
+    //_onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
     getStockList();
 
   }
@@ -430,7 +430,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -2003,9 +2003,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                                     var qty = item.split("-")[1];
                                     realQty += double.parse(qty);
                                   });
-                                  realQty = realQty - double.parse(this.hobby[checkData][10]
-                                  ["value"]["label"]);
-                                  realQty = realQty + double.parse(_FNumber);
+                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
@@ -2170,9 +2169,23 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         'FSerialSubEntity',
         'FSerialNo'
       ];
-      orderMap['IsDeleteEntry'] = true;
+      orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
-      Model['FID'] = 0;
+
+      Map<String, dynamic> billMap = Map();
+      billMap['FilterString'] = "FSrcBillNo='$FBillNo' and FDocumentStatus='A'";
+      billMap['FormId'] = 'SAL_OUTSTOCK';
+      billMap['FieldKeys'] =
+      'FID';
+      Map<String, dynamic> billDataMap = Map();
+      billDataMap['data'] = billMap;
+      String billRes = await CurrencyEntity.polling(billDataMap);
+      var billData = jsonDecode(billRes);
+      if(billData.length>0){
+        Model['FID'] = billData[0][0];
+      }else{
+        Model['FID'] = 0;
+      }
       Model['F_UUAC_Combo_qtr'] = "1";
       Model['FBillTypeID'] = {"FNUMBER": "XSCKD01_SYS"};
       Model['FDate'] = FDate;

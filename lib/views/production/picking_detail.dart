@@ -367,7 +367,7 @@ class _PickingDetailState extends State<PickingDetail> {
       ToastUtil.showInfo('已领料');
     }
     getStockList();
-    /* _onEvent("247230329291267");*/
+     /*_onEvent("11180;2420WKW415星火/维特尔;2024-05-13;200;CGRK02491,1124323795;2");*/
   }
   getOrderListT(order) async {
     orderDate = [];
@@ -554,8 +554,9 @@ class _PickingDetailState extends State<PickingDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    /*_onEvent("13026;20240515鑫灏/滨化;2024-05-15;766;,1503170280;2");
-    _onEvent("13012;24031301鑫灏/展化;2024-03-13;235;,2121490693;4");
+   /* _onEvent("21096;AQ40621210N1二仓;2024-06-21;150;,1634386736;2");
+    _onEvent("21096;AQ40621210N1二仓;2024-06-21;198;,1711487255;2");*/
+    /*_onEvent("13012;24031301鑫灏/展化;2024-03-13;235;,2121490693;4");
      _onEvent("13012;20231213科曼斯/龙翔;2023-12-13;10;,2123054921;4");
     _onEvent("11057;24C2493261遂悦/巴斯夫;2024-03-29;731;,2124408211;2");
     _onEvent("11057;20240326遂悦/巴斯夫;2024-03-26;1000;,2124246395;2");*/
@@ -580,7 +581,7 @@ class _PickingDetailState extends State<PickingDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FBatchNo,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -747,7 +748,7 @@ class _PickingDetailState extends State<PickingDetail> {
                     }
                   }
                   //判断包装规格
-                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                  if (element[1]['value']['label'] == fAuxPropId) {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
@@ -829,7 +830,7 @@ class _PickingDetailState extends State<PickingDetail> {
                       }
                     }
                     //判断包装规格
-                    if (element[1]['value']['label'] == barcodeData[0][12]) {
+                    if (element[1]['value']['label'] == fAuxPropId) {
                       errorTitle = "";
                     } else {
                       errorTitle = "包装规格不一致";
@@ -990,7 +991,7 @@ class _PickingDetailState extends State<PickingDetail> {
                     }
                   }
                   //判断包装规格
-                  if (element[1]['value']['label'] == barcodeData[0][12]) {
+                  if (element[1]['value']['label'] == fAuxPropId) {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
@@ -1074,7 +1075,7 @@ class _PickingDetailState extends State<PickingDetail> {
                         }
                       }
                       //判断包装规格
-                      if (element[1]['value']['label'] == barcodeData[0][12]) {
+                      if (element[1]['value']['label'] == fAuxPropId) {
                         errorTitle = "";
                       } else {
                         errorTitle = "包装规格不一致";
@@ -1234,7 +1235,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           }
                         }
                         //判断包装规格
-                        if (element[1]['value']['label'] == barcodeData[0][12]) {
+                        if (element[1]['value']['label'] == fAuxPropId) {
                           errorTitle = "";
                         } else {
                           errorTitle = "包装规格不一致";
@@ -1685,9 +1686,8 @@ class _PickingDetailState extends State<PickingDetail> {
                                     var qty = item.split("-")[1];
                                     realQty += double.parse(qty);
                                   });
-                                  realQty = realQty - double.parse(this.hobby[checkData][10]
-                                  ["value"]["label"]);
-                                  realQty = realQty + double.parse(_FNumber);
+                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();

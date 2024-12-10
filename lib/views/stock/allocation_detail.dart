@@ -117,8 +117,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     /*getWorkShop();*/
    //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
-    _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
-    //_onEvent("13125;20240905安德/本溪黑马;2024-09-05;25;,1730336671;2");
+    //_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+    _onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");
     EasyLoading.dismiss();
   }
 
@@ -436,7 +436,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event.trim() + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber,FPackageSpec,FStockLocIDH,FStockID.FIsOpenLocation';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FNumber,FBatchNo,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FBatchNo,FStockOrgID.FNumber,FPackageSpec,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -1157,7 +1157,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "title": "移出仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": value[9], "value": value[10], "hide": value[16]}
+            "value": {"label": barcodeData[0][17], "value": barcodeData[0][17], "hide": value[16]}
           });
           arr.add({
             "title": "移入仓库",
@@ -1646,9 +1646,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                     var qty = item.split("-")[1];
                                     realQty += double.parse(qty);
                                   });
-                                  realQty = realQty - double.parse(this.hobby[checkData][10]
-                                  ["value"]["label"]);
-                                  realQty = realQty + double.parse(_FNumber);
+                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                   this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
@@ -2074,6 +2073,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               "FNUMBER": this.hobby[i][8]['value']['value']
                             };
                             if (this.hobby[i][9]['value']['hide']) {
+                              codeModel['FStockLocNumberH'] = this.hobby[i][9]['value']['value'];
+                              codeFEntityItem['FStockLocNumber'] = this.hobby[i][9]['value']['value'];
                               Map<String, dynamic> stockMap = Map();
                               stockMap['FormId'] = 'BD_STOCK';
                               stockMap['FieldKeys'] =

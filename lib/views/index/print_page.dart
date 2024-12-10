@@ -224,6 +224,32 @@ class _PrintPageState extends State<PrintPage> {
               };
               codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
               Map<String, dynamic> codeFEntityItem = Map();
+
+              if (value['FStockLocId']) {
+                Map<String, dynamic> stockMap = Map();
+                stockMap['FormId'] = 'BD_STOCK';
+                stockMap['FieldKeys'] =
+                'FFlexNumber';
+                stockMap['FilterString'] = "FNumber = '" +
+                    value['FStockId']['FNumber'] +
+                    "'";
+                Map<String, dynamic> stockDataMap = Map();
+                stockDataMap['data'] = stockMap;
+                String res = await CurrencyEntity.polling(stockDataMap);
+                var stockRes = jsonDecode(res);
+                if (stockRes.length > 0) {
+                  codeModel['FStockLocIDH'] = {};
+                  codeFEntityItem['FStockLocID'] = {};
+                  for(var dimension in stockRes){
+                    codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
+                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                    };
+                    codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
+                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                    };
+                  }
+                }
+              }
               codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
                 yyyy,
                 "-",
@@ -384,7 +410,33 @@ class _PrintPageState extends State<PrintPage> {
                 "FNUMBER": value['FOwnerId']['FNumber']
               };
               codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
+
               Map<String, dynamic> codeFEntityItem = Map();
+              if (value['FStockLocId']) {
+                Map<String, dynamic> stockMap = Map();
+                stockMap['FormId'] = 'BD_STOCK';
+                stockMap['FieldKeys'] =
+                'FFlexNumber';
+                stockMap['FilterString'] = "FNumber = '" +
+                    value['FStockId']['FNumber'] +
+                    "'";
+                Map<String, dynamic> stockDataMap = Map();
+                stockDataMap['data'] = stockMap;
+                String res = await CurrencyEntity.polling(stockDataMap);
+                var stockRes = jsonDecode(res);
+                if (stockRes.length > 0) {
+                  codeModel['FStockLocIDH'] = {};
+                  codeFEntityItem['FStockLocID'] = {};
+                  for(var dimension in stockRes){
+                    codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
+                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                    };
+                    codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
+                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                    };
+                  }
+                }
+              }
               codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
                 yyyy,
                 "-",

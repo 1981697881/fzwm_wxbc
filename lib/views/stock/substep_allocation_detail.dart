@@ -993,8 +993,8 @@ class _AllocationAffirmDetailState extends State<SubstepAllocationDetail> {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
                                 });
-                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
-                                realQty = realQty + double.parse(_FNumber);
+                                realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                 // if(realQty > this.hobby[checkData][9]["value"]["label"]){
                                 //   ToastUtil.showInfo('总数量大于应发数量');
                                 // }else{

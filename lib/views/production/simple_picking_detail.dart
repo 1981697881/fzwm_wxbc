@@ -375,7 +375,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocIDH,FStockID.FIsOpenLocation';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -1452,9 +1452,8 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
                                   });
-                                  realQty = realQty - double.parse(this.hobby[checkData][8]
-                                  ["value"]["label"]);
-                                  realQty = realQty + double.parse(_FNumber);
+                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][8]["value"]["label"]) * 100) / 100;
+                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                   this.hobby[checkData][8]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][8]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                   this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();

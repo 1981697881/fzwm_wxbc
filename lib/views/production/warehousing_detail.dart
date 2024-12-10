@@ -1552,7 +1552,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                           arr.add({
                                             "title": "物料名称",
                                             "name": "FMaterial",
-                                            "FEntryID": value[5],
+                                            "FEntryID": 0,
                                             "FID": value[18],
                                             "FMoEntryId": value[26],
                                             "FStockUnitId": value[27],
@@ -1563,7 +1563,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                             "FKeeperTypeId": value[32],
                                             "FKeeperId": value[33],
                                             "FIsKFPeriod": value[25],
-                                            "parseEntryID": -1,
+                                            "parseEntryID": value[5],
                                             "isHide": false,
                                             "value": {
                                               "label": value[7] + "- (" + value[6] + ")",
@@ -1777,6 +1777,13 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                   ["label"] = _FNumber;
                               this.hobby[checkData][checkDataChild]['value']
                                   ["value"] = _FNumber;
+                            });
+                          }else if (checkItem == 'position') {
+                            setState(() {
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
                             });
                           }
                         },
@@ -2390,10 +2397,35 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           FEntityItem['FProduceDate'] = element[8]['value']['value'];
         }
         FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+        if (element[6]['value']['hide']) {
+          Map<String, dynamic> stockMap = Map();
+          stockMap['FormId'] = 'BD_STOCK';
+          stockMap['FieldKeys'] =
+          'FFlexNumber';
+          stockMap['FilterString'] = "FNumber = '" +
+              element[4]['value']['value'] +
+              "'";
+          Map<String, dynamic> stockDataMap = Map();
+          stockDataMap['data'] = stockMap;
+          String res = await CurrencyEntity.polling(stockDataMap);
+          var stockRes = jsonDecode(res);
+          if (stockRes.length > 0) {
+            var postionList = element[6]['value']['value'].split(".");
+            FEntityItem['FStockLocId'] = {};
+            var positonIndex = 0;
+            for(var dimension in postionList){
+              FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                "FNumber": dimension
+              };
+              positonIndex++;
+            }
+          }
+        }
         FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
         FEntityItem['FAuxPropId'] = {
           "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
         };
+
         var fSerialSub = [];
         var kingDeeCode = element[0]['value']['kingDeeCode'];
         for (int subj = 0; subj < kingDeeCode.length; subj++) {

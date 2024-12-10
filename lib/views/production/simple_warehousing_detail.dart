@@ -1248,8 +1248,8 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                                   var qty = item.split("-")[1];
                                   realQty += double.parse(qty);
                                 });
-                                realQty = realQty - double.parse(this.hobby[checkData][10]["value"]["label"]);
-                                realQty = realQty + double.parse(_FNumber);
+                                realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
                                 this.hobby[checkData][3]["value"]
                                 ["value"] = realQty.toString();
                                 this.hobby[checkData][3]["value"]
