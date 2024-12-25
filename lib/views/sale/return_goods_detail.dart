@@ -1958,7 +1958,38 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                           "FNUMBER": this.hobby[i][4]['value']['value']
                         };
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                        codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
                         Map<String, dynamic> codeFEntityItem = Map();
+                        if (this.hobby[i][6]['value']['hide']) {
+                          codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
+                          codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
+                          Map<String, dynamic> stockMap = Map();
+                          stockMap['FormId'] = 'BD_STOCK';
+                          stockMap['FieldKeys'] =
+                          'FFlexNumber';
+                          stockMap['FilterString'] = "FNumber = '" +
+                              this.hobby[i][4]['value']['value'] +
+                              "'";
+                          Map<String, dynamic> stockDataMap = Map();
+                          stockDataMap['data'] = stockMap;
+                          String res = await CurrencyEntity.polling(stockDataMap);
+                          var stockRes = jsonDecode(res);
+                          if (stockRes.length > 0) {
+                            var postionList = this.hobby[i][6]['value']['value'].split(".");
+                            codeModel['FStockLocIDH'] = {};
+                            codeFEntityItem['FStockLocID'] = {};
+                            var positonIndex = 0;
+                            for(var dimension in postionList){
+                              codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + stockRes[positonIndex][0]] = {
+                                "FNumber": dimension
+                              };
+                              codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                                "FNumber": dimension
+                              };
+                              positonIndex++;
+                            }
+                          }
+                        }
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
                         if(orderDate.length>0){

@@ -1700,8 +1700,39 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
                   Map<String, dynamic> codeFEntityItem = Map();
+                  codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
+                  if (this.hobby[i][6]['value']['hide']) {
+                    codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
+                    codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
+                    Map<String, dynamic> stockMap = Map();
+                    stockMap['FormId'] = 'BD_STOCK';
+                    stockMap['FieldKeys'] =
+                    'FFlexNumber';
+                    stockMap['FilterString'] = "FNumber = '" +
+                        this.hobby[i][4]['value']['value'] +
+                        "'";
+                    Map<String, dynamic> stockDataMap = Map();
+                    stockDataMap['data'] = stockMap;
+                    String res = await CurrencyEntity.polling(stockDataMap);
+                    var stockRes = jsonDecode(res);
+                    if (stockRes.length > 0) {
+                      var postionList = this.hobby[i][6]['value']['value'].split(".");
+                      codeModel['FStockLocIDH'] = {};
+                      codeFEntityItem['FStockLocID'] = {};
+                      var positonIndex = 0;
+                      for(var dimension in postionList){
+                        codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + stockRes[positonIndex][0]] = {
+                          "FNumber": dimension
+                        };
+                        codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                          "FNumber": dimension
+                        };
+                        positonIndex++;
+                      }
+                    }
+                  }
                   codeFEntityItem['FBillDate'] = FDate;
-                  codeFEntityItem['FOutQty'] = itemCode[1];
+                  codeFEntityItem['FInQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = billNo;
                   codeFEntityItem['FEntryStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
@@ -1790,6 +1821,31 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
                   Map<String, dynamic> codeFEntityItem = Map();
+                  if (this.hobby[i][6]['value']['hide']) {
+                    codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
+                    Map<String, dynamic> stockMap = Map();
+                    stockMap['FormId'] = 'BD_STOCK';
+                    stockMap['FieldKeys'] =
+                    'FFlexNumber';
+                    stockMap['FilterString'] = "FNumber = '" +
+                        this.hobby[i][4]['value']['value'] +
+                        "'";
+                    Map<String, dynamic> stockDataMap = Map();
+                    stockDataMap['data'] = stockMap;
+                    String res = await CurrencyEntity.polling(stockDataMap);
+                    var stockRes = jsonDecode(res);
+                    if (stockRes.length > 0) {
+                      var postionList = this.hobby[i][6]['value']['value'].split(".");
+                      codeFEntityItem['FStockLocID'] = {};
+                      var positonIndex = 0;
+                      for(var dimension in postionList){
+                        codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                          "FNumber": dimension
+                        };
+                        positonIndex++;
+                      }
+                    }
+                  }
                   codeFEntityItem['FBillDate'] = FDate;
                   codeFEntityItem['FOutQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = billNo;

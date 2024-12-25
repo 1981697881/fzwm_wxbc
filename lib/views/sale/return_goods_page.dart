@@ -106,6 +106,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     this.isScan = false;
     userMap['FormId'] = 'SAL_RETURNNOTICE';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
     'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
     Map<String, dynamic> dataMap = Map();

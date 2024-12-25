@@ -117,8 +117,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     /*getWorkShop();*/
    //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
-    //_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
-    _onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");
+    /*_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+    _onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");*/
     EasyLoading.dismiss();
   }
 
@@ -507,7 +507,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockMap['FilterString'] = "FNumber = '" +
         barcodeData[0][6].split('/')[0] +
         "' and FUseOrgId.FNumber = '" +
-        barcodeData[0][15] +
+        this.organizationsNumber1 +
         "'";
     Map<String, dynamic> stockDataMap = Map();
     stockDataMap['data'] = stockMap;
@@ -551,15 +551,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "' and FBaseQty > 0";
       }
     } else {
-      userMap['FilterString'] = "FMaterialId.FNumber='" +
+      ToastUtil.showInfo('条码仓库组织与调出组织不一致，请检查');
+      return;
+      /*userMap['FilterString'] = "FMaterialId.FNumber='" +
           barcodeData[0][8] +
           "' and FStockID.FNumber='" +
           barcodeData[0][6].split('/')[0] +
-          /*"' and FUseOrgId.FNumber = '" +
-          deptData[1] +*/
+          *//*"' and FUseOrgId.FNumber = '" +
+          deptData[1] +*//*
           "' and FLot.FNumber = '" +
           fBatchNo +
-          "' and FBaseQty > 0";
+          "' and FBaseQty > 0";*/
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
@@ -1858,7 +1860,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       var hobbyIndex = 0;
       print(materialDate);
       for (var element in this.hobby) {
-        if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[7]['value']['value'] != '') {
+        if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[3]['value']['value'] != 0 && element[8]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
 
           /*FEntityItem['FReturnType'] = 1;*/

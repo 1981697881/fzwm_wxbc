@@ -1444,28 +1444,33 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                           Navigator.pop(context);
                           setState(() {
                             if (checkItem == "FLastQty") {
-                              if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
-                                if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
-                                  var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
-                                  var realQty = 0.0;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
-                                  var qty = item.split("-")[1];
-                                  realQty += double.parse(qty);
-                                  });
-                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][8]["value"]["label"]) * 100) / 100;
-                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
-                                  this.hobby[checkData][8]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][8]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
-                                  this.hobby[checkData][3]["value"]["value"] = realQty.toString();
-                                  this.hobby[checkData][3]["value"]["label"] = realQty.toString();
-                                  this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-                                  this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
-                                } else {
+                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
+                                if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
+                                  if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
+                                    var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
+                                    var realQty = 0.0;
+                                    this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                      var qty = item.split("-")[1];
+                                      realQty += double.parse(qty);
+                                    });
+                                    realQty = (realQty * 100 - double.parse(this.hobby[checkData][8]["value"]["label"]) * 100) / 100;
+                                    realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
+                                    this.hobby[checkData][8]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][8]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
+                                    this.hobby[checkData][3]["value"]["value"] = realQty.toString();
+                                    this.hobby[checkData][3]["value"]["label"] = realQty.toString();
+                                    this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+                                    this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                                    this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
+                                  } else {
                                     ToastUtil.showInfo('无条码信息，输入失败');
+                                  }
+                                }else{
+                                  ToastUtil.showInfo('输入数量大于条码可用数量');
                                 }
                               }else{
-                                ToastUtil.showInfo('输入数量大于条码可用数量');
+                                ToastUtil.showInfo('输入数量大于可用数量');
                               }
+
                             }else if(checkItem=="bagNum"){
                               if(this.hobby[checkData][3]['value'] != '0'){
                                 var realQty = 0.0;
@@ -1666,6 +1671,31 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                         var itemCode = kingDeeCode[j].split("-");
                         codeModel['FID'] = itemCode[0];
                         Map<String, dynamic> codeFEntityItem = Map();
+                        if (this.hobby[i][6]['value']['hide']) {
+                          codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
+                          Map<String, dynamic> stockMap = Map();
+                          stockMap['FormId'] = 'BD_STOCK';
+                          stockMap['FieldKeys'] =
+                          'FFlexNumber';
+                          stockMap['FilterString'] = "FNumber = '" +
+                              this.hobby[i][4]['value']['value'] +
+                              "'";
+                          Map<String, dynamic> stockDataMap = Map();
+                          stockDataMap['data'] = stockMap;
+                          String res = await CurrencyEntity.polling(stockDataMap);
+                          var stockRes = jsonDecode(res);
+                          if (stockRes.length > 0) {
+                            var postionList = this.hobby[i][6]['value']['value'].split(".");
+                            codeFEntityItem['FStockLocID'] = {};
+                            var positonIndex = 0;
+                            for(var dimension in postionList){
+                              codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                                "FNumber": dimension
+                              };
+                              positonIndex++;
+                            }
+                          }
+                        }
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FOutQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];

@@ -207,7 +207,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName,FSaleDeptID.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -248,6 +248,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "F_UUAC_Text_83g": value[34],
           "FCustMatID": value[35],
           "FCustMatName": value[36],
+          "FSaleDeptID": value[37],
           "FIsKFPeriod": value[33],
           "parseEntryID": -1,
           "isHide": false,
@@ -404,8 +405,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       ToastUtil.showInfo('无数据');
     }
     //_onEvent("41001;C165042401;2024-06-14;163;CGRK02637;1720770358392;3.0");
-    /*_onEvent("31013;AQ40617304N1;2024-06-17;150;MO001588,1346511898;25");
-    _onEvent("31013;AQ40618304N1;2024-06-18;200;MO001594,1436218597;2");*/
+    /*_onEvent("31010;AQ40710102N1;2024-07-11;200;MO001682,0827522344;14");
+    _onEvent("31010;AQ40722103F1;2024-07-19;980;MO001709,0929560248;8");*/
     //_onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
     getStockList();
 
@@ -1263,7 +1264,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockLocID",
-            "isHide": true,
+            "isHide": false,
             "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
@@ -1995,54 +1996,59 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                                 ToastUtil.showInfo('请输入出库数量');
                               }
                             }else if (checkItem == "FLastQty") {
-                              if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
-                                if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
-                                  var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
-                                  var realQty = 0.0;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
-                                    var qty = item.split("-")[1];
-                                    realQty += double.parse(qty);
-                                  });
-                                  realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
-                                  realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
-                                  this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
-                                  this.hobby[checkData][3]["value"]["value"] = realQty.toString();
-                                  this.hobby[checkData][3]["value"]["label"] = realQty.toString();
-                                  if(this.fBillNo!="") {
-                                    var entryIndex;
-                                    if (this.hobby[checkData][0]['FEntryID'] ==
-                                        0) {
-                                      entryIndex =
-                                      this.hobbyItem[this.hobbyItem.indexWhere((
-                                          v) => v['number'] == (this
-                                          .hobby[checkData][0]['value']['value'] +
-                                          '-' + this
-                                          .hobby[checkData][0]['parseEntryID']
-                                          .toString()))]['index'];
-                                    } else {
-                                      entryIndex =
-                                      this.hobbyItem[this.hobbyItem.indexWhere((
-                                          v) => v['number'] == (this
-                                          .hobby[checkData][0]['value']['value'] +
-                                          '-' +
-                                          this.hobby[checkData][0]['FEntryID']
-                                              .toString()))]['index'];
+                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
+                                if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
+                                  if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
+                                    var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
+                                    var realQty = 0.0;
+                                    this.hobby[checkData][0]['value']['kingDeeCode'].forEach((item) {
+                                      var qty = item.split("-")[1];
+                                      realQty += double.parse(qty);
+                                    });
+                                    realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
+                                    realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
+                                    this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
+                                    this.hobby[checkData][3]["value"]["value"] = realQty.toString();
+                                    this.hobby[checkData][3]["value"]["label"] = realQty.toString();
+                                    if(this.fBillNo!="") {
+                                      var entryIndex;
+                                      if (this.hobby[checkData][0]['FEntryID'] ==
+                                          0) {
+                                        entryIndex =
+                                        this.hobbyItem[this.hobbyItem.indexWhere((
+                                            v) => v['number'] == (this
+                                            .hobby[checkData][0]['value']['value'] +
+                                            '-' + this
+                                            .hobby[checkData][0]['parseEntryID']
+                                            .toString()))]['index'];
+                                      } else {
+                                        entryIndex =
+                                        this.hobbyItem[this.hobbyItem.indexWhere((
+                                            v) => v['number'] == (this
+                                            .hobby[checkData][0]['value']['value'] +
+                                            '-' +
+                                            this.hobby[checkData][0]['FEntryID']
+                                                .toString()))]['index'];
+                                      }
+                                      hobby[entryIndex][0]['value']['surplus'] =
+                                          (hobby[entryIndex][9]['value']['value'] *
+                                              100 - double.parse(this
+                                              .hobby[checkData][3]['value']['value']) *
+                                              100) / 100;
                                     }
-                                    hobby[entryIndex][0]['value']['surplus'] =
-                                        (hobby[entryIndex][9]['value']['value'] *
-                                            100 - double.parse(this
-                                            .hobby[checkData][3]['value']['value']) *
-                                            100) / 100;
+                                    this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+                                    this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                                    this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
+                                  } else {
+                                    ToastUtil.showInfo('无条码信息，输入失败');
                                   }
-                                  this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-                                  this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
-                                } else {
-                                  ToastUtil.showInfo('无条码信息，输入失败');
+                                }else{
+                                  ToastUtil.showInfo('输入数量大于条码可用数量');
                                 }
                               }else{
-                                ToastUtil.showInfo('输入数量大于条码可用数量');
+                                ToastUtil.showInfo('输入数量大于可用数量');
                               }
+
                             }else{
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;
@@ -2264,6 +2270,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           FEntityItem['FAuxPropId'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
+          FEntityItem['FMustQty'] = element[3]['value']['value'];
           FEntityItem['FRealQty'] = element[3]['value']['value'];
           FEntityItem['F_UUAC_Text_83g'] = element[11]['value']['value'];
           if(element[0]['FIsKFPeriod']){
@@ -2274,6 +2281,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           if(element[0]['FEntryID'] == 0){
             entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
             FEntityItem['FCustMatID'] = {"FNumber": this.hobby[entryIndex][0]['FCustMatID']};
+            FEntityItem['FSaleDeptID'] = {"FNumber": this.hobby[entryIndex][0]['FSaleDeptID']};
             //FEntityItem['FCustMatName'] = this.hobby[entryIndex][0]['FCustMatName'];
             FEntityItem['FTaxPrice'] = this.hobby[entryIndex][0]['FTaxPrice'];
             FEntityItem['FEntryTaxRate'] = this.hobby[entryIndex][0]['FEntryTaxRate'];
@@ -2292,6 +2300,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             ];
           }else{
             FEntityItem['FCustMatID'] = {"FNumber": element[0]['FCustMatID']};
+            FEntityItem['FSaleDeptID'] = {"FNumber": element[0]['FSaleDeptID']};
             //FEntityItem['FCustMatName'] = element[0]['FCustMatName'];
             FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];
             FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
@@ -2368,7 +2377,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                 Map<String, dynamic> codeModel = Map();
                 var itemCode = kingDeeCode[j].split("-");
                 if(itemCode.length>1){
-
                   codeModel['FID'] = itemCode[0];
                   Map<String, dynamic> codeFEntityItem = Map();
                   codeFEntityItem['FBillDate'] = FDate;
@@ -2377,6 +2385,31 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                   codeFEntityItem['FEntryStockID'] = {
                     "FNUMBER": this.hobby[i][4]['value']['value']
                   };
+                  if (this.hobby[i][6]['value']['hide']) {
+                    codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
+                    Map<String, dynamic> stockMap = Map();
+                    stockMap['FormId'] = 'BD_STOCK';
+                    stockMap['FieldKeys'] =
+                    'FFlexNumber';
+                    stockMap['FilterString'] = "FNumber = '" +
+                        this.hobby[i][4]['value']['value'] +
+                        "'";
+                    Map<String, dynamic> stockDataMap = Map();
+                    stockDataMap['data'] = stockMap;
+                    String res = await CurrencyEntity.polling(stockDataMap);
+                    var stockRes = jsonDecode(res);
+                    if (stockRes.length > 0) {
+                      var postionList = this.hobby[i][6]['value']['value'].split(".");
+                      codeFEntityItem['FStockLocID'] = {};
+                      var positonIndex = 0;
+                      for(var dimension in postionList){
+                        codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                          "FNumber": dimension
+                        };
+                        positonIndex++;
+                      }
+                    }
+                  }
                   var codeFEntity = [codeFEntityItem];
                   codeModel['FEntity'] = codeFEntity;
                   orderCodeMap['Model'] = codeModel;
