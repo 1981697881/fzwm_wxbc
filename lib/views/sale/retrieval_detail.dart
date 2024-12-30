@@ -207,7 +207,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName,FSaleDeptID.FNumber';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName,FSaleDeptID.FNumber,FSettleCurrID.FNumber,FSettleOrgID.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -249,6 +249,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "FCustMatID": value[35],
           "FCustMatName": value[36],
           "FSaleDeptID": value[37],
+          "FSettleCurrID": value[38],
           "FIsKFPeriod": value[33],
           "parseEntryID": -1,
           "isHide": false,
@@ -404,7 +405,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    //_onEvent("41001;C165042401;2024-06-14;163;CGRK02637;1720770358392;3.0");
+    //_onEvent("31064;AQ41121310N2;2024-11-21;200;MO002350,1559238335;18");
     /*_onEvent("31010;AQ40710102N1;2024-07-11;200;MO001682,0827522344;14");
     _onEvent("31010;AQ40722103F1;2024-07-19;980;MO001709,0929560248;8");*/
     //_onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
@@ -584,6 +585,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                   }
                   if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
                     if (element[6]['value']['value'] == "") {
                       element[6]['value']['label'] = fLoc == null? "":fLoc;
                       element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -596,6 +598,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "保质期不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -605,6 +611,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "仓位不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -613,6 +623,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
+                    surplus = hobby[entryIndex][0]['value']['surplus'];
+                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                    insertIndex = hobbyIndex;
                     continue;
                   }
                   element[3]['value']['value'] =
@@ -661,6 +675,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                     }
                     if(fIsOpenLocation){
+                      element[6]['value']['hide'] = fIsOpenLocation;
                       if (element[6]['value']['value'] == "") {
                         element[6]['value']['label'] = fLoc == null? "":fLoc;
                         element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -673,6 +688,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "保质期不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                     }
@@ -682,6 +701,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "仓位不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                     }
@@ -690,6 +713,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "包装规格不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                     //判断末尾
@@ -820,6 +847,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     element[5]['value']['value'] = scanCode[1];
                   }
                   if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
                     if (element[6]['value']['value'] == "") {
                       element[6]['value']['label'] = fLoc == null? "":fLoc;
                       element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -832,6 +860,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "保质期不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -841,6 +873,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "仓位不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -849,6 +885,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
+                    surplus = hobby[entryIndex][0]['value']['surplus'];
+                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                    insertIndex = hobbyIndex;
                     continue;
                   }
                   element[3]['value']['value'] =
@@ -899,6 +939,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                       }
                       if(fIsOpenLocation){
+                        element[6]['value']['hide'] = fIsOpenLocation;
                         if (element[6]['value']['value'] == "") {
                           element[6]['value']['label'] = fLoc == null? "":fLoc;
                           element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -911,6 +952,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "保质期不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                       }
@@ -920,6 +965,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "仓位不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                       }
@@ -928,6 +977,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "包装规格不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                       //判断末尾
@@ -1054,6 +1107,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           element[15]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                         }
                         if(fIsOpenLocation){
+                          element[6]['value']['hide'] = fIsOpenLocation;
                           if (element[6]['value']['value'] == "") {
                             element[6]['value']['label'] = fLoc == null? "":fLoc;
                             element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -1066,6 +1120,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                             errorTitle = "";
                           } else {
                             errorTitle = "保质期不一致";
+                            surplus = hobby[entryIndex][0]['value']['surplus'];
+                            parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                            insertIndex = hobbyIndex;
                             continue;
                           }
                         }
@@ -1075,6 +1133,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                             errorTitle = "";
                           } else {
                             errorTitle = "仓位不一致";
+                            surplus = hobby[entryIndex][0]['value']['surplus'];
+                            parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                            insertIndex = hobbyIndex;
                             continue;
                           }
                         }
@@ -1083,6 +1145,10 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "包装规格不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                         //判断末尾
@@ -2055,6 +2121,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(
@@ -2347,6 +2414,14 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         return;
       }
       Model['FEntity'] = FEntity;
+      Model['SubHeadEntity'] = {
+        "FSettleOrgID":{
+          "FNumber": orderDate[0][39]
+        },
+        "FSettleCurrID":{
+          "FNumber": orderDate[0][38]
+        },
+      };
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
       print(jsonEncode(dataMap));

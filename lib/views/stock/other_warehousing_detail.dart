@@ -1162,6 +1162,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

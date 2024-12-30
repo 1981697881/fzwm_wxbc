@@ -1827,6 +1827,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                                   ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

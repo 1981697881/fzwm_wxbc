@@ -142,7 +142,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       bagList.add(element[1]);
     });
   }
-  //获取部门
+  //获取部门-
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -457,6 +457,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 element[12]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
               }
               if(fIsOpenLocation){
+                element[6]['value']['hide'] = fIsOpenLocation;
                 if (element[6]['value']['value'] == "") {
                   element[6]['value']['label'] = fLoc == null? "":fLoc;
                   element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -511,6 +512,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                   element[12]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                 }
                 if(fIsOpenLocation){
+                  element[6]['value']['hide'] = fIsOpenLocation;
                   if (element[6]['value']['value'] == "") {
                     element[6]['value']['label'] = fLoc == null? "":fLoc;
                     element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -1444,7 +1446,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                           Navigator.pop(context);
                           setState(() {
                             if (checkItem == "FLastQty") {
-                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
+                              print(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity']);
                                 if(double.parse(_FNumber) <= double.parse(this.hobby[checkData][checkDataChild]["value"]['representativeQuantity'])){
                                   if (this.hobby[checkData][0]['value']['kingDeeCode'].length > 0) {
                                     var kingDeeCode = this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1].split("-");
@@ -1467,10 +1469,6 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                                 }else{
                                   ToastUtil.showInfo('输入数量大于条码可用数量');
                                 }
-                              }else{
-                                ToastUtil.showInfo('输入数量大于可用数量');
-                              }
-
                             }else if(checkItem=="bagNum"){
                               if(this.hobby[checkData][3]['value'] != '0'){
                                 var realQty = 0.0;
@@ -1490,6 +1488,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

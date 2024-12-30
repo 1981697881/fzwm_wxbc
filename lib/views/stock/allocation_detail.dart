@@ -1668,6 +1668,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

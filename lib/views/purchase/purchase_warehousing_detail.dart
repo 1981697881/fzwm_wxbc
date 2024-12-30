@@ -1731,10 +1731,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                             }else if(checkItem == 'position'){
                               //录入仓位个数
                               var positionList = _FNumber.split(",");
-                              positionList = positionList.toSet().toList();
-                              //输入数量除于包装规格，等于基础分录个数
-                              var lineSplit = (double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''))).ceil();
                               if(positionList.length>1){
+                                positionList = positionList.toSet().toList();
+                                //输入数量除于包装规格，等于基础分录个数
+                                var lineSplit = (double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''))).ceil();
                                 if(this.hobby[checkData][1]["value"]["label"] != "" && this.hobby[checkData][3]["value"]["label"] != ""){
                                   if(double.parse(this.hobby[checkData][3]["value"]["label"])>double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', '')) && double.parse(this.hobby[checkData][3]["value"]["label"]) > positionList.length){
                                     //判断以那个条件做拆分
@@ -1904,6 +1904,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(
@@ -2232,6 +2233,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             FEntityItem['FPOORDERENTRYID'] = element[0]['FSrcEntryId'];
             FEntityItem['FPOOrderNo'] = element[0]['FOrderBillNo'];
             FEntityItem['FRealQty'] = element[3]['value']['value'];
+            FEntityItem['FBaseJoinQty'] = element[3]['value']['value'];
             FEntityItem['FSerialSubEntity'] = fSerialSub;
             /*FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";*/
             FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];

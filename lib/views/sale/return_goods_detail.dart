@@ -1646,6 +1646,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                             ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
                             ["value"] = _FNumber;
+                            checkItem = '';
                           });
                         },
                         child: Text(

@@ -560,6 +560,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                   }
                   if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
                     if (element[6]['value']['value'] == "") {
                       element[6]['value']['label'] = fLoc == null? "":fLoc;
                       element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -572,6 +573,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "保质期不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -581,6 +586,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "仓位不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -589,6 +598,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
+                    surplus = hobby[entryIndex][0]['value']['surplus'];
+                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                    insertIndex = hobbyIndex;
                     continue;
                   }
                   element[3]['value']['value'] =
@@ -637,6 +650,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                     }
                     if(fIsOpenLocation){
+                      element[6]['value']['hide'] = fIsOpenLocation;
                       if (element[6]['value']['value'] == "") {
                         element[6]['value']['label'] = fLoc == null? "":fLoc;
                         element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -649,6 +663,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "保质期不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                     }
@@ -658,6 +676,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "仓位不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                     }
@@ -666,6 +688,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "包装规格不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                     //判断末尾
@@ -796,6 +822,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     element[5]['value']['value'] = scanCode[1];
                   }
                   if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
                     if (element[6]['value']['value'] == "") {
                       element[6]['value']['label'] = fLoc == null? "":fLoc;
                       element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -808,6 +835,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "保质期不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -817,6 +848,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       errorTitle = "";
                     } else {
                       errorTitle = "仓位不一致";
+                      surplus = hobby[entryIndex][0]['value']['surplus'];
+                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                      insertIndex = hobbyIndex;
                       continue;
                     }
                   }
@@ -825,6 +860,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     errorTitle = "";
                   } else {
                     errorTitle = "包装规格不一致";
+                    surplus = hobby[entryIndex][0]['value']['surplus'];
+                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                    insertIndex = hobbyIndex;
                     continue;
                   }
                   element[3]['value']['value'] =
@@ -875,6 +914,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                       }
                       if(fIsOpenLocation){
+                        element[6]['value']['hide'] = fIsOpenLocation;
                         if (element[6]['value']['value'] == "") {
                           element[6]['value']['label'] = fLoc == null? "":fLoc;
                           element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -887,6 +927,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "保质期不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                       }
@@ -896,6 +940,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "仓位不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                       }
@@ -904,6 +952,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         errorTitle = "";
                       } else {
                         errorTitle = "包装规格不一致";
+                        surplus = hobby[entryIndex][0]['value']['surplus'];
+                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                        insertIndex = hobbyIndex;
                         continue;
                       }
                       //判断末尾
@@ -1030,6 +1082,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           element[14]['value']['value'] =fExpiryDate == null? "":fExpiryDate;
                         }
                         if(fIsOpenLocation){
+                          element[6]['value']['hide'] = fIsOpenLocation;
                           if (element[6]['value']['value'] == "") {
                             element[6]['value']['label'] = fLoc == null? "":fLoc;
                             element[6]['value']['value'] =fLoc == null? "":fLoc;
@@ -1042,6 +1095,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                             errorTitle = "";
                           } else {
                             errorTitle = "保质期不一致";
+                            surplus = hobby[entryIndex][0]['value']['surplus'];
+                            parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                            insertIndex = hobbyIndex;
                             continue;
                           }
                         }
@@ -1051,6 +1108,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                             errorTitle = "";
                           } else {
                             errorTitle = "仓位不一致";
+                            surplus = hobby[entryIndex][0]['value']['surplus'];
+                            parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                            fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                            insertIndex = hobbyIndex;
                             continue;
                           }
                         }
@@ -1059,6 +1120,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           errorTitle = "";
                         } else {
                           errorTitle = "包装规格不一致";
+                          surplus = hobby[entryIndex][0]['value']['surplus'];
+                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
+                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
+                          insertIndex = hobbyIndex;
                           continue;
                         }
                         //判断末尾
@@ -2439,6 +2504,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

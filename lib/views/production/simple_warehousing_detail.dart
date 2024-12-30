@@ -1241,7 +1241,6 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                           Navigator.pop(context);
                           setState(() {
                             if(checkItem=="FLastQty"){
-                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
                                 if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
                                   var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
                                   var realQty = 0.0;
@@ -1263,9 +1262,6 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                                 }else{
                                   ToastUtil.showInfo('无条码信息，输入失败');
                                 }
-                              }else{
-                                ToastUtil.showInfo('输入数量大于可用数量');
-                              }
                             }else if(checkItem=="bagNum"){
                               if(this.hobby[checkData][3]['value'] != '0'){
                                 var realQty = 0.0;
@@ -1287,6 +1283,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }
+                            checkItem = '';
                           });
                         },
                         child: Text(

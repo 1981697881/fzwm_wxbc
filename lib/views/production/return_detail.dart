@@ -1596,6 +1596,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
                             ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
                             ["value"] = _FNumber;
+                            checkItem = '';
                           });
                         },
                         child: Text(
