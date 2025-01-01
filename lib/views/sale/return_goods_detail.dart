@@ -1209,6 +1209,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[6]['value']['value'] = "";
+                stock[6]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
@@ -1961,6 +1963,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
                         Map<String, dynamic> codeFEntityItem = Map();
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         if (this.hobby[i][6]['value']['hide']) {
                           codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
                           codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
@@ -1998,9 +2003,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                         }else{
                           codeFEntityItem['FEntryBillNo'] = returnData[0]['FBillNo'];
                         }
-                        codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
+
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
                         orderCodeMap['Model'] = codeModel;

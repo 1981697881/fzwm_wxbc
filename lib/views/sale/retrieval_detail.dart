@@ -1543,6 +1543,8 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[6]['value']['value'] = "";
+                stock[6]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;

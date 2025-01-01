@@ -224,7 +224,9 @@ class _PrintPageState extends State<PrintPage> {
               };
               codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
               Map<String, dynamic> codeFEntityItem = Map();
-
+              codeFEntityItem['FEntryStockID'] = {
+                "FNUMBER": value['FStockId']['FNumber']
+              };
               if (value['FStockLocId']) {
                 Map<String, dynamic> stockMap = Map();
                 stockMap['FormId'] = 'BD_STOCK';
@@ -264,9 +266,7 @@ class _PrintPageState extends State<PrintPage> {
                   ? packing
                   : remainingQuantity;
               codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
-              codeFEntityItem['FEntryStockID'] = {
-                "FNUMBER": value['FStockId']['FNumber']
-              };
+
               var codeFEntity = [codeFEntityItem];
               codeModel['FEntity'] = codeFEntity;
               orderCodeMap['Model'] = codeModel;
@@ -414,6 +414,9 @@ class _PrintPageState extends State<PrintPage> {
               };
               codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
               Map<String, dynamic> codeFEntityItem = Map();
+              codeFEntityItem['FEntryStockID'] = {
+                "FNUMBER": value['FStockId']['FNumber']
+              };
               if (value['FStockLocId']) {
 
                 Map<String, dynamic> stockMap = Map();
@@ -454,9 +457,7 @@ class _PrintPageState extends State<PrintPage> {
                   ? packing
                   : remainingQuantity;
               codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
-              codeFEntityItem['FEntryStockID'] = {
-                "FNUMBER": value['FStockId']['FNumber']
-              };
+
               var codeFEntity = [codeFEntityItem];
               codeModel['FEntity'] = codeFEntity;
               orderCodeMap['Model'] = codeModel;

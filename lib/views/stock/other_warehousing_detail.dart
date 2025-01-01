@@ -745,6 +745,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[6]['value']['value'] = "";
+                stock[6]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
@@ -1379,6 +1381,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                         /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
                         codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
                         Map<String, dynamic> codeFEntityItem = Map();
+                        codeFEntityItem['FEntryStockID'] ={
+                          "FNUMBER": this.hobby[i][4]['value']['value']
+                        };
                         if (this.hobby[i][6]['value']['hide']) {
                           codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
                           codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
@@ -1412,14 +1417,13 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                         codeFEntityItem['FBillDate'] = FDate;
                         codeFEntityItem['FInQty'] = itemCode[1];
                         codeFEntityItem['FEntryBillNo'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
-                        codeFEntityItem['FEntryStockID'] ={
-                          "FNUMBER": this.hobby[i][4]['value']['value']
-                        };
+
                         var codeFEntity = [codeFEntityItem];
                         codeModel['FEntity'] = codeFEntity;
                         orderCodeMap['Model'] = codeModel;
                         dataCodeMap['data'] = orderCodeMap;
                         print(dataCodeMap);
+                        var saveData = jsonEncode(dataCodeMap);
                         String codeRes = await SubmitEntity.save(dataCodeMap);
                         var barcodeRes = jsonDecode(codeRes);
                         if(!barcodeRes['Result']['ResponseStatus']['IsSuccess']){

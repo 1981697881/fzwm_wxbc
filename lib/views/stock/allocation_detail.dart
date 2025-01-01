@@ -58,6 +58,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   };
   var organizationsName;
   var organizationsNumber;
+  var storehouseName;
+  var storehouseNumber;
+  var showPosition = false;
+  var storingLocationName;
+  var storingLocationNumber;
   var fBarCodeList;
   var stockList = [];
   List<dynamic> stockListObj = [];
@@ -417,7 +422,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   }
 
   void _onEvent(event) async {
-    if (checkItem == 'FLoc') {
+    if (checkItem == 'FLoc' || checkItem == 'HPoc') {
       _FNumber = event.trim();
       this._textNumber.value = _textNumber.value.copyWith(
         text: event.trim(),
@@ -592,10 +597,19 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           //不启用
           if (element[0]['value']['value'] == barcodeData[0][8]) {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              if (element[8]['value']['value'] == "") {
+                element[8]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                element[8]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+              }
+              if(this.showPosition){
+                element[9]['value']['hide'] = this.showPosition;
+                if (element[9]['value']['value'] == "") {
+                  element[9]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                  element[9]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                }
+              }
               //判断是否启用保质期
               if (!element[11]['isHide']) {
-                print(element[11]['value']['value'] != fProduceDate &&
-                    element[12]['value']['value'] != fExpiryDate);
                 if (element[11]['value']['value'] == fProduceDate &&
                     element[12]['value']['value'] == fExpiryDate) {
                   errorTitle = "";
@@ -773,6 +787,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         } else {
           if (element[0]['value']['value'] == barcodeData[0][8]) {
             if (element[0]['value']['barcode'].indexOf(code) == -1) {
+              if (element[8]['value']['value'] == "") {
+                element[8]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                element[8]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+              }
+              if(this.showPosition){
+                element[9]['value']['hide'] = this.showPosition;
+                if (element[9]['value']['value'] == "") {
+                  element[9]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                  element[9]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                }
+              }
               //判断是否启用保质期
               if (!element[11]['isHide']) {
                 print(element[11]['value']['value'] != fProduceDate &&
@@ -1165,13 +1190,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "title": "移入仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": "", "value": "", "dimension": stocks[0][4]}
+            "value": {"label": this.storehouseName == null? "":this.storehouseName, "value": this.storehouseNumber == null? "":this.storehouseNumber, "dimension": stocks[0][4]}
           });
           arr.add({
             "title": "移入仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "", "hide": false}
+            "value": {"label": this.storingLocationName == null? "":this.storingLocationName, "value": this.storingLocationNumber == null? "":this.storingLocationNumber, "hide": showPosition}
           });
           arr.add({
             "title": "最后扫描数量",
@@ -1358,6 +1383,18 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             this.getStockList();
             print(2);
             print(organizationsNumber2);
+          }else if (hobby == 'storehouse') {
+            storehouseName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                storehouseNumber = stockListObj[elementIndex][2];
+                showPosition = stockListObj[elementIndex][3];
+                this.storingLocationName = "";
+                this.storingLocationNumber = "";
+              }
+              elementIndex++;
+            });
           } else {
             setState(() {
               hobby['value']['label'] = p;
@@ -1368,6 +1405,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[9]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[9]['value']['value'] = "";
+                stock[9]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
@@ -1662,6 +1701,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               }else{
                                 ToastUtil.showInfo('输入数量大于条码可用数量');
                               }
+                            }else if(checkItem == "HPoc"){
+                              this.storingLocationName = _FNumber;
+                              this.storingLocationNumber = _FNumber;
                             }else{
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;
@@ -2029,6 +2071,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               if (stockRes.length > 0) {
                                 var postionList = this.hobby[i][7]['value']['value'].split(".");
                                 codeFEntityItem['FStockLocID'] = {};
+                                codeFEntityItem['FStockLocNumber'] = this.hobby[i][7]['value']['value'];
                                 var positonIndex = 0;
                                 for(var dimension in postionList){
                                   codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
@@ -2328,6 +2371,50 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   ),
                   _item('调入组织', this.organizationsList, this.organizationsName2,
                       'organizations2'),
+                  _item('调入仓库', this.stockList, this.storehouseName,
+                      'storehouse'),
+          Visibility(
+            maintainSize: false,
+            maintainState: false,
+            maintainAnimation: false,
+            visible: showPosition,
+            child: Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                    title: Text('调入仓位：' +
+                        this.storingLocationName.toString()),
+                    trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          IconButton(
+                            icon: new Icon(Icons.filter_center_focus),
+                            tooltip: '点击扫描',
+                            onPressed: () {
+                              this._textNumber.text = this
+                                  .storingLocationName
+                                  .toString();
+                              this._FNumber = this
+                                  .storingLocationName
+                                  .toString();
+                              checkItem = 'HPoc';
+                              this.show = false;
+                              scanDialog();
+                              if (this.storingLocationName != "") {
+                                this._textNumber.value =
+                                    _textNumber.value.copyWith(
+                                      text: this
+                                          .storingLocationName
+                                          .toString(),
+                                    );
+                              }
+                            },
+                          ),
+                        ])),
+              ),
+              divider,
+            ]),
+          ),
                   Column(
                     children: [
                       Container(

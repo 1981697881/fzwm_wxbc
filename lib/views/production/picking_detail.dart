@@ -2568,6 +2568,9 @@ class _PickingDetailState extends State<PickingDetail> {
                   var itemCode = kingDeeCode[j].split("-");
                   codeModel['FID'] = itemCode[0];
                   Map<String, dynamic> codeFEntityItem = Map();
+                  codeFEntityItem['FEntryStockID'] = {
+                    "FNUMBER": this.hobby[i][4]['value']['value']
+                  };
                   if (this.hobby[i][6]['value']['hide']) {
                     codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
                     Map<String, dynamic> stockMap = Map();
@@ -2596,9 +2599,7 @@ class _PickingDetailState extends State<PickingDetail> {
                   codeFEntityItem['FBillDate'] = FDate;
                   codeFEntityItem['FOutQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = orderDate[0][0];
-                  codeFEntityItem['FEntryStockID'] = {
-                    "FNUMBER": this.hobby[i][4]['value']['value']
-                  };
+
                   var codeFEntity = [codeFEntityItem];
                   codeModel['FEntity'] = codeFEntity;
                   orderCodeMap['Model'] = codeModel;

@@ -53,6 +53,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var show = false;
   var isScanWork = false;
   var isSubmit = false;
+  var storehouseName;
+  var storehouseNumber;
+  var showPosition = false;
+  var storingLocationName;
+  var storingLocationNumber;
   var checkData;
   var fOrgID;
   var checkDataChild;
@@ -407,7 +412,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     if (event == "") {
       return;
     }
-    if(checkItem == "position"){
+    if(checkItem == "position" || checkItem == 'HPoc'){
       setState(() {
         this._FNumber = event;
         this._textNumber.text = event;
@@ -546,8 +551,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   if (element[4]['value']['value'] == "") {
-                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                    element[4]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                    element[4]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+                  }
+                  if(this.showPosition){
+                    element[6]['value']['hide'] = this.showPosition;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                      element[6]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                    }
                   }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
@@ -557,13 +569,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     element[8]['value']['label'] = fProduceDate == null? "":fProduceDate;
                     element[8]['value']['value'] =fProduceDate == null? "":fProduceDate;
                   }
-                  if(fIsOpenLocation){
-                    element[6]['value']['hide'] = fIsOpenLocation;
-                    if (element[6]['value']['value'] == "") {
-                      element[6]['value']['label'] = fLoc == null? "":fLoc;
-                      element[6]['value']['value'] =fLoc == null? "":fLoc;
-                    }
-                  }
+
                   //判断是否启用保质期
                   if (!element[8]['isHide']) {
                     if (element[8]['value']['value'] == fProduceDate) {
@@ -631,8 +637,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   //判断条码是否重复
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                     if (element[4]['value']['value'] == "") {
-                      element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                      element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                      element[4]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                      element[4]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+                    }
+                    if(this.showPosition){
+                      element[6]['value']['hide'] = this.showPosition;
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                        element[6]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                      }
                     }
                     if (element[1]['value']['value'] == "") {
                       element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
@@ -642,13 +655,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       element[8]['value']['label'] = fProduceDate == null? "":fProduceDate;
                       element[8]['value']['value'] =fProduceDate == null? "":fProduceDate;
                     }
-                    if(fIsOpenLocation){
-                      element[6]['value']['hide'] = fIsOpenLocation;
-                      if (element[6]['value']['value'] == "") {
-                        element[6]['value']['label'] = fLoc == null? "":fLoc;
-                        element[6]['value']['value'] =fLoc == null? "":fLoc;
-                      }
-                    }
+
                     //判断是否启用保质期
                     if (!element[8]['isHide']) {
                       if (element[8]['value']['value'] == fProduceDate) {
@@ -792,8 +799,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   if (element[4]['value']['value'] == "") {
-                    element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                    element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                    element[4]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                    element[4]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+                  }
+                  if(this.showPosition){
+                    element[6]['value']['hide'] = this.showPosition;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                      element[6]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                    }
                   }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
@@ -808,13 +822,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     element[8]['value']['label'] = fProduceDate == null? "":fProduceDate;
                     element[8]['value']['value'] =fProduceDate == null? "":fProduceDate;
                   }
-                  if(fIsOpenLocation){
-                    element[6]['value']['hide'] = fIsOpenLocation;
-                    if (element[6]['value']['value'] == "") {
-                      element[6]['value']['label'] = fLoc == null? "":fLoc;
-                      element[6]['value']['value'] =fLoc == null? "":fLoc;
-                    }
-                  }
+
                   //判断是否启用保质期
                   if (!element[8]['isHide']) {
                     if (element[8]['value']['value'] == fProduceDate) {
@@ -883,10 +891,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
 
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
-                      if (element[4]['value']['value'] == "") {
-                        element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                        element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-                      }
+
                       if (element[1]['value']['value'] == "") {
                         element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
                         element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
@@ -895,11 +900,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                         element[8]['value']['label'] = fProduceDate == null? "":fProduceDate;
                         element[8]['value']['value'] =fProduceDate == null? "":fProduceDate;
                       }
-                      if(fIsOpenLocation){
-                        element[6]['value']['hide'] = fIsOpenLocation;
+                      if (element[4]['value']['value'] == "") {
+                        element[4]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                        element[4]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+                      }
+                      if(this.showPosition){
+                        element[6]['value']['hide'] = this.showPosition;
                         if (element[6]['value']['value'] == "") {
-                          element[6]['value']['label'] = fLoc == null? "":fLoc;
-                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          element[6]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                          element[6]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
                         }
                       }
                       //判断是否启用保质期
@@ -1045,8 +1054,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       //判断条码是否重复
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         if (element[4]['value']['value'] == "") {
-                          element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                          element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                          element[4]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                          element[4]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
+                        }
+                        if(this.showPosition){
+                          element[6]['value']['hide'] = this.showPosition;
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = this.storingLocationName == null? "":this.storingLocationName;
+                            element[6]['value']['value'] =this.storingLocationNumber == null? "":this.storingLocationNumber;
+                          }
                         }
                         if (element[1]['value']['value'] == "") {
                           element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
@@ -1056,13 +1072,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           element[8]['value']['label'] = fProduceDate == null? "":fProduceDate;
                           element[8]['value']['value'] =fProduceDate == null? "":fProduceDate;
                         }
-                        if(fIsOpenLocation){
-                          element[6]['value']['hide'] = fIsOpenLocation;
-                          if (element[6]['value']['value'] == "") {
-                            element[6]['value']['label'] = fLoc == null? "":fLoc;
-                            element[6]['value']['value'] =fLoc == null? "":fLoc;
-                          }
-                        }
+
                         //判断是否启用保质期
                         if (!element[8]['isHide']) {
                           print(element[8]['value']['value']);
@@ -1244,8 +1254,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               "value": value[2],
               "surplus": surplus,
               "barcode": [code],
-              "kingDeeCode": [],
-              "scanCode": []
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[5]+"-"+fsn],
+              "scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[5]]
             }
           });
           arr.add({
@@ -1271,7 +1281,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "title": "仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
+            "value": {"label": this.storehouseName == null? "":this.storehouseName, "value": this.storehouseNumber == null? "":this.storehouseNumber}
           });
           arr.add({
             "title": "批号",
@@ -1286,7 +1296,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "", "hide": fIsOpenLocation}
+            "value": {"label": this.storingLocationName == null? "":this.storingLocationName, "value": this.storingLocationNumber == null? "":this.storingLocationNumber, "hide": showPosition}
           });
           arr.add({
             "title": "操作",
@@ -1515,6 +1525,18 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               print(p);
               this.isTurnoff = p;
             });
+          }else if (hobby == 'storehouse') {
+            storehouseName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                storehouseNumber = stockListObj[elementIndex][2];
+                showPosition = stockListObj[elementIndex][3];
+                this.storingLocationName = "";
+                this.storingLocationNumber = "";
+              }
+              elementIndex++;
+            });
           } else {
             setState(() {
               this.isSubmit = false;
@@ -1525,6 +1547,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
                 stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[6]['value']['value'] = "";
+                stock[6]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
               }
               elementIndex++;
@@ -2041,6 +2065,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             });
+                          }else if(checkItem == "HPoc"){
+                            this.storingLocationName = _FNumber;
+                            this.storingLocationNumber = _FNumber;
                           }
                           checkItem = '';
                         },
@@ -2163,6 +2190,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   };
                   codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
                   Map<String, dynamic> codeFEntityItem = Map();
+                  codeFEntityItem['FEntryStockID'] = {
+                    "FNUMBER": this.hobby[i][4]['value']['value']
+                  };
                   if (this.hobby[i][6]['value']['hide']) {
                     codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
                     codeFEntityItem['FStockLocNumber'] = this.hobby[i][6]['value']['value'];
@@ -2196,9 +2226,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   codeFEntityItem['FBillDate'] = FDate;
                   codeFEntityItem['FInQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = orderDate[0][0];
-                  codeFEntityItem['FEntryStockID'] = {
-                    "FNUMBER": this.hobby[i][4]['value']['value']
-                  };
+
                   var codeFEntity = [codeFEntityItem];
                   codeModel['FEntity'] = codeFEntity;
                   orderCodeMap['Model'] = codeModel;
@@ -2551,6 +2579,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           var errorMsg = "";
           if (fBarCodeList == 1) {
+            print(this.hobby.length);
             for (int i = 0; i < this.hobby.length; i++) {
               if (this.hobby[i][3]['value']['value'] != '0' &&
                   this.hobby[i][4]['value']['value'] != '') {
@@ -2568,6 +2597,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   codeModel['FStockOrgID'] = {"FNUMBER": tissue};
                   codeModel['FStockID'] = {"FNUMBER": this.hobby[i][4]['value']['value']};
                   Map<String, dynamic> codeFEntityItem = Map();
+                  codeFEntityItem['FEntryStockID'] = {
+                    "FNUMBER": this.hobby[i][4]['value']['value']
+                  };
                   codeModel['FPackageSpec'] = this.hobby[i][1]['value']['value'];
                   if (this.hobby[i][6]['value']['hide']) {
                     codeModel['FStockLocNumberH'] = this.hobby[i][6]['value']['value'];
@@ -2602,13 +2634,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                   codeFEntityItem['FBillDate'] = FDate;
                   codeFEntityItem['FInQty'] = itemCode[1];
                   codeFEntityItem['FEntryBillNo'] = orderDate[0][0];
-                  codeFEntityItem['FEntryStockID'] = {
-                    "FNUMBER": this.hobby[i][4]['value']['value']
-                  };
                   var codeFEntity = [codeFEntityItem];
                   codeModel['FEntity'] = codeFEntity;
                   orderCodeMap['Model'] = codeModel;
                   dataCodeMap['data'] = orderCodeMap;
+                  var saveData = jsonEncode(dataCodeMap);
                   String codeRes = await SubmitEntity.save(dataCodeMap);
                   var barcodeRes = jsonDecode(codeRes);
                   if (!barcodeRes['Result']['ResponseStatus']
@@ -2708,7 +2738,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           FEntityItem['FSrcInterId'] = orderDate[0][18];
           FEntityItem['FSrcEntrySeq'] = this.hobby[entryIndex][0]['FEntity_FSeq'];
           FEntityItem['FSrcEntryId'] = orderDate[0][5];
-          //FEntityItem['FBFLowId'] = this.hobby[entryIndex][0]['FBFLowId'];
+          FEntityItem['FBFLowId'] = {"FID": this.hobby[entryIndex][0]['FBFLowId']};
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FStockUnitId']};
@@ -2723,6 +2753,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             {
               "FEntity_Link_FRuleId": "PRD_MORPT2INSTOCK",
               "FEntity_Link_FSTableName": "T_PRD_MORPTENTRY",
+              "FEntity_Link_FFlowId": this.hobby[entryIndex][0]['FBFLowId'],
+              "FEntity_Link_FFlowLineId": "3",
               "FEntity_Link_FSBillId": this.hobby[entryIndex][0]['FID'],
               "FEntity_Link_FSId": this.hobby[entryIndex][0]['FEntryID'],
               "FEntity_Link_FBasePrdRealQty": element[3]['value']['value']
@@ -3026,6 +3058,50 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       divider,
                     ],
                   ),*/
+                  _item('调入仓库', this.stockList, this.storehouseName,
+                      'storehouse'),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: showPosition,
+                    child: Column(children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                            title: Text('调入仓位：' +
+                                this.storingLocationName.toString()),
+                            trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: new Icon(Icons.filter_center_focus),
+                                    tooltip: '点击扫描',
+                                    onPressed: () {
+                                      this._textNumber.text = this
+                                          .storingLocationName
+                                          .toString();
+                                      this._FNumber = this
+                                          .storingLocationName
+                                          .toString();
+                                      checkItem = 'HPoc';
+                                      this.show = false;
+                                      scanDialog();
+                                      if (this.storingLocationName != "") {
+                                        this._textNumber.value =
+                                            _textNumber.value.copyWith(
+                                              text: this
+                                                  .storingLocationName
+                                                  .toString(),
+                                            );
+                                      }
+                                    },
+                                  ),
+                                ])),
+                      ),
+                      divider,
+                    ]),
+                  ),
                   Column(
                     children: [
                       Container(
