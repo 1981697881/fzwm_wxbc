@@ -260,7 +260,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockQty,FGiveAway,FOrderBillNo,FSrcEntryId';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -388,7 +388,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       });
       setState(() {
         EasyLoading.dismiss();
-        getStockList();
+
         this._getHobby();
       });
     } else {
@@ -398,6 +398,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+    getStockList();
     /*_onEvent("11052;20240709穗昌隆   品牌：益海;2024-07-09;10637;,1127086795;2");
     _onEvent("13111;G20240108科曼斯/长舟;2024-01-08;3361;,1453248587;2");*/
   }
@@ -1240,6 +1241,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 showPosition = stockListObj[elementIndex][3];
                 this.storingLocationName = "";
                 this.storingLocationNumber = "";
+                for(var hItem in this.hobby){
+                  if(hItem[4]['value']['value'] == ""){
+                    hItem[4]['value']['label'] = storehouseName;
+                    hItem[4]['value']['value'] = storehouseNumber;
+                    hItem[6]['value']['hide'] = showPosition;
+                  }
+                }
               }
               elementIndex++;
             });
@@ -1777,7 +1785,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: this.hobby[checkData][checkDataChild]["title"]=="批号"? TextInputType.text: TextInputType.number,
+                              keyboardType: checkItem == "HPoc"?TextInputType.text:(this.hobby[checkData][checkDataChild]["title"]=="批号"? TextInputType.text: TextInputType.number),
                               /*inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
                           ],*/
@@ -1797,194 +1805,203 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         onPressed: () {
                           // 关闭 Dialog
                           setState(() {
-                            if(this.hobby[checkData][checkDataChild]["title"]=="实收数量"){
-                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['rateValue']){
-                                this.hobby[checkData][checkDataChild]["value"]
-                                ["label"] = _FNumber;
-                                this.hobby[checkData][checkDataChild]['value']
-                                ["value"] = _FNumber;
-                                Navigator.pop(context);
-                              }else{
-                                ToastUtil.showInfo('输入数量大于可用数量');
+                            if(checkItem == "HPoc"){
+                              this.storingLocationName = _FNumber;
+                              this.storingLocationNumber = _FNumber;
+                              for(var hItem in this.hobby){
+                                if(hItem[6]['value']['hide'] &&  hItem[6]['value']['value'] == ""){
+                                  hItem[6]['value']['label'] = storingLocationName;
+                                  hItem[6]['value']['value'] = storingLocationNumber;
+                                }
                               }
-                            }else if(checkItem == 'position'){
-                              //录入仓位个数
-                              var positionList = _FNumber.split(",");
-                              if(positionList.length>1){
-                                positionList = positionList.toSet().toList();
-                                //输入数量除于包装规格，等于基础分录个数
-                                var lineSplit = (double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''))).ceil();
-                                if(this.hobby[checkData][1]["value"]["label"] != "" && this.hobby[checkData][3]["value"]["label"] != ""){
-                                  if(double.parse(this.hobby[checkData][3]["value"]["label"])>double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', '')) && double.parse(this.hobby[checkData][3]["value"]["label"]) > positionList.length){
-                                    //判断以那个条件做拆分
-                                    var splitNum = 0;
-                                    if(positionList.length>lineSplit){
-                                      splitNum = lineSplit;
-                                    }else{
-                                      splitNum = positionList.length;
-                                    }
-                                    //包装规格转换为数值，以便计算
-                                    var packaging = double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''));
-                                    //计算每个分录分配数量 默认为包装规格数量(前置条件为：入库数量必须大于包装规格)
-                                    var itemNum = double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''));
-                                    //输入的入库数量
-                                    var inventoryQuantity = double.parse(this.hobby[checkData][3]["value"]["label"]);
-
-                                    this.hobby[checkData][3]["value"]["label"] = packaging.toString();
-                                    this.hobby[checkData][3]["value"]["value"] = packaging.toString();
-                                    this.hobby[checkData][9]["value"]['label']=double.parse(this.hobby[checkData][3]["value"]["value"]);
-                                    this.hobby[checkData][9]["value"]['value']=double.parse(this.hobby[checkData][3]["value"]["value"]);
-                                    this.hobby[checkData][9]["value"]['rateValue']=double.parse(this.hobby[checkData][3]["value"]["value"]);
-                                    this.hobby[checkData][checkDataChild]["value"]["label"] = positionList[0];
-                                    this.hobby[checkData][checkDataChild]['value']["value"] = positionList[0];
-                                    for(var i=1;i<splitNum;i++){
-                                      var orderDataItem = List.from(this.orderDate);
-                                      this.orderDate.insert(checkData, orderDataItem[checkData]);
-                                      this.fNumber = [];
-                                      var childItemNumber = 0;
-                                      for(var value in orderDate){
-                                        fNumber.add(value[5]);
-                                        print(childItemNumber);
-                                        print(i);
-                                        if(childItemNumber == checkData){
-                                          List arr = [];
-                                          arr.add({
-                                            "title": "物料名称",
-                                            "name": "FMaterial",
-                                            "FBaseUnitID": value[17],
-                                            "FSRCBILLTYPEID": value[24],
-                                            "FSRCBillNo": value[0],
-                                            "FPOQTY": value[12],
-                                            "FPOOrderNo": value[0],
-                                            "FTaxPrice": value[18],
-                                            "FEntryTaxRate": value[19],
-                                            "FNote": value[23],
-                                            "FID": value[14],
-                                            "FEntryId": value[4],
-                                            "FGiveAway": value[29],
-                                            "FOrderBillNo": value[30],
-                                            "FSrcEntryId": value[31],
-                                            "isHide": false,
-                                            "value": {
-                                              "label": value[6] + "- (" + value[5] + ")",
-                                              "value": value[5],
-                                              "barcode": [],
-                                              "kingDeeCode": [],
-                                              "scanCode": []
-                                            }
-                                          });
-                                          arr.add({
-                                            "title": "包装规格",
-                                            "isHide": false,
-                                            "name": "FMaterialIdFSpecification",
-                                            "value": {"label": this.hobby[checkData][1]["value"]["label"], "value": this.hobby[checkData][1]["value"]["value"]}
-                                            //"value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
-                                          });
-                                          arr.add({
-                                            "title": "单位名称",
-                                            "name": "FUnitId",
-                                            "isHide": false,
-                                            "value": {"label": value[11], "value": value[10]}
-                                          });
-                                          arr.add({
-                                            "title": "实收数量",
-                                            "name": "FRealQty",
-                                            "isHide": false,
-                                            /*value[12]*/
-                                            "value": {"label": (inventoryQuantity - itemNum > packaging ? packaging: inventoryQuantity - itemNum).toString(), "value": (inventoryQuantity - itemNum > packaging ? packaging: inventoryQuantity - itemNum).toString()}
-                                          });
-                                          arr.add({
-                                            "title": "仓库",
-                                            "name": "FStockID",
-                                            "isHide": false,
-                                            "value": {"label": this.hobby[checkData][4]["value"]["label"], "value": this.hobby[checkData][4]["value"]["value"]}
-                                          });
-                                          arr.add({
-                                            "title": "批号",
-                                            "name": "FLot",
-                                            "isHide": value[15] != true,
-                                            "value": {"label": this.hobby[checkData][5]["value"]["label"], "value": this.hobby[checkData][5]["value"]["label"]}
-                                          });
-                                          arr.add({
-                                            "title": "仓位",
-                                            "name": "FStockLocID",
-                                            "isHide": false,
-                                            "value": {"label": positionList[i], "value": positionList[i], "hide": true}
-                                          });
-                                          arr.add({
-                                            "title": "操作",
-                                            "name": "",
-                                            "isHide": false,
-                                            "value": {"label": "", "value": ""}
-                                          });
-                                          arr.add({
-                                            "title": "库存单位",
-                                            "name": "",
-                                            "isHide": true,
-                                            "value": {"label": value[18], "value": value[18]}
-                                          });
-                                          arr.add({
-                                            "title": "实到数量",
-                                            "name": "",
-                                            "isHide": false,
-                                            "value": {
-                                              "label": double.parse(arr[3]["value"]["value"]),
-                                              "value": double.parse(arr[3]["value"]["value"]),
-                                              "rateValue": double.parse(arr[3]["value"]["value"])
-                                            } /*+value[12]*0.1*/
-                                          });
-                                          arr.add({
-                                            "title": "最后扫描数量",
-                                            "name": "FLastQty",
-                                            "isHide": true,
-                                            "value": {"label": "0", "value": "0"}
-                                          });
-                                          arr.add({
-                                            "title": "生产日期",
-                                            "name": "FProduceDate",
-                                            "isHide": false,
-                                            "value": {"label": value[26].substring(0,10), "value": value[26].substring(0,10)}
-                                          });
-                                          if(inventoryQuantity - itemNum > packaging){
-                                            itemNum = (itemNum* 100 + packaging* 100)/100;
-                                          }else{
-                                            itemNum = (itemNum* 100 + inventoryQuantity* 100 - itemNum* 100)/100;
-                                          }
-                                          hobby.insert(i, arr);
-                                          break;
-                                        }
-                                        childItemNumber++;
+                              Navigator.pop(context);
+                            }else{
+                              if(this.hobby[checkData][checkDataChild]["title"]=="实收数量"){
+                                if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['rateValue']){
+                                  this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
+                                  Navigator.pop(context);
+                                }else{
+                                  ToastUtil.showInfo('输入数量大于可用数量');
+                                }
+                              }else if(checkItem == 'position'){
+                                //录入仓位个数
+                                var positionList = _FNumber.split(",");
+                                if(positionList.length>1){
+                                  positionList = positionList.toSet().toList();
+                                  //输入数量除于包装规格，等于基础分录个数
+                                  var lineSplit = (double.parse(this.hobby[checkData][3]["value"]["label"]) / double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''))).ceil();
+                                  if(this.hobby[checkData][1]["value"]["label"] != "" && this.hobby[checkData][3]["value"]["label"] != ""){
+                                    if(double.parse(this.hobby[checkData][3]["value"]["label"])>double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', '')) && double.parse(this.hobby[checkData][3]["value"]["label"]) > positionList.length){
+                                      //判断以那个条件做拆分
+                                      var splitNum = 0;
+                                      if(positionList.length>lineSplit){
+                                        splitNum = lineSplit;
+                                      }else{
+                                        splitNum = positionList.length;
                                       }
+                                      //包装规格转换为数值，以便计算
+                                      var packaging = double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''));
+                                      //计算每个分录分配数量 默认为包装规格数量(前置条件为：入库数量必须大于包装规格)
+                                      var itemNum = double.parse(this.hobby[checkData][1]["value"]["label"].toString().replaceAll('kg', ''));
+                                      //输入的入库数量
+                                      var inventoryQuantity = double.parse(this.hobby[checkData][3]["value"]["label"]);
+
+                                      this.hobby[checkData][3]["value"]["label"] = packaging.toString();
+                                      this.hobby[checkData][3]["value"]["value"] = packaging.toString();
+                                      this.hobby[checkData][9]["value"]['label']=double.parse(this.hobby[checkData][3]["value"]["value"]);
+                                      this.hobby[checkData][9]["value"]['value']=double.parse(this.hobby[checkData][3]["value"]["value"]);
+                                      this.hobby[checkData][9]["value"]['rateValue']=double.parse(this.hobby[checkData][3]["value"]["value"]);
+                                      this.hobby[checkData][checkDataChild]["value"]["label"] = positionList[0];
+                                      this.hobby[checkData][checkDataChild]['value']["value"] = positionList[0];
+                                      for(var i=1;i<splitNum;i++){
+                                        var orderDataItem = List.from(this.orderDate);
+                                        this.orderDate.insert(checkData, orderDataItem[checkData]);
+                                        this.fNumber = [];
+                                        var childItemNumber = 0;
+                                        for(var value in orderDate){
+                                          fNumber.add(value[5]);
+                                          print(childItemNumber);
+                                          print(i);
+                                          if(childItemNumber == checkData){
+                                            List arr = [];
+                                            arr.add({
+                                              "title": "物料名称",
+                                              "name": "FMaterial",
+                                              "FBaseUnitID": value[17],
+                                              "FSRCBILLTYPEID": value[24],
+                                              "FSRCBillNo": value[0],
+                                              "FPOQTY": value[12],
+                                              "FPOOrderNo": value[0],
+                                              "FTaxPrice": value[18],
+                                              "FEntryTaxRate": value[19],
+                                              "FNote": value[23],
+                                              "FID": value[14],
+                                              "FEntryId": value[4],
+                                              "FGiveAway": value[29],
+                                              "FOrderBillNo": value[30],
+                                              "FSrcEntryId": value[31],
+                                              "isHide": false,
+                                              "value": {
+                                                "label": value[6] + "- (" + value[5] + ")",
+                                                "value": value[5],
+                                                "barcode": [],
+                                                "kingDeeCode": [],
+                                                "scanCode": []
+                                              }
+                                            });
+                                            arr.add({
+                                              "title": "包装规格",
+                                              "isHide": false,
+                                              "name": "FMaterialIdFSpecification",
+                                              "value": {"label": this.hobby[checkData][1]["value"]["label"], "value": this.hobby[checkData][1]["value"]["value"]}
+                                              //"value": {"label": value[25]==null?"":value[25], "value": value[25]==null?"":value[25]}
+                                            });
+                                            arr.add({
+                                              "title": "单位名称",
+                                              "name": "FUnitId",
+                                              "isHide": false,
+                                              "value": {"label": value[11], "value": value[10]}
+                                            });
+                                            arr.add({
+                                              "title": "实收数量",
+                                              "name": "FRealQty",
+                                              "isHide": false,
+                                              /*value[12]*/
+                                              "value": {"label": (inventoryQuantity - itemNum > packaging ? packaging: inventoryQuantity - itemNum).toString(), "value": (inventoryQuantity - itemNum > packaging ? packaging: inventoryQuantity - itemNum).toString()}
+                                            });
+                                            arr.add({
+                                              "title": "仓库",
+                                              "name": "FStockID",
+                                              "isHide": false,
+                                              "value": {"label": this.hobby[checkData][4]["value"]["label"], "value": this.hobby[checkData][4]["value"]["value"]}
+                                            });
+                                            arr.add({
+                                              "title": "批号",
+                                              "name": "FLot",
+                                              "isHide": value[15] != true,
+                                              "value": {"label": this.hobby[checkData][5]["value"]["label"], "value": this.hobby[checkData][5]["value"]["label"]}
+                                            });
+                                            arr.add({
+                                              "title": "仓位",
+                                              "name": "FStockLocID",
+                                              "isHide": false,
+                                              "value": {"label": positionList[i], "value": positionList[i], "hide": true}
+                                            });
+                                            arr.add({
+                                              "title": "操作",
+                                              "name": "",
+                                              "isHide": false,
+                                              "value": {"label": "", "value": ""}
+                                            });
+                                            arr.add({
+                                              "title": "库存单位",
+                                              "name": "",
+                                              "isHide": true,
+                                              "value": {"label": value[18], "value": value[18]}
+                                            });
+                                            arr.add({
+                                              "title": "实到数量",
+                                              "name": "",
+                                              "isHide": false,
+                                              "value": {
+                                                "label": double.parse(arr[3]["value"]["value"]),
+                                                "value": double.parse(arr[3]["value"]["value"]),
+                                                "rateValue": double.parse(arr[3]["value"]["value"])
+                                              } /*+value[12]*0.1*/
+                                            });
+                                            arr.add({
+                                              "title": "最后扫描数量",
+                                              "name": "FLastQty",
+                                              "isHide": true,
+                                              "value": {"label": "0", "value": "0"}
+                                            });
+                                            arr.add({
+                                              "title": "生产日期",
+                                              "name": "FProduceDate",
+                                              "isHide": false,
+                                              "value": {"label": value[26].substring(0,10), "value": value[26].substring(0,10)}
+                                            });
+                                            if(inventoryQuantity - itemNum > packaging){
+                                              itemNum = (itemNum* 100 + packaging* 100)/100;
+                                            }else{
+                                              itemNum = (itemNum* 100 + inventoryQuantity* 100 - itemNum* 100)/100;
+                                            }
+                                            hobby.insert(i, arr);
+                                            break;
+                                          }
+                                          childItemNumber++;
+                                        }
+                                      }
+                                      this._getHobby();
+                                      //数量超出分录行数，需再循环累加数量至分录
+                                      this.insertItemNum(checkData,itemNum,splitNum,packaging,inventoryQuantity);
+                                      Navigator.pop(context);
+                                    }else{
+                                      ToastUtil.showInfo('输入数量必须大于库位个数和包装规格，否则不允许拆分');
                                     }
-                                    this._getHobby();
-                                    //数量超出分录行数，需再循环累加数量至分录
-                                    this.insertItemNum(checkData,itemNum,splitNum,packaging,inventoryQuantity);
-                                    Navigator.pop(context);
                                   }else{
-                                    ToastUtil.showInfo('输入数量必须大于库位个数和包装规格，否则不允许拆分');
+                                    ToastUtil.showInfo('入库数量和包装规格需提前录入,否则无法拆分行');
+                                    Navigator.pop(context);
                                   }
                                 }else{
-                                  ToastUtil.showInfo('入库数量和包装规格需提前录入,否则无法拆分行');
                                   Navigator.pop(context);
+                                  this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                                  this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
                                 }
                               }else{
                                 Navigator.pop(context);
+                                print(this.orderDate);
+                                print(this.hobby);
                                 this.hobby[checkData][checkDataChild]["value"]
                                 ["label"] = _FNumber;
                                 this.hobby[checkData][checkDataChild]['value']
                                 ["value"] = _FNumber;
                               }
-                            }else if(checkItem == "HPoc"){
-                              this.storingLocationName = _FNumber;
-                              this.storingLocationNumber = _FNumber;
-                            }else{
-                              Navigator.pop(context);
-                              print(this.orderDate);
-                              print(this.hobby);
-                              this.hobby[checkData][checkDataChild]["value"]
-                              ["label"] = _FNumber;
-                              this.hobby[checkData][checkDataChild]['value']
-                              ["value"] = _FNumber;
                             }
                             checkItem = '';
                           });
@@ -2309,7 +2326,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               fSerialSub.add(subObj);
             }
             FEntityItem['FOwnerId'] = {"FNumber": this.fOrgID};
-            FEntityItem['FSRCBILLTYPEID'] = element[0]['FSRCBILLTYPEID'];
+            FEntityItem['FWWInType'] = "QLI";
+            FEntityItem['FSRCBILLTYPEID'] = "PUR_ReceiveBill";
             FEntityItem['FSRCBillNo'] = element[0]['FSRCBillNo'];
             //FEntityItem['FPOQTY'] = orderDate[hobbyIndex][12];
             FEntityItem['FPOORDERENTRYID'] = element[0]['FSrcEntryId'];

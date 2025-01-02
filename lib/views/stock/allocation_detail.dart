@@ -1392,6 +1392,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 showPosition = stockListObj[elementIndex][3];
                 this.storingLocationName = "";
                 this.storingLocationNumber = "";
+                for(var hItem in this.hobby){
+                  if(hItem[8]['value']['value'] == ""){
+                    hItem[8]['value']['label'] = storehouseName;
+                    hItem[8]['value']['value'] = storehouseNumber;
+                    hItem[9]['value']['hide'] = showPosition;
+                  }
+                }
               }
               elementIndex++;
             });
@@ -1704,6 +1711,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             }else if(checkItem == "HPoc"){
                               this.storingLocationName = _FNumber;
                               this.storingLocationNumber = _FNumber;
+                              for(var hItem in this.hobby){
+                                if(hItem[9]['value']['hide'] &&  hItem[9]['value']['value'] == ""){
+                                  hItem[9]['value']['label'] = storingLocationName;
+                                  hItem[9]['value']['value'] = storingLocationNumber;
+                                }
+                              }
                             }else{
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;

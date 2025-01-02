@@ -1534,6 +1534,13 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                 showPosition = stockListObj[elementIndex][3];
                 this.storingLocationName = "";
                 this.storingLocationNumber = "";
+                for(var hItem in this.hobby){
+                  if(hItem[4]['value']['value'] == ""){
+                    hItem[4]['value']['label'] = storehouseName;
+                    hItem[4]['value']['value'] = storehouseNumber;
+                    hItem[6]['value']['hide'] = showPosition;
+                  }
+                }
               }
               elementIndex++;
             });
@@ -2019,7 +2026,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                             child: Column(children: <Widget>[
                           TextField(
                             style: TextStyle(color: Colors.black87),
-                            keyboardType: this.hobby[checkData][checkDataChild]["title"]=="批号"? TextInputType.text: TextInputType.number,
+                            keyboardType: checkItem == "HPoc"?TextInputType.text:(this.hobby[checkData][checkDataChild]["title"]=="批号"? TextInputType.text: TextInputType.number),
                             /*inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
                             ],*/
@@ -2066,8 +2073,16 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               ["value"] = _FNumber;
                             });
                           }else if(checkItem == "HPoc"){
-                            this.storingLocationName = _FNumber;
-                            this.storingLocationNumber = _FNumber;
+                            setState(() {
+                              this.storingLocationName = _FNumber;
+                              this.storingLocationNumber = _FNumber;
+                              for(var hItem in this.hobby){
+                                if(hItem[6]['value']['hide'] &&  hItem[6]['value']['value'] == ""){
+                                  hItem[6]['value']['label'] = storingLocationName;
+                                  hItem[6]['value']['value'] = storingLocationNumber;
+                                }
+                              }
+                            });
                           }
                           checkItem = '';
                         },
@@ -2721,11 +2736,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
           element[4]['value']['value'] != '') {
         Map<String, dynamic> FEntityItem = Map();
-
+        FEntityItem['FEntryID'] = element[0]['FEntryID'];
         var entryIndex;
         if(element[0]['FEntryID'] == 0){
           entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
           FEntityItem['FIsNew'] = false;
+          FEntityItem['FIsFinished'] = false;
           FEntityItem['FMoBillNo'] = this.hobby[entryIndex][0]['FMoBillNo'];
           FEntityItem['FMoId'] = this.hobby[entryIndex][0]['FMoId'];
           FEntityItem['FMOMAINENTRYID'] = this.hobby[entryIndex][0]['FMoEntryId'];
@@ -2738,7 +2754,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           FEntityItem['FSrcInterId'] = orderDate[0][18];
           FEntityItem['FSrcEntrySeq'] = this.hobby[entryIndex][0]['FEntity_FSeq'];
           FEntityItem['FSrcEntryId'] = orderDate[0][5];
-          FEntityItem['FBFLowId'] = {"FID": this.hobby[entryIndex][0]['FBFLowId']};
+
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockUnitId'] = {"FNumber": this.hobby[entryIndex][0]['FStockUnitId']};
@@ -2760,10 +2776,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               "FEntity_Link_FBasePrdRealQty": element[3]['value']['value']
             }
           ];
-        }else{
-          FEntityItem['FEntryID'] = element[0]['FEntryID'];
+          FEntityItem['FBFLowId'] = {"FID": this.hobby[entryIndex][0]['FBFLowId']};
         }
         //FEntityItem['FInStockType'] = '1';
+        FEntityItem['FBasePrdRealQty'] = element[3]['value']['value'];
         FEntityItem['FRealQty'] = element[3]['value']['value'];
         if(element[0]['FIsKFPeriod']){
           FEntityItem['FProduceDate'] = element[8]['value']['value'];

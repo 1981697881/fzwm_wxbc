@@ -78,32 +78,32 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FActlandQty >0";
+    userMap['FilterString'] = "FActReceiveQty-FInStockJoinQty>0";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FPreDeliveryDate >= '$startDate' and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPreDeliveryDate  <= '$endDate'";
+      "FActReceiveQty-FInStockJoinQty>0 and FPreDeliveryDate >= '$startDate' and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPreDeliveryDate  <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+        "FActReceiveQty-FInStockJoinQty>0 and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =/*and FActlandQty>0*/
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+        "FActReceiveQty-FInStockJoinQty>0 and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or F_UUAC_BaseProperty1 like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36); 
           userMap['FilterString'] =
-          "FPreDeliveryDate >= '$startDate' and FDocumentStatus = 'C' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
+          "FActReceiveQty-FInStockJoinQty>0 and FPreDeliveryDate >= '$startDate' and FDocumentStatus = 'C' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
         }else{
           userMap['FilterString'] =/*and FActlandQty>0*/
-          "FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+          "FActReceiveQty-FInStockJoinQty>0 and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
         }
       }
     }
@@ -112,7 +112,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     userMap['Limit'] = '20';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockQty';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
