@@ -226,7 +226,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
   //获取订单信息
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
+    userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq' and FPickedQty>0";
     userMap['FormId'] = 'PRD_PPBOM';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
@@ -319,7 +319,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
           "value": {"label": value[17], "value": value[16]}
         });
         arr.add({
-          "title": "用量",
+          "title": "可退数量",
           "name": "FPrdOrgId",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -387,7 +387,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FPackageSpec';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FPackageSpec,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -408,7 +408,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
           };
           if(msg ==  ""){
             _code = event;
-            this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10));
+            this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
             print("ChannelPage: $event");
           }else{
             ToastUtil.showInfo(msg);
@@ -418,13 +418,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
         }
       } else {
         _code = event;
-        this.getMaterialList("", _code,"","","");
+        this.getMaterialList("", _code,"","","","",false);
         print("ChannelPage: $event");
       }
     }
     print("ChannelPage: $event");
   }
-  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -500,6 +500,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                     element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                   }
+                  if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
                     element[1]['value']['value'] =barcodeData[0][14] == null? "":barcodeData[0][14];
@@ -542,6 +549,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     if (element[4]['value']['value'] == "") {
                       element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                       element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                    }
+                    if(fIsOpenLocation){
+                      element[6]['value']['hide'] = fIsOpenLocation;
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = fLoc == null? "":fLoc;
+                        element[6]['value']['value'] =fLoc == null? "":fLoc;
+                      }
                     }
                     if (element[1]['value']['value'] == "") {
                       element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
@@ -662,6 +676,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
                     element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                     element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                   }
+                  if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
                     element[1]['value']['value'] =barcodeData[0][14] == null? "":barcodeData[0][14];
@@ -710,6 +731,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
                       if (element[4]['value']['value'] == "") {
                         element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                         element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                      }
+                      if(fIsOpenLocation){
+                        element[6]['value']['hide'] = fIsOpenLocation;
+                        if (element[6]['value']['value'] == "") {
+                          element[6]['value']['label'] = fLoc == null? "":fLoc;
+                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                        }
                       }
                       if (element[1]['value']['value'] == "") {
                         element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
@@ -829,6 +857,13 @@ class _ReturnDetailState extends State<ReturnDetail> {
                         if (element[4]['value']['value'] == "") {
                           element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                           element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                        }
+                        if(fIsOpenLocation){
+                          element[6]['value']['hide'] = fIsOpenLocation;
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = fLoc == null? "":fLoc;
+                            element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          }
                         }
                         if (element[1]['value']['value'] == "") {
                           element[1]['value']['label'] = barcodeData[0][14] == null? "":barcodeData[0][14];
@@ -1025,8 +1060,8 @@ class _ReturnDetailState extends State<ReturnDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockLocID",
-            "isHide": true,
-            "value": {"label": "", "value": "", "hide": false}
+            "isHide": false,
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",
@@ -1041,10 +1076,10 @@ class _ReturnDetailState extends State<ReturnDetail> {
             "value": {"label": value[4], "value": value[5]}
           });
           arr.add({
-            "title": "用量",
+            "title": "可退数量",
             "name": "FPrdOrgId",
             "isHide": false,
-            "value": {"label": surplus, "value": surplus}
+            "value": {"label": inserNum, "value": inserNum}
           });
           arr.add({
             "title": "最后扫描数量",

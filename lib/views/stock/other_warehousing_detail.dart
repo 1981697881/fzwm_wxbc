@@ -375,19 +375,19 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
           _code = event;
-          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
+          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13], barcodeData[0][14]);
           print("ChannelPage: $event");
         }else{
           ToastUtil.showInfo('条码不在条码清单中');
         }
       }else{
         _code = event;
-        this.getMaterialList("",_code, "", "");
+        this.getMaterialList("",_code, "", "","",false);
         print("ChannelPage: $event");
       }
     }
   }
-  getMaterialList(barcodeData,code, fsn, fAuxPropId) async {
+  getMaterialList(barcodeData,code, fsn, fAuxPropId, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -424,6 +424,21 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               if(scanCode.length>4){
                 element[0]['value']['barcode'].add(code);
               }
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if(fIsOpenLocation){
+                element[6]['value']['hide'] = fIsOpenLocation;
+                if (element[6]['value']['value'] == "") {
+                  element[6]['value']['label'] = fLoc == null? "":fLoc;
+                  element[6]['value']['value'] =fLoc == null? "":fLoc;
+                }
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               //判断条码数量
               if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                 //判断条码是否重复
@@ -449,6 +464,21 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         }else{//启用批号
           if(element[0]['value']['value'] == scanCode[0]){
             if(element[0]['value']['barcode'].indexOf(code) == -1){
+              if (element[4]['value']['value'] == "") {
+                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+              }
+              if(fIsOpenLocation){
+                element[6]['value']['hide'] = fIsOpenLocation;
+                if (element[6]['value']['value'] == "") {
+                  element[6]['value']['label'] = fLoc == null? "":fLoc;
+                  element[6]['value']['value'] =fLoc == null? "":fLoc;
+                }
+              }
+              if (element[1]['value']['value'] == "") {
+                element[1]['value']['label'] = barcodeData[0][12] == null? "":barcodeData[0][12];
+                element[1]['value']['value'] =barcodeData[0][12] == null? "":barcodeData[0][12];
+              }
               if(element[5]['value']['value'] == scanCode[1]){
                 //判断是否可重复扫码
                 if(scanCode.length>4){
@@ -1132,7 +1162,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                           Navigator.pop(context);
                           setState(() {
                             if(checkItem=="FLastQty"){
-                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
+                              //if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
                                 if(this.hobby[checkData][0]['value']['kingDeeCode'].length >0){
                                   var kingDeeCode =this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length-1].split("-");
                                   var realQty = 0.0;
@@ -1155,9 +1185,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                                 }else{
                                   ToastUtil.showInfo('无条码信息，输入失败');
                                 }
-                              }else{
+                              /*}else{
                                 ToastUtil.showInfo('输入数量大于可用数量');
-                              }
+                              }*/
                             }else{
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;

@@ -374,7 +374,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FPackageSpec';
+            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FProduceDate,FExpiryDate,FPackageSpec,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -386,13 +386,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               barcodeData[0][10],
               barcodeData[0][11],
               barcodeData[0][12].substring(0, 10),
-              barcodeData[0][13].substring(0, 10));
+              barcodeData[0][13].substring(0, 10),barcodeData[0][15],barcodeData[0][16]);
         } else {
           ToastUtil.showInfo('条码不在条码清单中');
         }
       } else {
         _code = event;
-        this.getMaterialList("", _code, "", "", "");
+        this.getMaterialList("", _code, "", "", "", "",false);
         print("ChannelPage: $event");
       }
     }
@@ -406,7 +406,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate) async {
+  getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -514,6 +514,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                     element[4]['value']['value'] =
                         barcodeData[0][7] == null ? "" : barcodeData[0][7];
                   }
+                  if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] =
                         barcodeData[0][14] == null ? "" : barcodeData[0][14];
@@ -567,6 +574,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                           barcodeData[0][6] == null ? "" : barcodeData[0][6];
                       element[4]['value']['value'] =
                           barcodeData[0][7] == null ? "" : barcodeData[0][7];
+                    }
+                    if(fIsOpenLocation){
+                      element[6]['value']['hide'] = fIsOpenLocation;
+                      if (element[6]['value']['value'] == "") {
+                        element[6]['value']['label'] = fLoc == null? "":fLoc;
+                        element[6]['value']['value'] =fLoc == null? "":fLoc;
+                      }
                     }
                     if (element[1]['value']['value'] == "") {
                       element[1]['value']['label'] =
@@ -701,6 +715,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                     element[4]['value']['value'] =
                         barcodeData[0][7] == null ? "" : barcodeData[0][7];
                   }
+                  if(fIsOpenLocation){
+                    element[6]['value']['hide'] = fIsOpenLocation;
+                    if (element[6]['value']['value'] == "") {
+                      element[6]['value']['label'] = fLoc == null? "":fLoc;
+                      element[6]['value']['value'] =fLoc == null? "":fLoc;
+                    }
+                  }
                   if (element[1]['value']['value'] == "") {
                     element[1]['value']['label'] =
                         barcodeData[0][14] == null ? "" : barcodeData[0][14];
@@ -759,6 +780,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                             barcodeData[0][6] == null ? "" : barcodeData[0][6];
                         element[4]['value']['value'] =
                             barcodeData[0][7] == null ? "" : barcodeData[0][7];
+                      }
+                      if(fIsOpenLocation){
+                        element[6]['value']['hide'] = fIsOpenLocation;
+                        if (element[6]['value']['value'] == "") {
+                          element[6]['value']['label'] = fLoc == null? "":fLoc;
+                          element[6]['value']['value'] =fLoc == null? "":fLoc;
+                        }
                       }
                       if (element[1]['value']['value'] == "") {
                         element[1]['value']['label'] =
@@ -899,6 +927,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                               barcodeData[0][7] == null
                                   ? ""
                                   : barcodeData[0][7];
+                        }
+                        if(fIsOpenLocation){
+                          element[6]['value']['hide'] = fIsOpenLocation;
+                          if (element[6]['value']['value'] == "") {
+                            element[6]['value']['label'] = fLoc == null? "":fLoc;
+                            element[6]['value']['value'] =fLoc == null? "":fLoc;
+                          }
                         }
                         if (element[1]['value']['value'] == "") {
                           element[1]['value']['label'] =
@@ -1127,8 +1162,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockLocID",
-            "isHide": true,
-            "value": {"label": "", "value": "", "hide": false}
+            "isHide": false,
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",
@@ -1509,7 +1544,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                 divider,
               ]),
             );
-          } else if (j == 6) {
+          } /*else if (j == 6) {
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1558,7 +1593,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                 ]),
               ),
             );
-          } else if (j == 7) {
+          }*/ else if (j == 7) {
             comList.add(
               Column(children: [
                 Container(
@@ -1711,7 +1746,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                           Navigator.pop(context);
                           setState(() {
                             if (checkItem == "FLastQty") {
-                              if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
+                              //if(double.parse(_FNumber) <= this.hobby[checkData][9]["value"]['value']){
                                 if (double.parse(_FNumber) <=
                                     double.parse(this.hobby[checkData]
                                     [checkDataChild]["value"]
@@ -1819,9 +1854,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                                 } else {
                                   ToastUtil.showInfo('输入数量大于条码可用数量');
                                 }
-                              }else{
+                              /*}else{
                                 ToastUtil.showInfo('输入数量大于可用数量');
-                              }
+                              }*/
 
                             } else {
                               this.hobby[checkData][checkDataChild]["value"]

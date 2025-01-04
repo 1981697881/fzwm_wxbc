@@ -478,7 +478,7 @@ class _PickingDetailState extends State<PickingDetail> {
         arr.add({
           "title": "仓位",
           "name": "FStockLocID",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": "", "value": "", "hide": false}
         });
         arr.add({
@@ -878,15 +878,15 @@ class _PickingDetailState extends State<PickingDetail> {
                               .toString();
                       element[3]['value']['value'] =
                           element[3]['value']['label'];
-                      residue = (residue * 100 -
+                      residue = (residue * 1000 -
                               double.parse(element[10]['value']['value']) *
-                                  100) /
-                          100;
+                                  1000) /
+                          1000;
                       element[0]['value']['surplus'] =
-                          (element[9]['value']['value'] * 100 -
+                          (element[9]['value']['value'] * 1000 -
                                   double.parse(element[3]['value']['value']) *
-                                      100) /
-                              100;
+                                      1000) /
+                              1000;
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                     } else {*/
@@ -909,10 +909,10 @@ class _PickingDetailState extends State<PickingDetail> {
                       element[3]['value']['label'];
                       residue = 0.0;
                       hobby[entryIndex][0]['value']['surplus'] =
-                          (hobby[entryIndex][9]['value']['value'] * 100 -
+                          (hobby[entryIndex][9]['value']['value'] * 1000 -
                               double.parse(element[3]['value']['value']) *
-                                  100) /
-                              100;
+                                  1000) /
+                              1000;
                       element[0]['value']['kingDeeCode'].add(item);
                       element[0]['value']['scanCode'].add(code);
                       number++;
@@ -934,15 +934,15 @@ class _PickingDetailState extends State<PickingDetail> {
                           .toString();
                       element[3]['value']['value'] =
                       element[3]['value']['label'];
-                      residue = (residue * 100 -
+                      residue = (residue * 1000 -
                           double.parse(element[10]['value']['value']) *
-                              100) /
-                          100;
+                              1000) /
+                          1000;
                       hobby[entryIndex][0]['value']['surplus'] =
-                          (hobby[entryIndex][9]['value']['value'] * 100 -
+                          (hobby[entryIndex][9]['value']['value'] * 1000 -
                               double.parse(element[3]['value']['value']) *
-                                  100) /
-                              100;
+                                  1000) /
+                              1000;
                       element[10]['value']['remainder'] = residue.toString();
                       element[10]['value']['representativeQuantity'] = barcodeQuantity;
                       element[0]['value']['kingDeeCode'].add(item);
@@ -1150,15 +1150,15 @@ class _PickingDetailState extends State<PickingDetail> {
                                 .toString();
                         element[3]['value']['value'] =
                             element[3]['value']['label'];
-                        residue = (residue * 100 -
+                        residue = (residue * 1000 -
                                 double.parse(element[10]['value']['value']) *
-                                    100) /
-                            100;
+                                    1000) /
+                            1000;
                         element[0]['value']['surplus'] =
-                            (element[9]['value']['value'] * 100 -
+                            (element[9]['value']['value'] * 1000 -
                                     double.parse(element[3]['value']['value']) *
-                                        100) /
-                                100;
+                                        1000) /
+                                1000;
                         ;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
@@ -1183,10 +1183,10 @@ class _PickingDetailState extends State<PickingDetail> {
                         residue = 0.0;
                         hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']
                         ['value'] *
-                            100 -
+                            1000 -
                             double.parse(element[3]['value']['value']) *
-                                100) /
-                            100;
+                                1000) /
+                            1000;
                         element[0]['value']['kingDeeCode'].add(item);
                         element[0]['value']['scanCode'].add(code);
                         number++;
@@ -1207,16 +1207,16 @@ class _PickingDetailState extends State<PickingDetail> {
                             .toString();
                         element[3]['value']['value'] =
                         element[3]['value']['label'];
-                        residue = (residue * 100 -
+                        residue = (residue * 1000 -
                             double.parse(element[10]['value']['value']) *
-                                100) /
-                            100;
+                                1000) /
+                            1000;
                         hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']
                         ['value'] *
-                            100 -
+                            1000 -
                             double.parse(element[3]['value']['value']) *
-                                100) /
-                            100;
+                                1000) /
+                            1000;
                         element[10]['value']['remainder'] = residue.toString();
                         element[10]['value']['representativeQuantity'] = barcodeQuantity;
                         element[0]['value']['kingDeeCode'].add(item);
@@ -1323,16 +1323,16 @@ class _PickingDetailState extends State<PickingDetail> {
                                   .toString();
                           element[3]['value']['value'] =
                               element[3]['value']['label'];
-                          residue = (residue * 100 -
+                          residue = (residue * 1000 -
                                   double.parse(element[10]['value']['value']) *
-                                      100) /
-                              100;
+                                      1000) /
+                              1000;
                           element[0]['value']['surplus'] = (element[9]['value']
                                           ['value'] *
-                                      100 -
+                                      1000 -
                                   double.parse(element[3]['value']['value']) *
-                                      100) /
-                              100;
+                                      1000) /
+                              1000;
                           ;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
@@ -1357,10 +1357,10 @@ class _PickingDetailState extends State<PickingDetail> {
                           residue = 0.0;
                           hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]
                           ['value']['value'] *
-                              100 -
+                              1000 -
                               double.parse(element[3]['value']['value']) *
-                                  100) /
-                              100;
+                                  1000) /
+                              1000;
                           element[0]['value']['kingDeeCode'].add(item);
                           element[0]['value']['scanCode'].add(code);
                           number++;
@@ -1382,17 +1382,17 @@ class _PickingDetailState extends State<PickingDetail> {
                               .toString();
                           element[3]['value']['value'] =
                           element[3]['value']['label'];
-                          residue = (residue * 100 -
+                          residue = (residue * 1000 -
                               double.parse(
                                   element[10]['value']['value']) *
-                                  100) /
-                              100;
+                                  1000) /
+                              1000;
                           hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]
                           ['value']['value'] *
-                              100 -
+                              1000 -
                               double.parse(element[3]['value']['value']) *
-                                  100) /
-                              100;
+                                  1000) /
+                              1000;
                           element[10]['value']['remainder'] = residue.toString();
                           element[10]['value']['representativeQuantity'] = barcodeQuantity;
                           element[0]['value']['kingDeeCode'].add(item);
@@ -1514,7 +1514,7 @@ class _PickingDetailState extends State<PickingDetail> {
             "isHide": false,
             "value": {
               "label": inserNum.toString(),
-              "value": inserNum.toString(),"remainder": (double.parse(barCodeScan[4]) - inserNum).toString(),"representativeQuantity": barCodeScan[4]
+              "value": inserNum.toString(),"remainder": ((double.parse(barCodeScan[4])*1000 - inserNum*1000)/1000).toString(),"representativeQuantity": barCodeScan[4]
             }
           });
           arr.add({
@@ -1670,15 +1670,23 @@ class _PickingDetailState extends State<PickingDetail> {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
-          hobby['value']['label'] = p;
+
+            setState(() {
+              hobby['value']['label'] = p;
+            });
+            var elementIndex = 0;
+            data.forEach((element) {
+              print(element);
+              if (element == p) {
+                hobby['value']['value'] = stockListObj[elementIndex][2];
+                stock[6]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[6]['value']['value'] = "";
+                stock[6]['value']['label'] = "";
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
+              }
+              elementIndex++;
+            });
         });
-        var ele;
-        for (var i = 0; i < data.length; i++) {
-          if (data[i] == p) {
-            hobby['value']['value'] = stockListObj[i][2];
-            break;
-          }
-        }
       },
     );
   }
@@ -1752,8 +1760,8 @@ class _PickingDetailState extends State<PickingDetail> {
                                       var qty = item.split("-")[1];
                                       realQty += double.parse(qty);
                                     });
-                                    realQty = (realQty * 100 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 100) / 100;
-                                    realQty = (realQty * 100 + double.parse(_FNumber) * 100) / 100;
+                                    realQty = (realQty * 1000 - double.parse(this.hobby[checkData][10]["value"]["label"]) * 1000) / 1000;
+                                    realQty = (realQty * 1000 + double.parse(_FNumber) * 1000) / 1000;
                                     this.hobby[checkData][10]["value"]["remainder"] = (Decimal.parse(this.hobby[checkData][10]["value"]["representativeQuantity"]) - Decimal.parse(_FNumber)).toString();
                                     this.hobby[checkData][3]["value"]["value"] = realQty.toString();
                                     this.hobby[checkData][3]["value"]["label"] = realQty.toString();
@@ -1777,7 +1785,7 @@ class _PickingDetailState extends State<PickingDetail> {
                                             this.hobby[checkData][0]['FEntryID']
                                                 .toString()))]['index'];
                                       }
-                                      hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[checkData][3]['value']['value']) * 100) / 100;
+                                      hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 1000 - double.parse(this.hobby[checkData][3]['value']['value']) * 1000) / 1000;
                                     }
                                     this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
                                     this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;

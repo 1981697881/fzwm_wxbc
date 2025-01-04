@@ -248,7 +248,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
         arr.add({
           "title": "仓位",
           "name": "FStockLocID",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": "", "value": "", "hide": false}
         });
         arr.add({

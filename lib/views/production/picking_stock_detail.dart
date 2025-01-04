@@ -259,7 +259,7 @@ class _PickingStockDetailState extends State<PickingStockDetail> {
         arr.add({
           "title": "仓位",
           "name": "FStockLocID",
-          "isHide": true,
+          "isHide": false,
           "value": {"label": "", "value": "", "hide": false}
         });
         arr.add({

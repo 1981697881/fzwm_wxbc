@@ -1353,7 +1353,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
             "title": "申请数量",
             "name": "",
             "isHide": false,
-            "value": {"label": surplus, "value": surplus}
+            "value": {"label": inserNum, "value": inserNum}
           });
           arr.add({
             "title": "最后扫描数量",
