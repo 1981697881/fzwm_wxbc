@@ -1140,7 +1140,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               "label": value[0] + "- (" + value[1] + ")",
               "value": value[1],
               "barcode": [_code],
-              "kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]],
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+barcodeNum.toString()+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+barcodeNum.toString()],
               "codeList": []
             }
           });

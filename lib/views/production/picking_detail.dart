@@ -1451,8 +1451,8 @@ class _PickingDetailState extends State<PickingDetail> {
               "label": value[1] + "- (" + value[2] + ")",
               "value": value[2],
               "barcode": [code],
-              "kingDeeCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]+"-"+fsn],
-              "scanCode": [barCodeScan[0].toString()+"-"+barCodeScan[4]]
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+inserNum.toString()+"-"+fsn],
+              "scanCode": [barCodeScan[0].toString()+"-"+inserNum.toString()]
             }
           });
           arr.add({
@@ -2856,6 +2856,30 @@ class _PickingDetailState extends State<PickingDetail> {
             }
             FEntityItem['FSNQty'] = element[3]['value']['value'];
             FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+            if (element[6]['value']['hide']) {
+              Map<String, dynamic> stockMap = Map();
+              stockMap['FormId'] = 'BD_STOCK';
+              stockMap['FieldKeys'] =
+              'FFlexNumber';
+              stockMap['FilterString'] = "FNumber = '" +
+                  element[4]['value']['value'] +
+                  "'";
+              Map<String, dynamic> stockDataMap = Map();
+              stockDataMap['data'] = stockMap;
+              String res = await CurrencyEntity.polling(stockDataMap);
+              var stockRes = jsonDecode(res);
+              if (stockRes.length > 0) {
+                var postionList = element[6]['value']['value'].split(".");
+                FEntityItem['FStockLocId'] = {};
+                var positonIndex = 0;
+                for(var dimension in postionList){
+                  FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                    "FNumber": dimension
+                  };
+                  positonIndex++;
+                }
+              }
+            }
             FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
             FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
             FEntityItem['FAuxPropId'] = {

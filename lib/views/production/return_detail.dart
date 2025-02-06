@@ -1017,9 +1017,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
               "surplus": surplus,
               "barcode": [code],
               "kingDeeCode": [
-                barCodeScan[0].toString() + "-" + scanCode[3] + "-" + fsn
+                barCodeScan[0].toString() + "-" + inserNum.toString() + "-" + fsn
               ],
-              "scanCode": [barCodeScan[0].toString() + "-" + scanCode[3]]}
+              "scanCode": [barCodeScan[0].toString() + "-" + inserNum.toString()]}
           });
           arr.add({
             "title": "包装规格",
@@ -1981,7 +1981,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
           this.hobbyItem.add(hobbyMap);
         }
       }
-      this.hobby.forEach((element) {
+      for (var element in this.hobby) {
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' &&
             element[4]['value']['value'] != '') {
           var entryIndex;
@@ -1990,6 +1990,30 @@ class _ReturnDetailState extends State<ReturnDetail> {
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FReturnType'] = 1;
           FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+          if (element[6]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[4]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[6]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
+            }
+          }
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FQty'] = element[3]['value']['value'];
 
@@ -2053,7 +2077,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      };
       if(FEntity.length==0){
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量和录入仓库');

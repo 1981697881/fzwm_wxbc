@@ -1016,8 +1016,8 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
               "label": value[1] + "- (" + value[2] + ")",
               "value": value[2],
               "barcode": [code],
-              "kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],
-              "scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]
+              "kingDeeCode": [barCodeScan[0].toString()+"-"+inserNum.toString()+"-"+fsn],
+              "scanCode": [barCodeScan[0].toString()+"-"+inserNum.toString()]
             }
           });
           arr.add({

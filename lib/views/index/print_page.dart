@@ -98,7 +98,7 @@ class _PrintPageState extends State<PrintPage> {
     }
     for (var value in data) {
       if(printData['type'] == "STK_InStock"){
-        var barcodeNum = 1;
+        var barcodeNum = 1.0;
         var fRealQty = value['FRealQty'];
         var packing = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
         //获取条码流水号
@@ -113,9 +113,9 @@ class _PrintPageState extends State<PrintPage> {
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length > 0) {
-          barcodeNum = barcodeData[0][1] + 1;
+          barcodeNum = barcodeData[0][1] + 1.0;
         } else {
-          barcodeNum = 1;
+          barcodeNum = 1.0;
         }
         //判断规格重量
         if (cnIsNumber(packing) == true) {
@@ -227,8 +227,9 @@ class _PrintPageState extends State<PrintPage> {
               codeFEntityItem['FEntryStockID'] = {
                 "FNUMBER": value['FStockId']['FNumber']
               };
-              if (value['FStockLocId']) {
+              if (!value['FStockLocId'].isEmpty) {
                 Map<String, dynamic> stockMap = Map();
+
                 stockMap['FormId'] = 'BD_STOCK';
                 stockMap['FieldKeys'] =
                 'FFlexNumber';
@@ -252,6 +253,7 @@ class _PrintPageState extends State<PrintPage> {
                       "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
                     };
                   }
+                  codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
                   codeModel['FStockLocNumberH'] = positionNumber.join(".");
                 }
               }
@@ -272,6 +274,7 @@ class _PrintPageState extends State<PrintPage> {
               orderCodeMap['Model'] = codeModel;
               dataCodeMap['data'] = orderCodeMap;
               print(dataCodeMap);
+              var paramsData= jsonEncode(dataCodeMap);
               String codeRes = await SubmitEntity.save(dataCodeMap);
               var res = jsonDecode(codeRes);
               if (res['Result']['ResponseStatus']['IsSuccess']) {
@@ -417,8 +420,7 @@ class _PrintPageState extends State<PrintPage> {
               codeFEntityItem['FEntryStockID'] = {
                 "FNUMBER": value['FStockId']['FNumber']
               };
-              if (value['FStockLocId']) {
-
+              if (!value['FStockLocId'].isEmpty) {
                 Map<String, dynamic> stockMap = Map();
                 stockMap['FormId'] = 'BD_STOCK';
                 stockMap['FieldKeys'] =
@@ -443,6 +445,7 @@ class _PrintPageState extends State<PrintPage> {
                       "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
                     };
                   }
+                  codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
                   codeModel['FStockLocNumberH'] = positionNumber.join(".");
                 }
               }

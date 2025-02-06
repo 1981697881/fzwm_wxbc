@@ -964,9 +964,9 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
               "surplus": surplus,
               "barcode": [code],
               "kingDeeCode": [
-                barCodeScan[0].toString() + "-" + scanCode[3] + "-" + fsn
+                barCodeScan[0].toString() + "-" + inserNum.toString() + "-" + fsn
               ],
-              "scanCode": [barCodeScan[0].toString() + "-" + scanCode[3]]}
+              "scanCode": [barCodeScan[0].toString() + "-" + inserNum.toString()]}
           });
           arr.add({
             "title": "包装规格",

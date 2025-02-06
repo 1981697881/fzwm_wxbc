@@ -1118,9 +1118,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               "barcode": [code],
               "surplus": surplus,
               "kingDeeCode": [
-                barCodeScan[0].toString() + "-" + barCodeScan[4] + "-" + fsn
+                barCodeScan[0].toString() + "-" + inserNum.toString() + "-" + fsn
               ],
-              "scanCode": [barCodeScan[0].toString() + "-" + barCodeScan[4]]
+              "scanCode": [barCodeScan[0].toString() + "-" + inserNum.toString()]
             }
           });
           arr.add({
@@ -2201,7 +2201,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           this.hobbyItem.add(hobbyMap);
         }
       }
-      this.hobby.forEach((element) {
+      for (var element in this.hobby) {
         if (element[3]['value']['value'] != '0' &&
             element[3]['value']['value'] != '' &&
             element[4]['value']['value'] != '') {
@@ -2212,6 +2212,30 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           };
           FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+          if (element[6]['value']['hide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[4]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[6]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
+            }
+          }
           FEntityItem['FStockStatusId'] = {"FNumber": this.statusTypeNumber};
           FEntityItem['FAppQty'] = element[3]['value']['value'];
           FEntityItem['FActualQty'] = element[3]['value']['value'];
@@ -2285,7 +2309,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      };
       if (FEntity.length == 0) {
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量和录入仓库');

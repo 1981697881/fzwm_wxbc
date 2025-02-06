@@ -115,7 +115,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    /*_onEvent("31007;AQ40709308N1;2024-07-11;1000;MO001674,1438563666;2");*/
+    //_onEvent("31505;AQ41218204N1;2024-12-19;50;,1148432396;3");
     /* getTypeList();*/
     getCustomer();
     getDepartmentList();
@@ -360,21 +360,21 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
           _code = event;
-          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12]);
+          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
           print("ChannelPage: $event");
         }else{
           ToastUtil.showInfo('条码不在条码清单中');
         }
       }else{
         _code = event;
-        this.getMaterialList("",_code,"","");
+        this.getMaterialList("",_code,"","","","", "", false);
         print("ChannelPage: $event");
       }
     }
@@ -385,7 +385,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData,code, fsn,fAuxPropId) async {
+  getMaterialList(barcodeData,code, fsn,fAuxPropId, fProduceDate, fExpiryDate, fLoc,fIsOpenLocation) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -567,7 +567,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             "title": "仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "", "hide": false}
+            "value": {"label": fLoc, "value": fLoc, "hide": fIsOpenLocation}
           });
           arr.add({
             "title": "操作",
@@ -588,7 +588,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
             "title": "生产日期",
             "name": "",
             "isHide": !fIsKFPeriod,
-            "value": {"label": selectData[DateMode.YMD].toString(), "value": selectData[DateMode.YMD].toString()}
+            "value": {"label": fProduceDate==null || fProduceDate==""?selectData[DateMode.YMD].toString() : fProduceDate, "value": fProduceDate==null || fProduceDate==""?selectData[DateMode.YMD].toString() : fProduceDate}
           });
           arr.add({
             "title": "生产编号",

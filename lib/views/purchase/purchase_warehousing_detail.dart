@@ -260,7 +260,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -303,6 +303,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "FGiveAway": value[29],
           "FOrderBillNo": value[30],
           "FSrcEntryId": value[31],
+          "FPayConditionId": value[32],
           "isHide": false,
           "value": {
             "label": value[6] + "- (" + value[5] + ")",
@@ -2366,6 +2367,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
         Map<String, dynamic> FinanceEntity = Map();
         FinanceEntity['FSettleOrgId'] = {"FNumber": this.fOrgID};
+        FinanceEntity['FPayConditionI'] = {"FNumber": this.hobby[0][0]['FPayConditionId']};
         Model['FInStockFin'] = FinanceEntity;
         Model['FInStockEntry'] = FEntity;
         /*Model['FDescription'] = this._remarkContent.text;*/
