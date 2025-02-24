@@ -3084,7 +3084,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       divider,
                     ],
                   ),*/
-                  _item('调入仓库', this.stockList, this.storehouseName,
+                  _item('入库仓库', this.stockList, this.storehouseName,
                       'storehouse'),
                   Visibility(
                     maintainSize: false,

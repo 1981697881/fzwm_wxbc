@@ -66,6 +66,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   var fBarCodeList;
   var stockList = [];
   List<dynamic> stockListObj = [];
+  var stockListT = [];
+  List<dynamic> stockListObjT = [];
   var organizationsList = [];
   List<dynamic> organizationsListObj = [];
   List<dynamic> orderDate = [];
@@ -106,7 +108,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         "-",
         dd,
       ]);
-      //getStockList();
+
       getOrganizationsList();
     }
   }
@@ -122,8 +124,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     /*getWorkShop();*/
    //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
-    /*_onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
-    _onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");*/
+    //_onEvent("31037;AQ30630000T1;2023-06-30;10.5;,1126401926;3");
+    //_onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");
     EasyLoading.dismiss();
   }
 
@@ -139,8 +141,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     if (fOrgID == null) {
       this.fOrgID = deptData[1];
     }
-    if(this.organizationsNumber2 != null){
-      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber="+this.organizationsNumber2.toString();
+    if(this.organizationsNumber1 != null){
+      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber="+this.organizationsNumber1.toString();
     }else{
       userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
     }
@@ -165,7 +167,45 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         stockList.add(element[1]);
       });
     }*/
-    print(stockList);
+  }
+  //获取仓库
+  getStockListT() async {
+    stockListT = [];
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BD_STOCK';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    if (fOrgID == null) {
+      this.fOrgID = deptData[1];
+    }
+    if(this.organizationsNumber2 != null){
+      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber="+this.organizationsNumber2.toString();
+    }else{
+      userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C'";
+    }
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    stockListObjT = jsonDecode(res);
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    stockListObjT.forEach((element) {
+      stockListT.add(element[1]);
+    });
+    /*if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }*/
   }
 
   //获取组织
@@ -186,6 +226,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     organizationsListObj.forEach((element) {
       organizationsList.add(element[1]);
     });
+    getStockList();
   }
 
   void getWorkShop() async {
@@ -1380,7 +1421,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               }
               elementIndex++;
             });
-            this.getStockList();
+            this.getStockListT();
             print(2);
             print(organizationsNumber2);
           }else if (hobby == 'storehouse') {
@@ -1402,7 +1443,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               }
               elementIndex++;
             });
-          } else {
+          } else if(hobby['title']=="移出仓库"){
             setState(() {
               hobby['value']['label'] = p;
             });
@@ -1411,7 +1452,23 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             data.forEach((element) {
               if (element == p) {
                 hobby['value']['value'] = stockListObj[elementIndex][2];
-                stock[9]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[7]['value']['hide'] = stockListObj[elementIndex][3];
+                stock[7]['value']['value'] = "";
+                stock[7]['value']['label'] = "";
+                //hobby['value']['dimension'] = stockListObj[elementIndex][4];
+              }
+              elementIndex++;
+            });
+          }else{
+            setState(() {
+              hobby['value']['label'] = p;
+            });
+            var elementIndex = 0;
+            print(data);
+            data.forEach((element) {
+              if (element == p) {
+                hobby['value']['value'] = stockListObjT[elementIndex][2];
+                stock[9]['value']['hide'] = stockListObjT[elementIndex][3];
                 stock[9]['value']['value'] = "";
                 stock[9]['value']['label'] = "";
                 //hobby['value']['dimension'] = stockListObj[elementIndex][4];
@@ -1466,9 +1523,15 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 8) {
+          } else*/ if (j == 6) {
             comList.add(
-              _item('调入仓库:', stockList, this.hobby[i][j]['value']['label'],
+              _item('调出仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],
+                  stock: this.hobby[i]),
+            );
+          }else if (j == 8) {
+            comList.add(
+              _item('调入仓库:', stockListT, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
                   stock: this.hobby[i]),
             );
@@ -1573,12 +1636,60 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
-                        ),
+                        trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: new Icon(Icons.filter_center_focus),
+                                tooltip: '点击扫描',
+                                onPressed: () {
+                                  this._textNumber.text = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  this._FNumber = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  checkItem = 'FLoc';
+                                  this.show = false;
+                                  checkData = i;
+                                  checkDataChild = j;
+                                  scanDialog();
+                                  print(this.hobby[i][j]["value"]["label"]);
+                                  if (this.hobby[i][j]["value"]["label"] != 0) {
+                                    this._textNumber.value =
+                                        _textNumber.value.copyWith(
+                                          text: this
+                                              .hobby[i][j]["value"]["label"]
+                                              .toString(),
+                                        );
+                                  }
+                                },
+                              ),
+                            ])),
                   ),
                   divider,
                 ]),
               ),
             );
+            /*comList.add(
+              Visibility(
+                maintainSize: false,
+                maintainState: false,
+                maintainAnimation: false,
+                visible: this.hobby[i][j]["value"]["hide"],
+                child: Column(children: [
+                  Container(
+                    color: Colors.white,
+                    child: ListTile(
+                        title: Text(this.hobby[i][j]["title"] +
+                            '：' +
+                            this.hobby[i][j]["value"]["label"].toString()),
+                        ),
+                  ),
+                  divider,
+                ]),
+              ),
+            );*/
           } else if (j == 13) {
             comList.add(
               Column(children: [
@@ -2384,7 +2495,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   ),
                   _item('调入组织', this.organizationsList, this.organizationsName2,
                       'organizations2'),
-                  _item('调入仓库', this.stockList, this.storehouseName,
+                  _item('调入仓库', this.stockListT, this.storehouseName,
                       'storehouse'),
           Visibility(
             maintainSize: false,

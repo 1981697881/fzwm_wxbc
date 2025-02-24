@@ -260,7 +260,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,F_UUAC_BaseProperty1,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -304,6 +304,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "FOrderBillNo": value[30],
           "FSrcEntryId": value[31],
           "FPayConditionId": value[32],
+          "FSeq": value[33],
           "isHide": false,
           "value": {
             "label": value[6] + "- (" + value[5] + ")",
@@ -355,7 +356,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "title": "操作",
           "name": "",
           "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": value[33], "value": value[33]}
         });
         arr.add({
           "title": "库存单位",
@@ -1566,8 +1567,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                   color: Colors.white,
                   child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
+                          '：源单行号' +
+                          this.hobby[i][j]["value"]["label"].toString(),style: TextStyle(
+                        color: Colors.red, // 改变文本颜色为蓝色
+                      ),),
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -1607,6 +1610,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                             "FGiveAway": value[29],
                                             "FOrderBillNo": value[30],
                                             "FSrcEntryId": value[31],
+                                            "FPayConditionId": value[32],
+                                            "FSeq": value[33],
                                             "isHide": false,
                                             "value": {
                                               "label": value[6] + "- (" + value[5] + ")",
@@ -1658,7 +1663,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                             "title": "操作",
                                             "name": "",
                                             "isHide": false,
-                                            "value": {"label": "", "value": ""}
+                                            "value": {"label": value[33], "value": value[33]}
                                           });
                                           arr.add({
                                             "title": "库存单位",
@@ -2367,7 +2372,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
         Map<String, dynamic> FinanceEntity = Map();
         FinanceEntity['FSettleOrgId'] = {"FNumber": this.fOrgID};
-        FinanceEntity['FPayConditionI'] = {"FNumber": this.hobby[0][0]['FPayConditionId']};
+        FinanceEntity['FPayConditionId'] = {"FNumber": this.hobby[0][0]['FPayConditionId']};
         Model['FInStockFin'] = FinanceEntity;
         Model['FInStockEntry'] = FEntity;
         /*Model['FDescription'] = this._remarkContent.text;*/
@@ -2669,7 +2674,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         'department'),
                   ),
                   /*_item('部门', ['生产部'], '生产部'),*/
-                  _item('调入仓库', this.stockList, this.storehouseName,
+                  _item('入库仓库', this.stockList, this.storehouseName,
                       'storehouse'),
                   Visibility(
                     maintainSize: false,

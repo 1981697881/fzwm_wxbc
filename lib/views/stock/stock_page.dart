@@ -60,7 +60,7 @@ class _StockPageState extends State<StockPage> {
     }
     EasyLoading.dismiss();
     getStockList();
-    //_onEvent("33006;AQ40527303N1;2024-05-28;700;MO001456,1627265218;2");
+   // _onEvent("11115;241201C001丰益/丰益;2024-12-01;1800;,1408592470;2");
   }
 
   @override
@@ -95,7 +95,7 @@ class _StockPageState extends State<StockPage> {
         }
       });
     }else{
-      warehouseListObj.forEach((element) {
+      initial.forEach((element) {
         warehouseList.add(element[1]);
       });
       warehouseListObj = initial;
@@ -107,24 +107,28 @@ class _StockPageState extends State<StockPage> {
 
   getOrderList(keyWord, batchNo, fSn) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
+    var fStockIds = [];
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != "" && jsonDecode(sharedPreferences.getString('FStockIds')) != null){
+      fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    }
+
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
+    var isPosition = false;
     userMap['FilterString'] = "FBaseQty>0";
     if (keyWord != '') {
       if(keyWord.split(";").length>1){
-        if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0 and FStockId in(" + fStockIds + ")";
+        if(fStockIds.length>0){
+          userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0 and FStockId in(" + fStockIds.toString() + ")";//
         }else{
           userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FLot.FNumber = '"+keyWord.split(";")[1]+"' and FBaseQty>0";
         }
-
         if (batchNo != '') {
           if (this.warehouseNumber != null) {
             userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FStockID.FNumber='" + this.warehouseNumber + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
           } else {
-            if(fStockIds != '' && fStockIds != null){
-              userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds + ")"; /**/
+            if(fStockIds.length>0){
+              userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"' and FStockId in(" + fStockIds.toString() + ")"; /**/
             }else{
               userMap['FilterString'] = "FMaterialId.FNumber='" + keyWord.split(";")[0] + "' and FBaseQty>0 and FLot.FNumber= '"+batchNo+"'"; /**/
             }
@@ -132,18 +136,63 @@ class _StockPageState extends State<StockPage> {
           }
         }
       }else{
-        if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockId in(" + fStockIds + ")";
+        if(keyWord.split(".").length>1){
+          var postionList = keyWord.split(".");
+            /*if (this.warehouseNumber != null) {
+              Map<String, dynamic> stockMap = Map();
+              stockMap['FormId'] = 'BD_STOCK';
+              stockMap['FieldKeys'] =
+              'FFlexNumber';
+              stockMap['FilterString'] = "FNumber = '" +
+                  this.warehouseNumber +
+                  "'";
+              Map<String, dynamic> stockDataMap = Map();
+              stockDataMap['data'] = stockMap;
+              String res = await CurrencyEntity.polling(stockDataMap);
+              var stockRes = jsonDecode(res);
+              if (stockRes.length > 0) {
+                var postionList = keyWord.split(".");
+                userMap['FilterString'] = "FStockLocId." +
+                    stockRes[0][0] +
+                    ".FNumber = '" +
+                    postionList[0] +
+                    "' and FStockLocId." +
+                    stockRes[1][0] +
+                    ".FNumber = '" +
+                    postionList[1] +
+                    "' and FStockLocId." +
+                    stockRes[2][0] +
+                    ".FNumber = '" +
+                    postionList[2] +
+                    "' and FStockLocId." +
+                    stockRes[3][0] +
+                    ".FNumber = '" +
+                    postionList[3] +
+                    "' and FBaseQty>0 and FStockID.FNumber='" + this.warehouseNumber + "'";
+                isPosition = true;
+              }else{
+                ToastUtil.showInfo('该仓库没启用仓位，或仓库维度设置错误');
+                return;
+              }
+            }else{
+                ToastUtil.showInfo('请先选择仓库确认维度');
+                return;
+            }*/
+          userMap['FilterString'] = "FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "' and FBaseQty>0";
         }else{
-          userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0";
+          if(fStockIds.length>0){
+            userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockId in(" + fStockIds.toString() + ")";
+          }else{
+            userMap['FilterString'] = "(FMaterialId.FNumber like '%"+keyWord+"%' or F_UUAC_BaseProperty like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0";
+          }
         }
       }
     }else{
       if (this.warehouseNumber != null) {
         userMap['FilterString'] = "FStockID.FNumber='" + this.warehouseNumber + "' and FBaseQty>0 "; /**/
       } else {
-        if(fStockIds != '' && fStockIds != null){
-          userMap['FilterString'] = "FBaseQty>0 and FStockId in(" + fStockIds + ")";
+        if(fStockIds.length>0){
+          userMap['FilterString'] = "FBaseQty>0 and FStockId in(" + fStockIds.toString() + ")";//
         }else{
           userMap['FilterString'] = "FBaseQty>0";
         }
@@ -153,10 +202,11 @@ class _StockPageState extends State<StockPage> {
     userMap['Limit'] = '50';
     userMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber,FMaterialId.FName';
+        'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber,FMaterialId.FName,FStockID.FIsOpenLocation,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
+
     orderDate = [];
     orderDate = jsonDecode(order);
     print(orderDate);
@@ -189,6 +239,11 @@ class _StockPageState extends State<StockPage> {
           "title": "仓库",
           "name": "FStockIdFName",
           "value": {"label": value[3], "value": value[3]}
+        });
+        arr.add({
+          "title": "仓位",
+          "name": "FStockIdFName",
+          "value": {"label": value[8]?value[9]+'.'+value[10]+'.'+value[11]+'.'+value[12]:'', "value": value[8]?value[9]+'.'+value[10]+'.'+value[11]+'.'+value[12]:''}
         });
         arr.add({
           "title": "库存数量",
@@ -233,6 +288,8 @@ class _StockPageState extends State<StockPage> {
       });
       ToastUtil.showInfo('无数据');
     }
+   /* ToastUtil.errorDialog(context, jsonEncode(dataMap));
+    ToastUtil.errorDialog(context, jsonEncode(fStockIds));*/
   }
 
   void _onEvent(event) async {
@@ -244,22 +301,29 @@ class _StockPageState extends State<StockPage> {
       return;
     }
     if (fBarCodeList == 1) {
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FBatchNo,FSN';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length > 0) {
-        keyWord = barcodeData[0][8];
-        this.controller.text = barcodeData[0][8];
+      if(event.split(".").length>1){
+        keyWord = "";
+        this.controller.text = "";
         await this.getOrderList(
-            barcodeData[0][8], barcodeData[0][11], barcodeData[0][12]);
-      } else {
-        ToastUtil.showInfo('条码不在条码清单中');
+            event, "", "");
+      }else{
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FBatchNo,FSN';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length > 0) {
+          keyWord = barcodeData[0][8];
+          this.controller.text = barcodeData[0][8];
+          await this.getOrderList(
+              barcodeData[0][8], barcodeData[0][11], barcodeData[0][12]);
+        } else {
+          ToastUtil.showInfo('条码不在条码清单中');
+        }
       }
     } else {
       keyWord = _code;
@@ -323,6 +387,7 @@ class _StockPageState extends State<StockPage> {
               }
               elementIndex++;
             });
+            this.keyWord = this.controller.text;
             if (this.keyWord != '') {
               this.getOrderList(this.keyWord, "", "");
             }else{
