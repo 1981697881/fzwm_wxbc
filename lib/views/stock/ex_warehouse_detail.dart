@@ -133,6 +133,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     getStockList();
     getDepartmentList();
     getStatusTypeList();
+    //_onEvent("11078;2024-12-25-1华谊/力搏;2024-12-25;30;CGRK04249,1942202935;3");
 
   }
   //获取包装规格

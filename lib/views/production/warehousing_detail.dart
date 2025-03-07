@@ -236,7 +236,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         pushMap['RuleId'] = "PRD_MORPT2INSTOCK";
         pushMap['TargetFormId'] = "PRD_INSTOCK";
         pushMap['IsEnableDefaultRule'] = "false";
-        pushMap['IsDraftWhenSaveFail'] = "false";
+        pushMap['IsDraftWhenSaveFail'] = "true";
         var datass = pushMap.toString();
         var downData =
         await SubmitEntity.pushDown({"formid": "PRD_MORPT", "data": pushMap});
