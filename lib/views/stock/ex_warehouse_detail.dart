@@ -2142,9 +2142,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       if (this.departmentNumber  != null) {
         Model['FDeptId'] = {"FNumber": this.departmentNumber};
       }
-      if (this.customerNumber  != null) {
+      /*if (this.customerNumber  != null) {
         Model['FCustId'] = {"FNumber": this.customerNumber};
-      }
+      }*/
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FStockDirect'] = "GENERAL";
       Model['FBizType'] = "0";
@@ -2591,7 +2591,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                   _dateItem('日期：', DateMode.YMD),
                   /*_item('组织', this.organizationsList, this.organizationsName,
                       'organizations'),*/
-                  Visibility(
+                  /*Visibility(
                     maintainSize: false,
                     maintainState: false,
                     maintainAnimation: false,
@@ -2601,23 +2601,23 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                         Container(
                           color: Colors.white,
                           child: ListTile(
-                            /* title: TextWidget(FBillNoKey, '生产订单：'),*/
+                            *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
                             title: Text("客户：$cusName"),
                           ),
                         ),
                         divider,
                       ],
                     ),
-                  ),
+                  ),*/
                   /* _dateItem('日期：', DateMode.YMD),*/
-                  Visibility(
+                  /*Visibility(
                     maintainSize: false,
                     maintainState: false,
                     maintainAnimation: false,
                     visible: !isScanWork,
                     child: _item('客户:', this.customerList, this.customerName,
                         'customer'),
-                  ),
+                  ),*/
                   _item('部门', this.departmentList, this.departmentName,
                       'department'),
                   _item('出库类型', this.outboundTypeList, this.outboundTypeName,
@@ -2626,7 +2626,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                       'statusType'),
                   /*_item('类别', this.typeList, this.typeName,
                       'type'),*/
-                 Column(
+                 /*Column(
                     children: [
                       Container(
                         color: Colors.white,
@@ -2655,7 +2655,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                       ),
                       divider,
                     ],
-                  ),
+                  ),*/
                   Column(
                     children: [
                       Container(

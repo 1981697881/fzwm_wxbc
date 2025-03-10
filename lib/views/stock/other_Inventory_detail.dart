@@ -247,10 +247,10 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       String order = await CurrencyEntity.polling(dataMap);
       var barcodeData = jsonDecode(order);
       if (barcodeData.length>0) {
-        this.getMaterialList(barcodeData[0][4].toString(),_code);
+        this.getMaterialList(barcodeData[0][4].toString(),_code,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12]);
       }else{
         EasyLoading.show(status: 'loading...');
-        this.getMaterialList("0",_code);
+        this.getMaterialList("0",_code,"",false,"");
         print("ChannelPage: $event");
       }
     }
@@ -263,18 +263,26 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData,code) async {
+  getMaterialList(barcodeData,code, fLoc,fIsOpenLocation,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+    var postionList = fLoc.split(".");
     if(scanCode.length > 1){
-      if(scanCode[1] == ''){
-        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+      if(fIsOpenLocation && fLoc!=''){
+        if(scanCode[1] == ''){
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+        }else{
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+        }
       }else{
-        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+        if(scanCode[1] == ''){
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+        }else{
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+        }
       }
     }
     userMap['FormId'] = 'STK_Inventory';
@@ -333,7 +341,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "title": "盘点数量",
             "name": "FCountQty",
             "isHide": false,
-            "value": {"label": "0", "value": "0"}
+            "value": {"label": barcodeData, "value": barcodeData}
           });
           arr.add({
             "title": "仓库",
@@ -514,6 +522,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
+                _onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
               }
               elementIndex++;
             });
@@ -539,7 +548,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 4) {
+          /*if (j == 4) {
             comList.add(
               Column(children: [
                 Container(
@@ -577,7 +586,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                 divider,
               ]),
             );
-          } else if (j == 8) {
+          } else*/ if (j == 8) {
             comList.add(
               Column(children: [
                 Container(

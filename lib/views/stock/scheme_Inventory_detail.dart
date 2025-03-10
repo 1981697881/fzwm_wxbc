@@ -222,23 +222,31 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
 
   //获取仓库
   getStockList() async {
-    this.stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] =
-        "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber =" + organizationsNumber;
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='" + tissue + "'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    stockListObj = jsonDecode(res);
-    stockListObj.forEach((element) {
-      stockList.add(element[1]);
-    });
+    var initial = jsonDecode(res);
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
+          stockList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
+          stockListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
+        }
+      });
+    }else{
+      initial.forEach((element) {
+        stockList.add(element[1]);
+      });
+      stockListObj = initial;
+    }
   }
-
   @override
   void dispose() {
     this._textNumber.dispose();
@@ -358,7 +366,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
+            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockLocNumberH,FStockID.FIsOpenLocation,FPackageSpec';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -367,7 +375,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           setState(() {
             _code = event;
           });
-          this.getMaterialList(barcodeData, _code);
+          this.getMaterialList(barcodeData, _code,barcodeData[0][5], barcodeData[0][6], barcodeData[0][7]);
           print("ChannelPage: $event");
           ToastUtil.showInfo('查询标签成功');
         } else {
@@ -377,7 +385,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         setState(() {
           _code = event;
         });
-        this.getMaterialList("", _code);
+        this.getMaterialList("", _code, "", false,"");
         EasyLoading.show(status: 'loading...');
         print("ChannelPage: $event");
       }
@@ -391,26 +399,27 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code) async {
+  getMaterialList(barcodeData, code, fLoc,fIsOpenLocation,fAuxPropId) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FMaterialId.FNumber='" +
-        scanCode[0] +
-        "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+    var postionList = fLoc.split(".");
     if (scanCode.length > 1) {
-      if (scanCode[1] == '') {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
-            scanCode[0] +
-            "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-      } else {
-        userMap['FilterString'] = "FMaterialId.FNumber='" +
-            scanCode[0] +
-            "' and FLot.FNumber='" +
-            scanCode[1] +
-            "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+      if(fIsOpenLocation && fLoc!=''){
+        if (scanCode[1] == '') {
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+        } else {
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+        }
+      }else{
+        if (scanCode[1] == '') {
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+        } else {
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+        }
       }
+
     }
     userMap['FormId'] = 'STK_StockCountInput';
     userMap['FieldKeys'] =
