@@ -355,9 +355,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       fBarCodeList = menuList['FBarCodeList'];
       if (fBarCodeList == 1) {
         Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCode='" + event + "'";
-        /*barcodeMap['FilterString'] = "FID=115853";*/
-        barcodeMap['FormId'] = 'QDEP_BarCodeList';
+        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
             'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty';
         Map<String, dynamic> dataMap = Map();
@@ -396,7 +395,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    var scanCode = code.split(",");
+    var scanCode = code.split(";");
     userMap['FilterString'] = "FMaterialId.FNumber='" +
         scanCode[0] +
         "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
@@ -897,6 +896,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
+                _onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
               }
               elementIndex++;
             });

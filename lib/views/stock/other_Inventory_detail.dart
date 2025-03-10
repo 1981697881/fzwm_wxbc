@@ -237,9 +237,22 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       ToastUtil.showInfo('请选择仓库');
     }else{
       _code = event;
-      EasyLoading.show(status: 'loading...');
-      this.getMaterialList("",_code);
-      print("ChannelPage: $event");
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length>0) {
+        this.getMaterialList(barcodeData[0][4].toString(),_code);
+      }else{
+        EasyLoading.show(status: 'loading...');
+        this.getMaterialList("0",_code);
+        print("ChannelPage: $event");
+      }
     }
 
     /*});*/
@@ -255,13 +268,13 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = code.split(",");
-    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
+    var scanCode = code.split(";");
+    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
     if(scanCode.length > 1){
       if(scanCode[1] == ''){
-        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
+        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
       }else{
-        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber'";
+        userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
       }
     }
     userMap['FormId'] = 'STK_Inventory';
@@ -320,7 +333,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "title": "盘点数量",
             "name": "FCountQty",
             "isHide": false,
-            "value": {"label": scanCode[4].toString(), "value": scanCode[4].toString()}
+            "value": {"label": "0", "value": "0"}
           });
           arr.add({
             "title": "仓库",
@@ -526,7 +539,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 4) {
+          if (j == 4) {
             comList.add(
               Column(children: [
                 Container(
@@ -564,7 +577,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 8) {
+          } else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
