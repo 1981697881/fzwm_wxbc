@@ -583,11 +583,17 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           arr.add({
             "title": "最后扫描数量",
             "name": "FLastQty",
-            "isHide": false,
+            "isHide": true,
             "value": {
               "label": barCodeScan[4].toString(),
               "value": barCodeScan[4].toString()
             }
+          });
+          arr.add({
+            "title": "仓位",
+            "name": "FStockID",
+            "isHide": !fIsOpenLocation,
+            "value": {"label": fLoc, "value": fLoc}
           });
           hobby.add(arr);
         });
@@ -1478,6 +1484,30 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           };
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
+          if (!element[16]['isHide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[5]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[16]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
+            }
+          }
           FEntityItem['FOwnerId'] = {"FNumber": element[9]['value']['value']};
          // FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
           FEntityItem['FStockStatusId'] = {

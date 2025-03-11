@@ -349,6 +349,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "isHide": false,
             "value": {"label": value[8], "value": value[6]}
           });
+
           arr.add({
             "title": "批号",
             "name": "FLot",
@@ -390,6 +391,12 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "name": "FKeeperId",
             "isHide": true,
             "value": {"label": value[12], "value": value[12]}
+          });
+          arr.add({
+            "title": "仓位",
+            "name": "FStockID",
+            "isHide": !fIsOpenLocation,
+            "value": {"label": fLoc, "value": fLoc}
           });
           hobby.add(arr);
         });
@@ -742,7 +749,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       var FEntity2 = [];
       var hobbyIndex = 0;
       print(this.orderDate);
-      this.hobby.forEach((element) {
+      for(var element in this.hobby){
         if (element[4]['value']['value'] != '0' &&
             element[4]['value']['value'] != '' && double.parse(element[4]['value']['value']) != element[3]['value']['value']) {
           Map<String, dynamic> FEntityItem = Map();
@@ -768,6 +775,30 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           FEntityItem['FKeeperId'] = {
             "FNumber": element[12]['value']['value']
           };
+          if (!element[13]['isHide']) {
+            Map<String, dynamic> stockMap = Map();
+            stockMap['FormId'] = 'BD_STOCK';
+            stockMap['FieldKeys'] =
+            'FFlexNumber';
+            stockMap['FilterString'] = "FNumber = '" +
+                element[5]['value']['value'] +
+                "'";
+            Map<String, dynamic> stockDataMap = Map();
+            stockDataMap['data'] = stockMap;
+            String res = await CurrencyEntity.polling(stockDataMap);
+            var stockRes = jsonDecode(res);
+            if (stockRes.length > 0) {
+              var postionList = element[13]['value']['value'].split(".");
+              FEntityItem['FStockLocId'] = {};
+              var positonIndex = 0;
+              for(var dimension in postionList){
+                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                  "FNumber": dimension
+                };
+                positonIndex++;
+              }
+            }
+          }
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FCountQty'] = element[4]['value']['value'];
           FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
@@ -779,7 +810,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
-      });
+      }
       if (FEntity.length == 0 ) {
         this.isSubmit = false;
         ToastUtil.showInfo('盘点数量未录入或盘点数量无差异，无须保存');
