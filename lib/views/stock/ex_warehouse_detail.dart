@@ -281,7 +281,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     userMap['FormId'] = 'STK_OutStockApply';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FCustId.FNumber,FCustId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FNote,FID,FAuxPropId.FF100002.FNumber,FMaterialId.FIsBatchManage,FStockID.FIsOpenLocation,FTotalSecQty,FMaterialId.FIsKFPeriod';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FCustId.FNumber,FCustId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FNote,FID,FAuxPropId.FF100002.FNumber,FMaterialId.FIsBatchManage,FStockID.FIsOpenLocation,FTotalSecQty,FMaterialId.FIsKFPeriod,FDeptId.FName,FDeptId.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -291,6 +291,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (orderDate.length > 0) {
       this.cusName = orderDate[0][9] == null?"":orderDate[0][9];
+      this.departmentName = orderDate[0][20] == null?"":orderDate[0][20];
+      this.departmentNumber = orderDate[0][21] == null?"":orderDate[0][21];
       hobby = [];
       for(var value in orderDate){
         List arr = [];
@@ -2152,7 +2154,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FOwnerIdHead'] = {"FNumber": tissue};
       Model['F_UUAC_Assistant'] = {"FNumber": this.outboundTypeNumber};
       Model['FNote'] = this._remarkContent.text;
-      Model['F_UUAC_Text_83g'] = this._deptContent.text;
+      Model['F_UUAC_Text_83g'] = this.departmentName;
       Model['F_UUAC_CheckBox'] = _checked;
       var FEntity = [];
       var hobbyIndex = 0;

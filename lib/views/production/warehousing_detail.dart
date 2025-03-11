@@ -424,7 +424,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     }else{
       if (fBarCodeList == 1) {
         Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "' and FInQty > 0";
+        barcodeMap['OrderString'] = 'FBillDate ASC';
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
         'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
@@ -471,6 +472,19 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
+    //重置
+    this.storehouseName = null;
+    this.storehouseNumber = null;
+    this.showPosition = false;
+    this.storingLocationName = null;
+    this.storingLocationNumber = null;
+    if(fIsOpenLocation && fLoc != ''){
+      this.storehouseName = barcodeData[0][6];
+      this.storehouseNumber = barcodeData[0][7];
+      this.showPosition = fIsOpenLocation;
+      this.storingLocationName = fLoc;
+      this.storingLocationNumber = fLoc;
+    }
     userMap['FilterString'] = "FNumber='" +
         scanCode[0] +
         "' and FForbidStatus = 'A' and FUseOrgId.FNumber = '" +
