@@ -410,20 +410,20 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         if (scanCode[1] == '') {
           userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
         } else {
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
         }
       }else{
         if (scanCode[1] == '') {
           userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
         } else {
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' FOwnerId.FNumber = '$organizationsNumber'";
+          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='" + scanCode[0] + "' and FLot.FNumber='" + scanCode[1] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
         }
       }
 
     }
     userMap['FormId'] = 'STK_StockCountInput';
     userMap['FieldKeys'] =
-        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID';
+        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -593,7 +593,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             "title": "仓位",
             "name": "FStockID",
             "isHide": !fIsOpenLocation,
-            "value": {"label": fLoc, "value": fLoc}
+            "value": {"label": value[16]+"."+value[17]+"."+value[18]+"."+value[19], "value": value[16]+"."+value[17]+"."+value[18]+"."+value[19]}
           });
           hobby.add(arr);
         });
@@ -911,7 +911,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
-                _onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
+                //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
               }
               elementIndex++;
             });

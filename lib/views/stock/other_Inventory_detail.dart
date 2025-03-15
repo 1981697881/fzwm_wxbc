@@ -529,7 +529,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
-                _onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
+                //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
               }
               elementIndex++;
             });

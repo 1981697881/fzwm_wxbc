@@ -134,6 +134,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     getDepartmentList();
     getStatusTypeList();
     //_onEvent("11078;2024-12-25-1华谊/力搏;2024-12-25;30;CGRK04249,1942202935;3");
+    //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
 
   }
   //获取包装规格
@@ -2304,7 +2305,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           if (submitResult) {
             if(_checked){
               //审核
-              /*HandlerOrder.orderHandler(
+              HandlerOrder.orderHandler(
                   context,
                   submitMap,
                   1,
@@ -2312,7 +2313,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                   SubmitEntity.audit(submitMap))
                   .then((auditResult) async{
                 if (auditResult) {
-                  print(auditResult);*/
+                  print(auditResult);
                   var errorMsg = "";
                   if(fBarCodeList == 1){
                     for (int i = 0; i < this.hobby.length; i++) {
@@ -2399,7 +2400,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                     ToastUtil.showInfo('提交成功');
                     Navigator.of(context).pop("refresh");
                   });
-                /*} else {
+                } else {
                   //失败后反审
                   HandlerOrder.orderHandler(
                       context,
@@ -2415,7 +2416,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                     }
                   });
                 }
-              });*/
+              });
             }else{
               var errorMsg = "";
               if(fBarCodeList == 1){
