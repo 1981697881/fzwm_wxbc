@@ -1949,7 +1949,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                   color: Colors.white,
                   child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
-                          '：'),
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
