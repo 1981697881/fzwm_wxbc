@@ -423,7 +423,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     }
     userMap['FormId'] = 'STK_StockCountInput';
     userMap['FieldKeys'] =
-        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber';
+        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -592,7 +592,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockID",
-            "isHide": !fIsOpenLocation,
+            "isHide": !value[20],
             "value": {"label": value[16]+"."+value[17]+"."+value[18]+"."+value[19], "value": value[16]+"."+value[17]+"."+value[18]+"."+value[19]}
           });
           hobby.add(arr);
@@ -756,6 +756,12 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 "label": barCodeScan[4].toString(),
                 "value": barCodeScan[4].toString()
               }
+            });
+            arr.add({
+              "title": "仓位",
+              "name": "FStockID",
+              "isHide": !fIsOpenLocation,
+              "value": {"label": fLoc, "value": fLoc}
             });
             hobby.add(arr);
           });

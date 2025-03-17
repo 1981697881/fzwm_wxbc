@@ -405,6 +405,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         });
         ToastUtil.showInfo('无数据');
       }
+      //_onEvent("33050;AQ50314304N1;2025-03-15;600;MO002871,0810405082;2");
   }
 
   void _onEvent(event) async {
@@ -424,7 +425,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     }else{
       if (fBarCodeList == 1) {
         Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "' and FInQty > 0";
+        barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
         barcodeMap['OrderString'] = 'FBillDate ASC';
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =

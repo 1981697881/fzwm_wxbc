@@ -1938,15 +1938,15 @@ class _PickingDetailState extends State<PickingDetail> {
                     return Column(
                       children: <Widget>[
                         ListTile(
-                          title: Text('批号:'+options[index][5]+';包装规格:'+options[index][6]+';仓库:'+options[index][7]+';数量:'+options[index][4].toString()),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                          title: Text('批号:'+options[index][5]+';包装规格:'+(options[index][6]==null?'':options[index][6])+';数量:'+options[index][4].toString()+';仓库:'+options[index][3]+(options[index][11]?(options[index][7]+'.'+options[index][8]+'.'+options[index][9]+'.'+options[index][10]):'')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
                           onTap: () {
-                            setState(() {
+                            /*setState(() {
                               print(dataItem);
                               var childList = options[index][6] == null?  options[index][5].toString() +"-无":options[index][5].toString() +"-"+ options[index][6].toString();
                               Navigator.pop(context);
                               inNumDialog(childList, options[index][4].toString(),index,options[index][3]);
                             });
-                            print(options[index]);
+                            print(options[index]);*/
                             // Do something
 
                           },
@@ -2060,7 +2060,7 @@ class _PickingDetailState extends State<PickingDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 3) {
+          if (j == 0) {
             comList.add(
               Column(children: [
                 Container(
@@ -2074,23 +2074,33 @@ class _PickingDetailState extends State<PickingDetail> {
                           children: <Widget>[
                             IconButton(
                               icon: new Icon(Icons.search),
-                              tooltip: '选择库存',
+                              tooltip: '查看',
                               padding: EdgeInsets.only(left: 30),
                               onPressed: () async{
-                                if(this.hobby[i][j]["value"]["stocks"].length>0){
-                                  await _showModalBottomSheet(
-                                      context, this.hobby[i][j]["value"]["stocks"],this.hobby[i]);
-                                  checkData = i;
-                                  checkDataChild = j;
-                                  _FNumber = '0';
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                        text: '0',
-                                      );
-                                }else{
-                                  ToastUtil.showInfo('无库存');
-                                }
-
+                                  Map<String, dynamic> inventoryMap = Map();
+                                  inventoryMap['FormId'] = 'STK_Inventory';
+                                  inventoryMap['FilterString'] = "FMaterialId.FNumber='" + this.hobby[i][j]["value"]["value"] + "' and FBaseQty >0";
+                                  inventoryMap['Limit'] = '50';
+                                  inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+                                  inventoryMap['FieldKeys'] =
+                                  'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId.FF100002.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
+                                  Map<String, dynamic> inventoryDataMap = Map();
+                                  inventoryDataMap['data'] = inventoryMap;
+                                  String res = await CurrencyEntity.polling(inventoryDataMap);
+                                  var stocks = jsonDecode(res);
+                                  if (stocks.length > 0) {
+                                    await _showModalBottomSheet(
+                                        context, stocks,this.hobby[i]);
+                                    checkData = i;
+                                    checkDataChild = j;
+                                    _FNumber = '0';
+                                    this._textNumber.value =
+                                        _textNumber.value.copyWith(
+                                          text: '0',
+                                        );
+                                  }else{
+                                    ToastUtil.showInfo('无库存');
+                                  }
                               },
                             ),
                           ])),
@@ -2098,7 +2108,7 @@ class _PickingDetailState extends State<PickingDetail> {
                 divider,
               ]),
             );
-          } else*/ if (j == 10) {
+          } else if (j == 10) {
             comList.add(
               Column(children: [
                 Container(

@@ -287,7 +287,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber';
+    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -395,8 +395,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockID",
-            "isHide": !fIsOpenLocation,
-            "value": {"label": fLoc, "value": fLoc}
+            "isHide": !value[18],
+            "value": {"label": value[14]+"."+value[15]+"."+value[16]+"."+value[17], "value": value[14]+"."+value[15]+"."+value[16]+"."+value[17]}
           });
           hobby.add(arr);
         });
