@@ -2376,8 +2376,6 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
-      print(jsonEncode(dataMap));
-      return;
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);
