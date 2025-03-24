@@ -459,9 +459,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-
   }
-
   void _onEvent(event) async {
     if (checkItem == 'FLoc' || checkItem == 'HPoc') {
       _FNumber = event.trim();
