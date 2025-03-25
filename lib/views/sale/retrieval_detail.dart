@@ -203,11 +203,11 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "fBillNo='$fBillNo' and FRemainOutQty>0";
+    userMap['FilterString'] = "fBillNo='$fBillNo' and FRemainOutQty - FJoinOutQty >0";
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName,FSaleDeptID.FNumber,FSettleCurrID.FNumber,FSettleOrgID.FNumber';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FCustomerID.FNumber,FCustomerID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FTaxPrice,FEntryTaxRate,FAllAmount,FLinkMan,FHeadLocId.FName,FLinkPhone,FSrcBillNo,FNote,FNoteEntry,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,F_UUAC_Text_83g,FCustMatID.FNumber,FCustMatName,FSaleDeptID.FNumber,FSettleCurrID.FNumber,FSettleOrgID.FNumber,FJoinOutQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -258,7 +258,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "value": value[5],
             "barcode": [],
             "kingDeeCode": [],
-            "surplus": value[14],
+            "surplus": value[14] - value[40],
             "scanCode": []
           }
         });
@@ -348,7 +348,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "title": "未出库数量",
           "name": "",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": value[14] - value[40], "value": value[14] - value[40]}
         });
         arr.add({
           "title": "最后扫描数量",
@@ -408,7 +408,6 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     //_onEvent("0003");
     /*_onEvent("31010;AQ40710102N1;2024-07-11;200;MO001682,0827522344;14");
     _onEvent("31010;AQ40722103F1;2024-07-19;980;MO001709,0929560248;8");*/
-    //_onEvent("31013;AQ40531310N1;2024-05-31;200;MO001512,1340507027;2");
     getStockList();
 
   }
@@ -2360,14 +2359,18 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           FEntityItem['FAuxPropId'] = {
             "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
-          FEntityItem['FMustQty'] = element[3]['value']['value'];
           FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FSALUNITQTY'] = element[3]['value']['value'];
+          FEntityItem['FSALBASEQTY'] = element[3]['value']['value'];
+          FEntityItem['FPRICEBASEQTY'] = element[3]['value']['value'];
+          FEntityItem['FARNOTJOINQTY'] = element[3]['value']['value'];
           FEntityItem['F_UUAC_Text_83g'] = element[11]['value']['value'];
           if(element[0]['FIsKFPeriod']){
             FEntityItem['FProduceDate'] = element[14]['value']['value'];
             FEntityItem['FExpiryDate'] = element[15]['value']['value'];
           }
           FEntityItem['FSrcBillNo'] = this.FBillNo;
+          FEntityItem['FSrcType'] = 'SAL_DELIVERYNOTICE';
           if(element[0]['FEntryID'] == 0){
             entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
             FEntityItem['FCustMatID'] = {"FNumber": this.hobby[entryIndex][0]['FCustMatID']};
@@ -2385,7 +2388,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                 "FEntity_Link_FSTableName": "T_SAL_DELIVERYNOTICEENTRY",
                 "FEntity_Link_FSBillId": this.hobby[entryIndex][0]['FID'],
                 "FEntity_Link_FSId": this.hobby[entryIndex][0]['FEntryID'],
-                "FEntity_Link_FAuxUnitQty": element[3]['value']['value']
+                "FEntity_Link_FBaseUnitQty": element[3]['value']['value'],
               }
             ];
           }else{
@@ -2403,7 +2406,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
                 "FEntity_Link_FSTableName": "T_SAL_DELIVERYNOTICEENTRY",
                 "FEntity_Link_FSBillId": element[0]['FID'],
                 "FEntity_Link_FSId": element[0]['FEntryID'],
-                "FEntity_Link_FAuxUnitQty": element[3]['value']['value']
+                "FEntity_Link_FBaseUnitQty": element[3]['value']['value'],
               }
             ];
           }

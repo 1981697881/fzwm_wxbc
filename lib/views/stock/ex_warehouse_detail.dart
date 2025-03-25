@@ -475,26 +475,47 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       });
     }else{
       if(fBarCodeList == 1){
-        Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
-        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-        barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
-        Map<String, dynamic> dataMap = Map();
-        dataMap['data'] = barcodeMap;
-        String order = await CurrencyEntity.polling(dataMap);
-        var barcodeData = jsonDecode(order);
-        if (barcodeData.length>0) {
-          print(barcodeData);
-          if(barcodeData[0][4]>0){
-            _code = event;
-            this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
-            print("ChannelPage: $event");
-          }else{
-            ToastUtil.showInfo('该条码已出库或没入库，数量为零');
-          }
+        var barcodeList = [];
+        if(event.split(';').length>1){
+          barcodeList = [[event]];
         }else{
-          ToastUtil.showInfo('条码不在条码清单中');
+          Map<String, dynamic> barcodeMap = Map();
+          barcodeMap['FilterString'] = "FPackageNo='" + event + "'";
+          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+          barcodeMap['FieldKeys'] =
+          'FBarCodeEn';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = barcodeMap;
+          String order = await CurrencyEntity.polling(dataMap);
+          var barcodeData = jsonDecode(order);
+          if (barcodeData.length > 0) {
+            barcodeList = barcodeData;
+          } else {
+            barcodeList = [[event]];
+          }
+        }
+        for(var item in barcodeList){
+          Map<String, dynamic> barcodeMap = Map();
+          barcodeMap['FilterString'] = "FBarCodeEn='"+item[0]+"'";
+          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+          barcodeMap['FieldKeys'] =
+          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = barcodeMap;
+          String order = await CurrencyEntity.polling(dataMap);
+          var barcodeData = jsonDecode(order);
+          if (barcodeData.length>0) {
+            print(barcodeData);
+            if(barcodeData[0][4]>0){
+              _code = event;
+              this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
+              print("ChannelPage: $event");
+            }else{
+              ToastUtil.showInfo('该条码已出库或没入库，数量为零');
+            }
+          }else{
+            ToastUtil.showInfo('条码不在条码清单中');
+          }
         }
       }else{
         _code = event;
