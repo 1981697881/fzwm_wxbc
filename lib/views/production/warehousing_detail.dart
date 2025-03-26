@@ -405,7 +405,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         });
         ToastUtil.showInfo('无数据');
       }
-      //_onEvent("33050;AQ50314304N1;2025-03-15;600;MO002871,0810405082;2");
+      //_onEvent("31014;AQ50310309N1;2025-03-12;200;MO002841,1330546957;23");
   }
 
   void _onEvent(event) async {

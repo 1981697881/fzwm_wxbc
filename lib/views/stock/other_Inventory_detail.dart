@@ -37,6 +37,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
 
   final _textNumber = TextEditingController();
   var checkItem;
+  var fBarCodeList;
   String FBillNo = '';
   String FSaleOrderNo = '';
   String FName = '';
@@ -237,24 +238,32 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       ToastUtil.showInfo('请选择仓库');
     }else{
       _code = event;
-      Map<String, dynamic> barcodeMap = Map();
-      barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
-      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-      barcodeMap['FieldKeys'] =
-      'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
-      Map<String, dynamic> dataMap = Map();
-      dataMap['data'] = barcodeMap;
-      String order = await CurrencyEntity.polling(dataMap);
-      var barcodeData = jsonDecode(order);
-      if (barcodeData.length>0) {
-        this.getMaterialList(barcodeData[0][4].toString(),_code,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12]);
+      SharedPreferences sharedPreferences =
+      await SharedPreferences.getInstance();
+      var deptData = sharedPreferences.getString('menuList');
+      var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+      fBarCodeList = menuList['FBarCodeList'];
+      if (fBarCodeList == 1) {
+        Map<String, dynamic> barcodeMap = Map();
+        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"' and FStockID.FNumber= '"+stockNumber+"'";
+        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+        barcodeMap['FieldKeys'] =
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = barcodeMap;
+        String order = await CurrencyEntity.polling(dataMap);
+        var barcodeData = jsonDecode(order);
+        if (barcodeData.length>0) {
+          this.getMaterialList(barcodeData[0][4].toString(),_code,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12]);
+        }else{
+          ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
+        }
       }else{
         EasyLoading.show(status: 'loading...');
         this.getMaterialList("0",_code,"",false,"");
         print("ChannelPage: $event");
       }
     }
-
     /*});*/
   }
 
@@ -287,7 +296,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
+    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation,FAuxPropId.FF100002.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -314,10 +323,10 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2]}
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": value[19], "value": value[19]}
           });
           arr.add({
             "title": "单位名称",
@@ -529,7 +538,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
-                //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
+                //_onEvent("31048;AQ50103102N1;2025-01-07;200;MO002547,1758287255;9");
               }
               elementIndex++;
             });
@@ -755,6 +764,9 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {
             "FNumber": element[0]['value']['value']
+          };
+          FEntityItem['FAuxPropId'] = {
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           FEntityItem['FUnitID'] = {
             "FNumber": element[2]['value']['value']

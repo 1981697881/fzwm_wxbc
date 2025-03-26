@@ -299,8 +299,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           "value": {"label": value[6], "value": value[5]}
         });
         arr.add({
-          "title": "规格型号",
-          "isHide": true,
+          "title": "包装规格",
+          "isHide": false,
           "name": "FMaterialIdFSpecification",
           "value": {"label": value[7], "value": value[7]}
         });
@@ -363,10 +363,10 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       fBarCodeList = menuList['FBarCodeList'];
       if (fBarCodeList == 1) {
         Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"'";
+        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"' and FStockID.FNumber= '"+stockNumber+"'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockLocNumberH,FStockID.FIsOpenLocation,FPackageSpec';
+            'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FStockLocNumberH,FStockID.FIsOpenLocation,FPackageSpec,FProduceDate,FExpiryDate';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
@@ -375,17 +375,17 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           setState(() {
             _code = event;
           });
-          this.getMaterialList(barcodeData, _code,barcodeData[0][5], barcodeData[0][6], barcodeData[0][7]);
+          this.getMaterialList(barcodeData, _code,barcodeData[0][5], barcodeData[0][6], barcodeData[0][7], barcodeData[0][8].substring(0, 10), barcodeData[0][9].substring(0, 10));
           print("ChannelPage: $event");
           ToastUtil.showInfo('查询标签成功');
         } else {
-          ToastUtil.showInfo('条码不在条码清单中');
+          ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
         }
       } else {
         setState(() {
           _code = event;
         });
-        this.getMaterialList("", _code, "", false,"");
+        this.getMaterialList("", _code, "", false,"","","");
         EasyLoading.show(status: 'loading...');
         print("ChannelPage: $event");
       }
@@ -399,7 +399,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     });
   }
 
-  getMaterialList(barcodeData, code, fLoc,fIsOpenLocation,fAuxPropId) async {
+  getMaterialList(barcodeData, code, fLoc,fIsOpenLocation,fAuxPropId, fProduceDate, fExpiryDate) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
@@ -423,7 +423,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     }
     userMap['FormId'] = 'STK_StockCountInput';
     userMap['FieldKeys'] =
-        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
+        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation,FAuxPropId.FF100002.FNumber,FProduceDate,FExpiryDate';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -490,10 +490,10 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             }
           });
           arr.add({
-            "title": "规格型号",
-            "isHide": true,
+            "title": "包装规格",
+            "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+            "value": {"label": value[21], "value": value[21]}
           });
           arr.add({
             "title": "单位名称",
@@ -595,6 +595,24 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             "isHide": !value[20],
             "value": {"label": value[16]+"."+value[17]+"."+value[18]+"."+value[19], "value": value[16]+"."+value[17]+"."+value[18]+"."+value[19]}
           });
+          arr.add({
+            "title": "生产日期",
+            "name": "FProduceDate",
+            "isHide": true,
+            "value": {
+              "label": value[22],
+              "value": value[22]
+            }
+          });
+          arr.add({
+            "title": "有效期至",
+            "name": "FExpiryDate",
+            "isHide": true,
+            "value": {
+              "label": value[23],
+              "value": value[23]
+            }
+          });
           hobby.add(arr);
         });
       }
@@ -665,10 +683,10 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               }
             });
             arr.add({
-              "title": "规格型号",
-              "isHide": true,
+              "title": "包装规格",
+              "isHide": false,
               "name": "FMaterialIdFSpecification",
-              "value": {"label": value[3], "value": value[3]}
+              "value": {"label": fAuxPropId, "value": fAuxPropId}
             });
             arr.add({
               "title": "单位名称",
@@ -762,6 +780,24 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               "name": "FStockID",
               "isHide": !fIsOpenLocation,
               "value": {"label": fLoc, "value": fLoc}
+            });
+            arr.add({
+              "title": "生产日期",
+              "name": "FProduceDate",
+              "isHide": true,
+              "value": {
+                "label": fProduceDate,
+                "value": fProduceDate
+              }
+            });
+            arr.add({
+              "title": "有效期至",
+              "name": "FExpiryDate",
+              "isHide": true,
+              "value": {
+                "label": fExpiryDate,
+                "value": fExpiryDate
+              }
             });
             hobby.add(arr);
           });
@@ -917,7 +953,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
-                //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
+                //_onEvent("31831;AQ50114310N1;2025-01-14;200;MO002611,0838433912;20");
               }
               elementIndex++;
             });
@@ -1246,8 +1282,8 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                         }
                       });
                       arr.add({
-                        "title": "规格型号",
-                        "isHide": true,
+                        "title": "包装规格",
+                        "isHide": false,
                         "name": "FMaterialIdFSpecification",
                         "value": {
                           "label": element["specification"],
@@ -1365,6 +1401,30 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                         "isHide": false,
                         "value": {"label": "0", "value": "0"}
                       });
+                      arr.add({
+                        "title": "仓位",
+                        "name": "FStockID",
+                        "isHide": !(element["position"] != null && element["position"] != ''),
+                        "value": {"label": element["position"], "value": element["position"]}
+                      });
+                      arr.add({
+                        "title": "生产日期",
+                        "name": "FProduceDate",
+                        "isHide": !(element["produceDate"] != null && element["produceDate"] != ''),
+                        "value": {
+                          "label": element["produceDate"],
+                          "value": element["produceDate"]
+                        }
+                      });
+                      arr.add({
+                        "title": "有效期至",
+                        "name": "FExpiryDate",
+                        "isHide": !(element["expiryDate"] != null && element["expiryDate"] != ''),
+                        "value": {
+                          "label": element["expiryDate"],
+                          "value": element["expiryDate"]
+                        }
+                      });
                       hobby.add(arr);
                     }
                     this._getHobby();
@@ -1414,20 +1474,23 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               var materialDate = [];
               //查询盘点方案
               Map<String, dynamic> schemeMap = Map();
-              /*if (element[6]['value']['value'] == "") {*/
-                schemeMap['FilterString'] = "FMaterialId.FNumber='" +
-                    element[0]['value']['value'] +
-                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              /*} else {
-                schemeMap['FilterString'] = "FMaterialId.FNumber='" +
-                    element[0]['value']['value'] +
-                    "' and FLot.FNumber='" +
-                    element[6]['value']['value'] +
-                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              }*/
+              if (element[6]['value']['value'] == "") {
+                if(!element[15]['isHide']){
+                  var postionList = element[15]['value']['value'].split(".");
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+                }else{
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+                }
+              } else {
+                if(!element[15]['isHide']){
+                  var postionList = element[15]['value']['value'].split(".");
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FLot.FNumber='" + element[6]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+                }else{
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FLot.FNumber='" + element[6]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+                }
+              }
               schemeMap['FormId'] = 'STK_StockCountInput';
-              schemeMap['FieldKeys'] =
-                  'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
+              schemeMap['FieldKeys'] = 'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
               Map<String, dynamic> schemeDataMap = Map();
               schemeDataMap['data'] = schemeMap;
               String order = await CurrencyEntity.polling(schemeDataMap);
@@ -1448,17 +1511,21 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               }
             } else {
               Map<String, dynamic> schemeMap = Map();
-              //if (element[6]['value']['value'] == "") {
-                schemeMap['FilterString'] = "FMaterialId.FNumber='" +
-                    element[0]['value']['value'] +
-                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-             /* } else {
-                schemeMap['FilterString'] = "FMaterialId.FNumber='" +
-                    element[0]['value']['value'] +
-                    "' and FLot.FNumber='" +
-                    element[6]['value']['value'] +
-                    "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-              }*/
+              if (element[6]['value']['value'] == "") {
+                if(!element[15]['isHide']){
+                  var postionList = element[15]['value']['value'].split(".");
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+                }else{
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+                }
+              } else {
+                if(!element[15]['isHide']){
+                  var postionList = element[15]['value']['value'].split(".");
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FLot.FNumber='" + element[6]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+                }else{
+                  schemeMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+element[1]['value']['value']+"' and FMaterialId.FNumber='" + element[0]['value']['value'] + "' and FLot.FNumber='" + element[6]['value']['value'] + "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
+                }
+              }
               schemeMap['FormId'] = 'STK_StockCountInput';
               schemeMap['FieldKeys'] =
                   'FMaterialId.FName,FMaterialId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FBillEntry_FEntryID,FCountQty';
@@ -1484,46 +1551,53 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             }
           }
           Map<String, dynamic> FEntityItem = Map();
+
           FEntityItem['FEntryID'] = element[13]['value']['value'];
-          FEntityItem['FMaterialId'] = {
-            "FNumber": element[0]['value']['value']
-          };
-          FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
-          FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
-          if (!element[16]['isHide']) {
-            Map<String, dynamic> stockMap = Map();
-            stockMap['FormId'] = 'BD_STOCK';
-            stockMap['FieldKeys'] =
-            'FFlexNumber';
-            stockMap['FilterString'] = "FNumber = '" +
-                element[5]['value']['value'] +
-                "'";
-            Map<String, dynamic> stockDataMap = Map();
-            stockDataMap['data'] = stockMap;
-            String res = await CurrencyEntity.polling(stockDataMap);
-            var stockRes = jsonDecode(res);
-            if (stockRes.length > 0) {
-              var postionList = element[16]['value']['value'].split(".");
-              FEntityItem['FStockLocId'] = {};
-              var positonIndex = 0;
-              for(var dimension in postionList){
-                FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
-                  "FNumber": dimension
-                };
-                positonIndex++;
+          if(element[13]['value']['value'] == "0"){
+            FEntityItem['FMaterialId'] = {
+              "FNumber": element[0]['value']['value']
+            };
+            FEntityItem['FAuxPropId'] = {
+              "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
+            };
+            FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
+            FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
+            if (!element[15]['isHide']) {
+              Map<String, dynamic> stockMap = Map();
+              stockMap['FormId'] = 'BD_STOCK';
+              stockMap['FieldKeys'] =
+              'FFlexNumber';
+              stockMap['FilterString'] = "FNumber = '" +
+                  element[5]['value']['value'] +
+                  "'";
+              Map<String, dynamic> stockDataMap = Map();
+              stockDataMap['data'] = stockMap;
+              String res = await CurrencyEntity.polling(stockDataMap);
+              var stockRes = jsonDecode(res);
+              if (stockRes.length > 0) {
+                var postionList = element[15]['value']['value'].split(".");
+                FEntityItem['FStockLocId'] = {};
+                var positonIndex = 0;
+                for(var dimension in postionList){
+                  FEntityItem['FStockLocId']["FSTOCKLOCID__" + stockRes[positonIndex][0]] = {
+                    "FNumber": dimension
+                  };
+                  positonIndex++;
+                }
               }
             }
+            FEntityItem['FOwnerId'] = {"FNumber": element[9]['value']['value']};
+            FEntityItem['FStockStatusId'] = {
+              "FNumber": element[10]['value']['value']
+            };
+            FEntityItem['FLot'] = {"FNumber": element[6]['value']['value']};
+            FEntityItem['FProduceDate'] = element[16]['value']['value'];
+            FEntityItem['FExpiryDate'] = element[17]['value']['value'];
+            FEntityItem['FKeeperTypeId'] = element[11]['value']['value'];
+            FEntityItem['FKeeperId'] = {"FNumber": element[12]['value']['value']};
+            FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
           }
-          FEntityItem['FOwnerId'] = {"FNumber": element[9]['value']['value']};
-         // FEntityItem['FLOT'] = {"FNumber": element[6]['value']['value']};
-          FEntityItem['FStockStatusId'] = {
-            "FNumber": element[10]['value']['value']
-          };
-          FEntityItem['FKeeperTypeId'] = element[11]['value']['value'];
-          FEntityItem['FKeeperId'] = {"FNumber": element[12]['value']['value']};
-          /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FCountQty'] = element[4]['value']['value'];
-          FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -1539,7 +1613,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       Model['FBillEntry'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
-      print(jsonEncode(dataMap));
+      var params = jsonEncode(dataMap);
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
@@ -1573,7 +1647,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             print(barcode);
             for (int j = 0; j < barcode.length; j++) {
               Map<String, dynamic> dataCodeMap = Map();
-              dataCodeMap['formid'] = 'QDEP_BarCodeList';
+              dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
               Map<String, dynamic> orderCodeMap = Map();
               orderCodeMap['NeedReturnFields'] = [];
               orderCodeMap['IsDeleteEntry'] = false;
@@ -1730,6 +1804,9 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                                 element[11]['value']['value'],
                                 element[12]['value']['value'],
                                 element[13]['value']['value'],
+                                element[15]['value']['value'],
+                                element[16]['value']['value'],
+                                element[17]['value']['value'],
                                 jsonEncode(element[0]['value']['barcode']));
                           }
                           /* await SqfLiteQueueDataScheme.internal().close();*/
