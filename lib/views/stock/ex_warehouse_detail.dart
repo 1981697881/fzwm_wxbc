@@ -103,6 +103,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   _ExWarehouseDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -127,6 +128,15 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    _focusNode.addListener(() { // 监听焦点变化
+      if (!_focusNode.hasFocus) { // 检查是否失去焦点
+        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
+        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
+          _textNumber3.text = _textNumber3.text + "0";
+        }
+        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
+      }
+    });
     /*getWorkShop();*/
    /* getTypeList();*/
     //getOrganizationsList();
@@ -136,7 +146,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     getDepartmentList();
     getStatusTypeList();
     //_onEvent("11078;2024-12-25-1华谊/力搏;2024-12-25;30;CGRK04249,1942202935;3");
-    //_onEvent("31831;AQ50212310N1;2025-02-12;61;MO002683,1011118850;28");
+    //_onEvent("31001;AQ50324305N1;2025-03-24;200;MO002936,1035209536;18");
 
   }
   //获取包装规格
@@ -265,6 +275,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     this._textNumber.dispose();
     this._textNumber2.dispose();
     this._textNumber3.dispose();
@@ -1828,6 +1839,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                         SizedBox(
                           width: 100,  // 设置固定宽度
                           child: TextField(
+
                             controller: _textNumber2, // 文本控制器
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
@@ -1877,14 +1889,20 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                               width: 100,  // 设置固定宽度
                               child: TextField(
                                 controller: _textNumber3, // 文本控制器
+                                focusNode: _focusNode,
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  if(value == ''){
-                                    this._textNumber3.text = "0";
+                                  if(value == '' || value == '.'){
                                     value = "0";
+                                    this._textNumber3.text = "0";
                                     this._textNumber3.selection = TextSelection(baseOffset: 0, extentOffset: this._textNumber3.text.length);
+                                  }else if(value[0]=="0" && value.length>1){
+                                    if(value[value.length - 1]!="."){
+                                      value = value.substring(1);
+                                      this._textNumber3.text = value.substring(1);
+                                    }
                                   }
-                                  setState(() {
+                                  if(value[value.length - 1]!="."){
                                     if(double.parse(value) <= double.parse(this.hobby[i][j]["value"]['representativeQuantity'])){
                                       if(double.parse(value) <= this.hobby[i][9]["value"]['value']){
                                         if (this.hobby[i][0]['value']['kingDeeCode'].length > 0) {
@@ -1920,7 +1938,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                     }else{
                                       ToastUtil.showInfo('输入数量大于条码可用数量');
                                     }
-                                    //this._FNumber = value;
+                                  }
+                                  setState(() {
+
                                   });
                                 },
                                 decoration: InputDecoration(

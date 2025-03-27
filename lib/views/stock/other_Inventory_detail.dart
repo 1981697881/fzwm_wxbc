@@ -248,19 +248,19 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
         barcodeMap['FilterString'] = "FBarCodeEn='"+event+"' and FStockID.FNumber= '"+stockNumber+"'";
         barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
         barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation';
+        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation,FBatchNo';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = barcodeMap;
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
-          this.getMaterialList(barcodeData[0][4].toString(),_code,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12]);
+          this.getMaterialList(barcodeData[0],event,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
         }else{
           ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
         }
       }else{
         EasyLoading.show(status: 'loading...');
-        this.getMaterialList("0",_code,"",false,"");
+        this.getMaterialList("0",_code,"",false,"","","");
         print("ChannelPage: $event");
       }
     }
@@ -272,7 +272,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       _code = "扫描异常";
     });
   }
-  getMaterialList(barcodeData,code, fLoc,fIsOpenLocation,fAuxPropId) async {
+  getMaterialList(barcodeData,code, fLoc,fIsOpenLocation,fAuxPropId,fProduceDate,fExpiryDate) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
@@ -282,21 +282,21 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     if(scanCode.length > 1){
       if(fIsOpenLocation && fLoc!=''){
         if(scanCode[1] == ''){
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+          userMap['FilterString'] = "FProduceDate='"+fProduceDate+"' and fExpiryDate='"+fExpiryDate+"' and FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
         }else{
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
+          userMap['FilterString'] = "FProduceDate='"+fProduceDate+"' and fExpiryDate='"+fExpiryDate+"' and FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FStockLocId.FF100018.FNumber = '" + postionList[0] + "' and FStockLocId.FF100019.FNumber = '" + postionList[1] + "' and FStockLocId.FF100020.FNumber = '" + postionList[2] + "' and FStockLocId.FF100021.FNumber = '" + postionList[3] + "'";
         }
       }else{
         if(scanCode[1] == ''){
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+          userMap['FilterString'] = "FProduceDate='"+fProduceDate+"' and fExpiryDate='"+fExpiryDate+"' and FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FStockId.FNumber = '$stockNumber'";
         }else{
-          userMap['FilterString'] = "FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber' and FBaseQty>0";
+          userMap['FilterString'] = "FProduceDate='"+fProduceDate+"' and fExpiryDate='"+fExpiryDate+"' and FAuxPropId.FF100002.FNumber='"+fAuxPropId+"' and FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockId.FNumber = '$stockNumber'";
         }
       }
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation,FAuxPropId.FF100002.FNumber';
+    'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FBaseQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FProduceDate,FExpiryDate';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -307,20 +307,44 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     if (orderDate.length > 0) {
       var number = 0;
       for (var element in hobby) {
-        if(element[0]['value']['value'] == scanCode[0]){
+        if(element[0]['value']['barcode'].indexOf(code) != -1){
           number++;
           ToastUtil.showInfo('该标签已扫描');
           break;
         }
+        //判断是否启用保质期
+        if (!element[14]['isHide']) {
+          if (element[14]['value']['value'].substring(0, 10) != fProduceDate ||
+              element[15]['value']['value'].substring(0, 10) != fExpiryDate) {
+            continue;
+          }
+        }
+        //判断是否启用仓位
+        if (element[13]['isHide']) {
+          if (element[13]['value']['label'] != fLoc) {
+            continue;
+          }
+        }
+        //判断包装规格
+        if (element[1]['value']['label'] != fAuxPropId) {
+          continue;
+        }
+        if(element[0]['value']['value']+"-"+element[6]['value']['value']+"-"+element[5]['value']['value'] == barcodeData[8]+"-"+barcodeData[17]+"-"+barcodeData[7]){
+          element[4]['value']['label'] =  (double.parse(element[4]['value']['label']) + double.parse(barcodeData[4].toString())).toString();
+          element[4]['value']['value'] =  element[4]['value']['label'];
+          element[0]['value']['barcode'].add(code);
+          number++;
+          break;
+        }
       }
       if(number == 0){
-        orderDate.forEach((value) {
+        for(var value in orderDate){
           List arr = [];
           arr.add({
             "title": "物料名称",
             "name": "FMaterial",
             "isHide": false,
-            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2]}
+            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code]}
           });
           arr.add({
             "title": "包装规格",
@@ -350,7 +374,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             "title": "盘点数量",
             "name": "FCountQty",
             "isHide": false,
-            "value": {"label": barcodeData, "value": barcodeData}
+            "value": {"label": barcodeData[4].toString(), "value": barcodeData[4].toString()}
           });
           arr.add({
             "title": "仓库",
@@ -362,7 +386,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           arr.add({
             "title": "批号",
             "name": "FLot",
-            "isHide": false,
+            "isHide": !value[22],
             "value": {"label": value[9]==null?"":value[9], "value": value[9]==null?"":value[9]}
           });
           arr.add({
@@ -404,11 +428,29 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
           arr.add({
             "title": "仓位",
             "name": "FStockID",
-            "isHide": !value[18],
-            "value": {"label": value[14]+"."+value[15]+"."+value[16]+"."+value[17], "value": value[14]+"."+value[15]+"."+value[16]+"."+value[17]}
+            "isHide": !value[21],
+            "value": {"label": value[14] == null?"":value[14]+"."+value[15]+"."+value[16]+"."+value[17], "value": value[14] == null?"":value[14]+"."+value[15]+"."+value[16]+"."+value[17]}
+          });
+          arr.add({
+            "title": "生产日期",
+            "name": "FProduceDate",
+            "isHide": !value[20],
+            "value": {
+              "label": value[23].substring(0, 10),
+              "value": value[23].substring(0, 10)
+            }
+          });
+          arr.add({
+            "title": "有效期至",
+            "name": "FExpiryDate",
+            "isHide": !value[20],
+            "value": {
+              "label": value[24].substring(0, 10),
+              "value": value[24].substring(0, 10)
+            }
           });
           hobby.add(arr);
-        });
+        };
       }
       setState(() {
         EasyLoading.dismiss();
@@ -421,6 +463,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+
   }
 
   Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
@@ -538,10 +581,10 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             data.forEach((element) {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
-                //_onEvent("31048;AQ50103102N1;2025-01-07;200;MO002547,1758287255;9");
               }
               elementIndex++;
             });
+
           }else{
             setState(() {
               hobby['value']['label'] = p;
