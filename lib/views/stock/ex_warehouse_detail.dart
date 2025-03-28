@@ -1895,7 +1895,6 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                   if(value == '' || value == '.'){
                                     value = "0";
                                     this._textNumber3.text = "0";
-                                    this._textNumber3.selection = TextSelection(baseOffset: 0, extentOffset: this._textNumber3.text.length);
                                   }else if(value[0]=="0" && value.length>1){
                                     if(value[value.length - 1]!="."){
                                       value = value.substring(1);
@@ -1936,6 +1935,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                         ToastUtil.showInfo('输入数量大于可用数量');
                                       }
                                     }else{
+                                      this._textNumber3.text = this.hobby[i][j]["value"]["value"];
                                       ToastUtil.showInfo('输入数量大于条码可用数量');
                                     }
                                   }
