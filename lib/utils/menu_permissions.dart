@@ -35,6 +35,7 @@ import 'package:fzwm_wxbc/views/stock/other_Inventory_detail.dart';
 import 'package:fzwm_wxbc/views/stock/other_warehousing_detail.dart';
 import 'package:fzwm_wxbc/views/stock/other_warehousing_page.dart';
 import 'package:fzwm_wxbc/views/stock/scheme_Inventory_detail.dart';
+import 'package:fzwm_wxbc/views/stock/shift_detail.dart';
 import 'package:fzwm_wxbc/views/stock/stock_page.dart';
 import 'package:fzwm_wxbc/views/stock/undercarriage_page.dart';
 import 'package:fzwm_wxbc/views/workshop/dispatch_detail.dart';
@@ -214,6 +215,14 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "移位",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ShiftDetail(),
       "source": '',
     });
     menu.add({

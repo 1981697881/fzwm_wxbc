@@ -9,7 +9,7 @@ import 'package:gbk2utf8/gbk2utf8.dart';
 import 'package:bluetooth_thermal_printer/bluetooth_thermal_printer.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
 class PrintPage extends StatefulWidget {
   var data;
 
@@ -21,9 +21,11 @@ class PrintPage extends StatefulWidget {
 
 class _PrintPageState extends State<PrintPage> {
   var printData;
-
+  var sheetNum = '1';
+  final _textNumber = TextEditingController();
   _PrintPageState(data) {
     if (data != null) {
+      this._textNumber.text = this.sheetNum;
       this.printData = data;
       this.getConnectionStatus();
     }
@@ -33,7 +35,11 @@ class _PrintPageState extends State<PrintPage> {
   void initState() {
     super.initState();
   }
-
+  @override
+  void dispose() {
+    this._textNumber.dispose();
+    super.dispose();
+  }
   bool connected = false;
   List availableBluetoothDevices = [];
 
@@ -163,7 +169,7 @@ class _PrintPageState extends State<PrintPage> {
                   'TEXT 100,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
                   'TEXT 150,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
                   'QRCODE 550,140,M,5,A,0,"${codeCont}"\r\n' +
-                  'PRINT 1,1\r\n';
+                  'PRINT 1,${sheetNum}\r\n';
              /* println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +
                     "LEFT\n" +
@@ -192,7 +198,6 @@ class _PrintPageState extends State<PrintPage> {
                     "B QR 450 170 M 3 U 6\n MA,${codeCont}\nENDQR\n" +
                     "FORM\n" +
                     "PRINT\n";*/
-
               Map<String, dynamic> dataCodeMap = Map();
               dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
               Map<String, dynamic> orderCodeMap = Map();
@@ -227,7 +232,7 @@ class _PrintPageState extends State<PrintPage> {
               codeFEntityItem['FEntryStockID'] = {
                 "FNUMBER": value['FStockId']['FNumber']
               };
-              if (!value['FStockLocId'].isEmpty) {
+              if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
                 Map<String, dynamic> stockMap = Map();
 
                 stockMap['FormId'] = 'BD_STOCK';
@@ -293,7 +298,7 @@ class _PrintPageState extends State<PrintPage> {
           }
         }
       }else{
-        var barcodeNum = 1;
+        var barcodeNum = 1.0;
         var fRealQty = value['FQty'].toString();
         var packing = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
         //获取条码流水号
@@ -308,9 +313,9 @@ class _PrintPageState extends State<PrintPage> {
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length > 0) {
-          barcodeNum = barcodeData[0][1] + 1;
+          barcodeNum = barcodeData[0][1] + 1.0;
         } else {
-          barcodeNum = 1;
+          barcodeNum = 1.0;
         }
         //判断规格重量
         if (cnIsNumber(packing) == true) {
@@ -357,7 +362,7 @@ class _PrintPageState extends State<PrintPage> {
                   'TEXT 100,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
                   'TEXT 150,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
                   'QRCODE 550,140,M,5,A,0,"${codeCont}"\r\n' +
-                  'PRINT 1,1\r\n';
+                  'PRINT 1,${sheetNum}\r\n';
                 /*println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +
                     "LEFT\n" +
@@ -420,7 +425,8 @@ class _PrintPageState extends State<PrintPage> {
               codeFEntityItem['FEntryStockID'] = {
                 "FNUMBER": value['FStockId']['FNumber']
               };
-              if (!value['FStockLocId'].isEmpty) {
+              print(value['FStockLocId']);
+              if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
                 Map<String, dynamic> stockMap = Map();
                 stockMap['FormId'] = 'BD_STOCK';
                 stockMap['FieldKeys'] =
@@ -535,6 +541,28 @@ class _PrintPageState extends State<PrintPage> {
                   },
                 ),
               ),
+              SizedBox(
+                height: 30,
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Card(
+                      child: Column(children: <Widget>[
+                        TextField(
+                          style: TextStyle(color: Colors.black87),
+                          keyboardType: TextInputType.number,
+                          controller: this._textNumber,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^[1-9]\d*|^$')),
+                          ],
+                          decoration: InputDecoration(hintText: "请输入份数"),
+                          onChanged: (value) {
+                            setState(() {
+                              this.sheetNum = value;
+                            });
+                          },
+                        ),
+                      ]))),
               SizedBox(
                 height: 30,
               ),

@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter_pickers/pickers.dart';
+import 'package:flutter_pickers/style/default_style.dart';
+import 'package:fzwm_wxbc/components/my_text.dart';
 import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/utils/toast_util.dart';
 import 'package:flutter/material.dart';
@@ -337,63 +340,198 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
       _code = "扫描异常";
     });
   }
+  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
+    if (selectData == null) {
+      selectData = "";
+    }
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
+                  color: Colors.grey, rightpadding: 18),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
+    );
+  }
+  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
+    Pickers.showSinglePicker(
+      context,
+      data: data,
+      selectData: selectData,
+      pickerStyle: DefaultPickerStyle(),
+      suffix: label,
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        print('longer >>> 返回数据类型：${p.runtimeType}');
+        setState(() {
 
+        });
+      },
+    );
+  }
+  // 修改后的 _getHobby 方法
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
-    for (int i = 0; i < this.hobby.length; i++) {
+    for (int i = 0; i < (this.hobby.length > 0?1: this.hobby.length); i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
+
           comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return ProductionOrderDetail(
-                            FBillNo: this.hobby[i][0]['value'],
-                            FSeq: this.hobby[i][10]['value'],
-                            // 路由参数
-                          );
-                        },
-                      ),
-                    ).then((data) {
-                      //延时500毫秒执行
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        setState(() {
-                          //延时更新状态
-                          this._initState();
-                        });
-                      });
-                    });
-                  },
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
-                ),
+            SizedBox( // 为每个列表项指定宽度
+              width: 200, // 根据内容调整合适宽度
+              child: Column(
+                children: [
+                  Container(
+                    color: Colors.white,
+                    child: ListTile(
+                      title: Text(this.hobby[i][j]["title"],textAlign: TextAlign.center),
+
+                    ),
+                  ),
+                  divider,
+                ],
               ),
-              divider,
-            ]),
+            ),
           );
         }
       }
       tempList.add(
-        SizedBox(height: 10),
-      );
-      tempList.add(
-        Column(
+        Wrap( // 关键修改点：用 Wrap 替代 Row
+          direction: Axis.horizontal,
+          spacing: 2,    // 水平间距
+          runSpacing: 2, // 垂直行间距
           children: comList,
         ),
       );
+      tempList.add(SizedBox(width: 10)); // 横向间距改为宽度
+    }
+    for (int i = 0; i < this.hobby.length; i++) {
+      List<Widget> comList = [];
+      for (int j = 0; j < this.hobby[i].length; j++) {
+        if (!this.hobby[i][j]['isHide']) {
+          if (j == 0) {
+            comList.add(
+              SizedBox( // 为每个列表项指定宽度
+                width: 200, // 根据内容调整合适宽度
+                child: Column(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: ListTile(
+                        title: Text(this.hobby[i][j]["value"]["label"].toString(),textAlign: TextAlign.center,),trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+
+                              },
+                            ),
+                          ])
+                      ),
+                    ),
+                    divider,
+                  ],
+                ),
+              ),
+            );
+          }else if (j == 5) {
+            comList.add(
+              SizedBox( // 为每个列表项指定宽度
+                width: 200, // 根据内容调整合适宽度
+                child: _item('', [], this.hobby[i][j]['value']['label'],
+                    this.hobby[i][j],stock:this.hobby[i])
+              ),
+            );
+          }else if (j == 6) {
+            comList.add(
+              SizedBox( // 为每个列表项指定宽度
+                width: 200, // 根据内容调整合适宽度
+                child: Column(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: SizedBox(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+
+                          },
+                          decoration: InputDecoration(
+                            hintText: '请输入',
+                            contentPadding: EdgeInsets.all(0),
+                          ),
+                        ),
+                      ),
+                    ),
+                    divider,
+                  ],
+                ),
+              ),
+            );
+          }else{
+            comList.add(
+              SizedBox( // 为每个列表项指定宽度
+                width: 200, // 根据内容调整合适宽度
+                child: Column(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ProductionOrderDetail(
+                                  FBillNo: this.hobby[i][0]['value'],
+                                  FSeq: this.hobby[i][10]['value'],
+                                  // 路由参数
+                                );
+                              },
+                            ),
+                          ).then((data) {
+                            //延时500毫秒执行
+                            Future.delayed(const Duration(milliseconds: 500), () {
+                              setState(() {
+                                //延时更新状态
+                                this._initState();
+                              });
+                            });
+                          });
+                        },
+                        title: Text(this.hobby[i][j]["value"]["label"].toString(),textAlign: TextAlign.center,),
+                      ),
+                    ),
+                    divider,
+                  ],
+                ),
+              ),
+            );
+          }
+
+        }
+      }
+      tempList.add(
+        Wrap( // 关键修改点：用 Wrap 替代 Row
+          direction: Axis.horizontal,
+          spacing: 2,    // 水平间距
+          runSpacing: 2, // 垂直行间距
+          children: comList,
+        ),
+      );
+      tempList.add(SizedBox(width: 10)); // 横向间距改为宽度
     }
     return tempList;
   }
@@ -606,11 +744,15 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
                 ),
               ),
               SliverFillRemaining(
-                child: ListView(children: <Widget>[
-                  Column(
-                    children: this._getHobby(),
-                  ),
-                ]),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    Wrap( // 外层也需要 Wrap 来处理多行
+                      direction: Axis.vertical,
+                      children: _getHobby(),
+                    ),
+                  ],
+                ),
               ),
             ],
           )),
