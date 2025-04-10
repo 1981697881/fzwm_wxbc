@@ -81,32 +81,32 @@ class _RetrievalPageState extends State<RetrievalPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FRemainOutQty - FJoinOutQty >0 and FDocumentStatus ='C'";
+    userMap['FilterString'] = "FQty - FJoinOutQty >0 and FDocumentStatus ='C'";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-          "FRemainOutQty - FJoinOutQty >0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
+          "FQty - FJoinOutQty >0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty - FJoinOutQty >0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FQty - FJoinOutQty >0";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FRemainOutQty - FJoinOutQty >0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FCustomerID.FName like '%"+keyWord+"%') and FDocumentStatus ='C' and FQty - FJoinOutQty >0";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
           userMap['FilterString'] =
-          "FRemainOutQty - FJoinOutQty >0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
+          "FQty - FJoinOutQty >0 and FDocumentStatus ='C' and FPlanDeliveryDate >= '$startDate' and FPlanDeliveryDate  <= '$endDate'";
         }else{
           userMap['FilterString'] =
-          "FDocumentStatus ='C' and FRemainOutQty - FJoinOutQty >0";
+          "FDocumentStatus ='C' and FQty - FJoinOutQty >0";
         }
       }
     }
@@ -115,7 +115,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
     userMap['Limit'] = '20';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,,FCustomerID.FNumber,FCustomerID.FName,FLinkMan,FHeadLocId.FName,FLinkPhone';
+        'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FJoinOutQty,FCustomerID.FNumber,FCustomerID.FName,FLinkMan,FHeadLocId.FName,FLinkPhone';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -184,7 +184,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
           "title": "未出库数量",
           "name": "FRemainOutQty",
           "isHide": true,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": value[12]-value[16], "value": value[12]-value[16]}
         });
         arr.add({
           "title": "收件人",

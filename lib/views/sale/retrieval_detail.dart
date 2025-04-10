@@ -203,7 +203,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "fBillNo='$fBillNo' and FRemainOutQty - FJoinOutQty >0";
+    userMap['FilterString'] = "fBillNo='$fBillNo' and FQty - FJoinOutQty >0";
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
@@ -258,7 +258,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "value": value[5],
             "barcode": [],
             "kingDeeCode": [],
-            "surplus": value[14] - value[40],
+            "surplus": value[12] - value[40],
             "scanCode": []
           }
         });
@@ -348,7 +348,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           "title": "未出库数量",
           "name": "",
           "isHide": false,
-          "value": {"label": value[14] - value[40], "value": value[14] - value[40]}
+          "value": {"label": value[12] - value[40], "value": value[12] - value[40]}
         });
         arr.add({
           "title": "最后扫描数量",
