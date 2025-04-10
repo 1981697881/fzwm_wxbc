@@ -125,7 +125,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     /*getWorkShop();*/
    //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
     //_onEvent("31037;AQ30630000T1;2023-06-30;10.5;,1126401926;3");
-    //_onEvent("32004;AQ41101310N1;2024-11-04;190;MO002239,0939262067;2");
     EasyLoading.dismiss();
   }
 
@@ -543,7 +542,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    var scanCode = _code.split(";");
+    var scanCode = code.split(";");
     Map<String, dynamic> stockMap = Map();
     stockMap['FormId'] = 'BD_STOCK';
     stockMap['FieldKeys'] =
@@ -1178,7 +1177,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "value": {
               "label": value[0] + "- (" + value[1] + ")",
               "value": value[1],
-              "barcode": [_code],
+              "barcode": [code],
               "kingDeeCode": [barCodeScan[0].toString()+"-"+barcodeNum.toString()+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+barcodeNum.toString()],
               "codeList": []
             }
