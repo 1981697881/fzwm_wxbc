@@ -2087,168 +2087,168 @@ class _RetrievalDetailState extends State<ShiftDetail> {
             .then((submitResult) async {
           if (submitResult) {
             //审核
-            /*HandlerOrder.orderHandler(context, submitMap, 1,
+            HandlerOrder.orderHandler(context, submitMap, 1,
                 "STK_TransferDirect", SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
-              if (auditResult) {*/
-            var errorMsg = "";
-            if (fBarCodeList == 1) {
-              for (int i = 0; i < this.hobby.length; i++) {
-                if (this.hobby[i][3]['value']['value'] != '0') {
-                  var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
-                  for (int j = 0; j < kingDeeCode.length; j++) {
-                    Map<String, dynamic> dataCodeMap = Map();
-                    dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
-                    Map<String, dynamic> orderCodeMap = Map();
-                    orderCodeMap['NeedReturnFields'] = [];
-                    orderCodeMap['IsDeleteEntry'] = false;
-                    Map<String, dynamic> codeModel = Map();
-                    var itemCode = kingDeeCode[j].split("-");
-                    codeModel['FID'] = itemCode[0];
-                    for (var j = 0; j < 2; j++) {
-                      if (j == 0) {
-                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
-                        Map<String, dynamic> codeFEntityItem = Map();
-                        codeFEntityItem['FBillDate'] = FDate;
-                        codeFEntityItem['FOutQty'] = itemCode[1];
-                        codeFEntityItem['FEntryBillNo'] =
-                            returnData[0]['FBillNo'];
-                        codeFEntityItem['FEntryStockID'] = {
-                          "FNUMBER": this.hobby[i][6]['value']['value']
-                        };
-                        if (this.hobby[i][7]['value']['hide']) {
-                          Map<String, dynamic> stockMap = Map();
-                          stockMap['FormId'] = 'BD_STOCK';
-                          stockMap['FieldKeys'] = 'FFlexNumber';
-                          stockMap['FilterString'] = "FNumber = '" +
-                              this.hobby[i][6]['value']['value'] +
-                              "'";
-                          Map<String, dynamic> stockDataMap = Map();
-                          stockDataMap['data'] = stockMap;
-                          String res =
-                              await CurrencyEntity.polling(stockDataMap);
-                          var stockRes = jsonDecode(res);
-                          if (stockRes.length > 0) {
-                            var postionList =
-                                this.hobby[i][7]['value']['value'].split(".");
-                            codeFEntityItem['FStockLocID'] = {};
-                            codeFEntityItem['FStockLocNumber'] =
-                                this.hobby[i][7]['value']['value'];
-                            var positonIndex = 0;
-                            for (var dimension in postionList) {
-                              codeFEntityItem['FStockLocID']["FSTOCKLOCID__" +
-                                  stockRes[positonIndex]
-                                      [0]] = {"FNumber": dimension};
-                              positonIndex++;
+              if (auditResult) {
+                var errorMsg = "";
+                if (fBarCodeList == 1) {
+                  for (int i = 0; i < this.hobby.length; i++) {
+                    if (this.hobby[i][3]['value']['value'] != '0') {
+                      var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
+                      for (int j = 0; j < kingDeeCode.length; j++) {
+                        Map<String, dynamic> dataCodeMap = Map();
+                        dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                        Map<String, dynamic> orderCodeMap = Map();
+                        orderCodeMap['NeedReturnFields'] = [];
+                        orderCodeMap['IsDeleteEntry'] = false;
+                        Map<String, dynamic> codeModel = Map();
+                        var itemCode = kingDeeCode[j].split("-");
+                        codeModel['FID'] = itemCode[0];
+                        for (var j = 0; j < 2; j++) {
+                          if (j == 0) {
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FOutQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] =
+                                returnData[0]['FBillNo'];
+                            codeFEntityItem['FEntryStockID'] = {
+                              "FNUMBER": this.hobby[i][6]['value']['value']
+                            };
+                            if (this.hobby[i][7]['value']['hide']) {
+                              Map<String, dynamic> stockMap = Map();
+                              stockMap['FormId'] = 'BD_STOCK';
+                              stockMap['FieldKeys'] = 'FFlexNumber';
+                              stockMap['FilterString'] = "FNumber = '" +
+                                  this.hobby[i][6]['value']['value'] +
+                                  "'";
+                              Map<String, dynamic> stockDataMap = Map();
+                              stockDataMap['data'] = stockMap;
+                              String res =
+                                  await CurrencyEntity.polling(stockDataMap);
+                              var stockRes = jsonDecode(res);
+                              if (stockRes.length > 0) {
+                                var postionList =
+                                    this.hobby[i][7]['value']['value'].split(".");
+                                codeFEntityItem['FStockLocID'] = {};
+                                codeFEntityItem['FStockLocNumber'] =
+                                    this.hobby[i][7]['value']['value'];
+                                var positonIndex = 0;
+                                for (var dimension in postionList) {
+                                  codeFEntityItem['FStockLocID']["FSTOCKLOCID__" +
+                                      stockRes[positonIndex]
+                                          [0]] = {"FNumber": dimension};
+                                  positonIndex++;
+                                }
+                              }
                             }
-                          }
-                        }
 
-                        var codeFEntity = [codeFEntityItem];
-                        codeModel['FEntity'] = codeFEntity;
-                        orderCodeMap['Model'] = codeModel;
-                        dataCodeMap['data'] = orderCodeMap;
-                        print(dataCodeMap);
-                        String codeRes = await SubmitEntity.save(dataCodeMap);
-                        var barcodeRes = jsonDecode(codeRes);
-                        if (!barcodeRes['Result']['ResponseStatus']
-                            ['IsSuccess']) {
-                          errorMsg += "错误反馈：" +
-                              itemCode[1] +
-                              ":" +
-                              barcodeRes['Result']['ResponseStatus']['Errors']
-                                  [0]['Message'];
-                        }
-                        print(codeRes);
-                      } else {
-                        codeModel['FOwnerID'] = {
-                          "FNUMBER": this.organizationsNumber2
-                        };
-                        codeModel['FStockOrgID'] = {
-                          "FNUMBER": this.organizationsNumber2
-                        };
-                        codeModel['FStockID'] = {
-                          "FNUMBER": this.hobby[i][8]['value']['value']
-                        };
-                        /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
-                        Map<String, dynamic> codeFEntityItem = Map();
-                        codeFEntityItem['FBillDate'] = FDate;
-                        codeFEntityItem['FInQty'] = itemCode[1];
-                        codeFEntityItem['FEntryBillNo'] =
-                            returnData[0]['FBillNo'];
-                        //codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
-                        codeFEntityItem['FEntryStockID'] = {
-                          "FNUMBER": this.hobby[i][8]['value']['value']
-                        };
-                        if (this.hobby[i][9]['value']['hide']) {
-                          codeModel['FStockLocNumberH'] =
-                              this.hobby[i][9]['value']['value'];
-                          codeFEntityItem['FStockLocNumber'] =
-                              this.hobby[i][9]['value']['value'];
-                          Map<String, dynamic> stockMap = Map();
-                          stockMap['FormId'] = 'BD_STOCK';
-                          stockMap['FieldKeys'] = 'FFlexNumber';
-                          stockMap['FilterString'] = "FNumber = '" +
-                              this.hobby[i][8]['value']['value'] +
-                              "'";
-                          Map<String, dynamic> stockDataMap = Map();
-                          stockDataMap['data'] = stockMap;
-                          String res =
-                              await CurrencyEntity.polling(stockDataMap);
-                          var stockRes = jsonDecode(res);
-                          if (stockRes.length > 0) {
-                            var postionList =
-                                this.hobby[i][9]['value']['value'].split(".");
-                            codeModel['FStockLocIDH'] = {};
-                            codeFEntityItem['FStockLocID'] = {};
-                            var positonIndex = 0;
-                            for (var dimension in postionList) {
-                              codeModel['FStockLocIDH']["FSTOCKLOCIDH__" +
-                                  stockRes[positonIndex]
-                                      [0]] = {"FNumber": dimension};
-                              codeFEntityItem['FStockLocID']["FSTOCKLOCID__" +
-                                  stockRes[positonIndex]
-                                      [0]] = {"FNumber": dimension};
-                              positonIndex++;
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            String codeRes = await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if (!barcodeRes['Result']['ResponseStatus']
+                                ['IsSuccess']) {
+                              errorMsg += "错误反馈：" +
+                                  itemCode[1] +
+                                  ":" +
+                                  barcodeRes['Result']['ResponseStatus']['Errors']
+                                      [0]['Message'];
                             }
+                            print(codeRes);
+                          } else {
+                            codeModel['FOwnerID'] = {
+                              "FNUMBER": this.organizationsNumber2
+                            };
+                            codeModel['FStockOrgID'] = {
+                              "FNUMBER": this.organizationsNumber2
+                            };
+                            codeModel['FStockID'] = {
+                              "FNUMBER": this.hobby[i][8]['value']['value']
+                            };
+                            /*codeModel['FLastCheckTime'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);*/
+                            Map<String, dynamic> codeFEntityItem = Map();
+                            codeFEntityItem['FBillDate'] = FDate;
+                            codeFEntityItem['FInQty'] = itemCode[1];
+                            codeFEntityItem['FEntryBillNo'] =
+                                returnData[0]['FBillNo'];
+                            //codeFEntityItem['FEntryBillNo'] = orderDate[i][0];
+                            codeFEntityItem['FEntryStockID'] = {
+                              "FNUMBER": this.hobby[i][8]['value']['value']
+                            };
+                            if (this.hobby[i][9]['value']['hide']) {
+                              codeModel['FStockLocNumberH'] =
+                                  this.hobby[i][9]['value']['value'];
+                              codeFEntityItem['FStockLocNumber'] =
+                                  this.hobby[i][9]['value']['value'];
+                              Map<String, dynamic> stockMap = Map();
+                              stockMap['FormId'] = 'BD_STOCK';
+                              stockMap['FieldKeys'] = 'FFlexNumber';
+                              stockMap['FilterString'] = "FNumber = '" +
+                                  this.hobby[i][8]['value']['value'] +
+                                  "'";
+                              Map<String, dynamic> stockDataMap = Map();
+                              stockDataMap['data'] = stockMap;
+                              String res =
+                                  await CurrencyEntity.polling(stockDataMap);
+                              var stockRes = jsonDecode(res);
+                              if (stockRes.length > 0) {
+                                var postionList =
+                                    this.hobby[i][9]['value']['value'].split(".");
+                                codeModel['FStockLocIDH'] = {};
+                                codeFEntityItem['FStockLocID'] = {};
+                                var positonIndex = 0;
+                                for (var dimension in postionList) {
+                                  codeModel['FStockLocIDH']["FSTOCKLOCIDH__" +
+                                      stockRes[positonIndex]
+                                          [0]] = {"FNumber": dimension};
+                                  codeFEntityItem['FStockLocID']["FSTOCKLOCID__" +
+                                      stockRes[positonIndex]
+                                          [0]] = {"FNumber": dimension};
+                                  positonIndex++;
+                                }
+                              }
+                            }
+                            var codeFEntity = [codeFEntityItem];
+                            codeModel['FEntity'] = codeFEntity;
+                            orderCodeMap['Model'] = codeModel;
+                            dataCodeMap['data'] = orderCodeMap;
+                            print(dataCodeMap);
+                            var paramsvalve = jsonEncode(dataCodeMap);
+                            String codeRes = await SubmitEntity.save(dataCodeMap);
+                            var barcodeRes = jsonDecode(codeRes);
+                            if (!barcodeRes['Result']['ResponseStatus']
+                                ['IsSuccess']) {
+                              errorMsg += "错误反馈：" +
+                                  itemCode[1] +
+                                  ":" +
+                                  barcodeRes['Result']['ResponseStatus']['Errors']
+                                      [0]['Message'];
+                            }
+                            print(codeRes);
                           }
                         }
-                        var codeFEntity = [codeFEntityItem];
-                        codeModel['FEntity'] = codeFEntity;
-                        orderCodeMap['Model'] = codeModel;
-                        dataCodeMap['data'] = orderCodeMap;
-                        print(dataCodeMap);
-                        var paramsvalve = jsonEncode(dataCodeMap);
-                        String codeRes = await SubmitEntity.save(dataCodeMap);
-                        var barcodeRes = jsonDecode(codeRes);
-                        if (!barcodeRes['Result']['ResponseStatus']
-                            ['IsSuccess']) {
-                          errorMsg += "错误反馈：" +
-                              itemCode[1] +
-                              ":" +
-                              barcodeRes['Result']['ResponseStatus']['Errors']
-                                  [0]['Message'];
-                        }
-                        print(codeRes);
                       }
                     }
                   }
                 }
-              }
-            }
-            if (errorMsg != "") {
-              ToastUtil.errorDialog(context, errorMsg);
-              this.isSubmit = false;
-            }
-            //提交清空页面
-            setState(() {
-              this.hobby = [];
-              this.orderDate = [];
-              this.FBillNo = '';
-              ToastUtil.showInfo('提交成功');
-              Navigator.of(context).pop("refresh");
-            });
-            /*} else {
+                if (errorMsg != "") {
+                  ToastUtil.errorDialog(context, errorMsg);
+                  this.isSubmit = false;
+                }
+                //提交清空页面
+                setState(() {
+                  this.hobby = [];
+                  this.orderDate = [];
+                  this.FBillNo = '';
+                  ToastUtil.showInfo('提交成功');
+                  Navigator.of(context).pop("refresh");
+                });
+            } else {
                 //失败后反审
                 HandlerOrder.orderHandler(context, submitMap, 0,
                     "STK_TransferDirect", SubmitEntity.unAudit(submitMap))
@@ -2260,7 +2260,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                   }
                 });
               }
-            });*/
+            });
           } else {
             this.isSubmit = false;
           }
