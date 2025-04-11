@@ -124,8 +124,9 @@ class _RetrievalDetailState extends State<ShiftDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    /*_onEvent("32004;AQ50228310N1;2025-03-03;190;MO002777,1143229074;25");
-    _onEvent("32004;AQ50228310N1;2025-03-03;190;MO002777,1143229074;24");*/
+    // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;17");
+    // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;16");
+    // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237878;21");
     EasyLoading.dismiss();
   }
 
@@ -588,9 +589,16 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                   continue;
                 }
               }
+              //判断仓库
+              if (element[6]['value']['value'] == barcodeData[0][6]) {
+                errorTitle = "";
+              } else {
+                errorTitle = "仓库不一致";
+                continue;
+              }
               //判断是否启用仓位
-              if (element[9]['value']['hide']) {
-                if (element[9]['value']['label'] == fLoc) {
+              if (element[7]['value']['hide']) {
+                if (element[7]['value']['label'] == fLoc) {
                   errorTitle = "";
                 } else {
                   errorTitle = "仓位不一致";
@@ -762,9 +770,16 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                   continue;
                 }
               }
+              //判断仓库
+              if (element[6]['value']['value'] == barcodeData[0][6]) {
+                errorTitle = "";
+              } else {
+                errorTitle = "仓库不一致";
+                continue;
+              }
               //判断是否启用仓位
-              if (element[9]['value']['hide']) {
-                if (element[9]['value']['label'] == fLoc) {
+              if (element[7]['value']['hide']) {
+                if (element[7]['value']['label'] == fLoc) {
                   errorTitle = "";
                 } else {
                   errorTitle = "仓位不一致";
@@ -1738,8 +1753,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                                       kingDeeCode[0] +
                                           "-" +
                                           _FNumber +
-                                          "-" +
-                                          kingDeeCode[2];
+                                          "-";
                                 } else {
                                   ToastUtil.showInfo('无条码信息，输入失败');
                                 }

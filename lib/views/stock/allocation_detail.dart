@@ -1809,7 +1809,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                   this.hobby[checkData][3]["value"]["label"] = realQty.toString();
                                   this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
                                   this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
-                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-" + kingDeeCode[2];
+                                  this.hobby[checkData][0]['value']['kingDeeCode'][this.hobby[checkData][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + _FNumber + "-";
                                 } else {
                                   ToastUtil.showInfo('无条码信息，输入失败');
                                 }

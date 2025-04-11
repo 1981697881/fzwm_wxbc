@@ -289,7 +289,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       orderDate = jsonDecode(order);
       if (orderDate.length > 0) {
         this.FSaleOrderNo = orderDate[0][0];
-        orderDate.forEach((value) {
+        for(var value in orderDate){
           fNumber.add(value[5]);
           List arr = [];
           arr.add({
@@ -346,24 +346,55 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             /*value[12]*/
             "value": {"label": "", "value": "0"}
           });
-          arr.add({
-            "title": "仓库",
-            "name": "FStockID",
-            "isHide": false,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "批号",
-            "name": "FLot",
-            "isHide": value[23] != true,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "仓位",
-            "name": "FStockLocID",
-            "isHide": false,
-            "value": {"label": "", "value": "", "hide": false}
-          });
+           Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'QDEP_Cust_BarCodeList';
+          inventoryMap['FilterString'] = "FMATERIALID.FNUMBER='" + value[6] + "' and FEntryBillNo like '%SCRK%'";
+          inventoryMap['OrderString'] = 'FBillDate ASC';
+          inventoryMap['FieldKeys'] =
+          'FEntryStockID.FName,FEntryStockID.FNumber,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumber,FEntryStockID.FIsOpenLocation,FBillDate,FBarCode';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "仓库",
+              "name": "FStockID",
+              "isHide": false,
+              "value": {"label": stocks[0][0], "value": stocks[0][1]}
+            });
+            arr.add({
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[23] != true,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {"label": stocks[0][5], "value": stocks[0][5], "hide": stocks[0][6]}
+            });
+          }else{
+            arr.add({
+              "title": "仓库",
+              "name": "FStockID",
+              "isHide": false,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[23] != true,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {"label": "", "value": "", "hide": false}
+            });
+          }
           arr.add({
             "title": "操作",
             "name": "",
@@ -393,7 +424,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "value": {"label": "0", "value": "0"}
           });
           hobby.add(arr);
-        });
+        };
         setState(() {
           EasyLoading.dismiss();
           this._getHobby();
@@ -405,7 +436,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         });
         ToastUtil.showInfo('无数据');
       }
-      //_onEvent("31014;AQ50310309N1;2025-03-12;200;MO002841,1330546957;23");
+      //_onEvent("33031;AQ50411305N1;2025-04-10;600;MO003072,2127020472;2");
   }
 
   void _onEvent(event) async {
@@ -624,7 +655,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     }
                   }
                   //判断是否启用仓位
-                  if (element[6]['value']['hide']) {
+                  /*if (element[6]['value']['hide']) {
                     if (element[6]['value']['label'] == fLoc) {
                       errorTitle = "";
                     } else {
@@ -646,7 +677,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
                     insertIndex = hobbyIndex;
                     continue;
-                  }
+                  }*/
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -709,7 +740,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                         continue;
                       }
                     }
-                    //判断是否启用仓位
+                    /*//判断是否启用仓位
                     if (element[6]['value']['hide']) {
                       if (element[6]['value']['label'] == fLoc) {
                         errorTitle = "";
@@ -732,7 +763,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
                       insertIndex = hobbyIndex;
                       continue;
-                    }
+                    }*/
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
                             element[0]['value']['value'].toString()) ==
@@ -876,7 +907,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                       continue;
                     }
                   }
-                  //判断是否启用仓位
+                  /*//判断是否启用仓位
                   if (element[6]['value']['hide']) {
                     if (element[6]['value']['label'] == fLoc) {
                       errorTitle = "";
@@ -899,7 +930,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                     fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
                     insertIndex = hobbyIndex;
                     continue;
-                  }
+                  }*/
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -964,7 +995,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           continue;
                         }
                       }
-                      //判断是否启用仓位
+                      /*//判断是否启用仓位
                       if (element[6]['value']['hide']) {
                         if (element[6]['value']['label'] == fLoc) {
                           errorTitle = "";
@@ -987,7 +1018,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                         fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
                         insertIndex = hobbyIndex;
                         continue;
-                      }
+                      }*/
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
                               element[0]['value']['value'].toString()) ==
@@ -1128,7 +1159,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                             continue;
                           }
                         }
-                        //判断是否启用仓位
+                        /*//判断是否启用仓位
                         if (element[6]['value']['hide']) {
                           if (element[6]['value']['label'] == fLoc) {
                             errorTitle = "";
@@ -1151,7 +1182,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                           fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
                           insertIndex = hobbyIndex;
                           continue;
-                        }
+                        }*/
                         //判断末尾
                         /* if (fNumber.lastIndexOf(
                                 element[0]['value']['value'].toString()) ==
