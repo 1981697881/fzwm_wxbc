@@ -348,7 +348,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           });
            Map<String, dynamic> inventoryMap = Map();
           inventoryMap['FormId'] = 'QDEP_Cust_BarCodeList';
-          inventoryMap['FilterString'] = "FMATERIALID.FNUMBER='" + value[6] + "' and FEntryBillNo like '%SCRK%' and FStockLocNumber != ''";
+          inventoryMap['FilterString'] = "FMATERIALID.FNUMBER='" + value[6] + "' and FEntryBillNo like '%ZJDB%' and FStockLocNumber != '' and FInQty>0 and FEntryStockID.FNumber='WXBC01'";
           inventoryMap['OrderString'] = 'FBillDate DESC';
           inventoryMap['FieldKeys'] =
           'FEntryStockID.FName,FEntryStockID.FNumber,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumber,FEntryStockID.FIsOpenLocation,FBillDate,FBarCode';
