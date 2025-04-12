@@ -605,6 +605,15 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                   continue;
                 }
               }
+              //判断是否启用仓位
+              if (element[9]['value']['hide']) {
+                if (element[9]['value']['label'] == '') {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "仓位不一致";
+                  continue;
+                }
+              }
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   element[3]['value']['value'] =
@@ -780,6 +789,15 @@ class _RetrievalDetailState extends State<ShiftDetail> {
               //判断是否启用仓位
               if (element[7]['value']['hide']) {
                 if (element[7]['value']['label'] == fLoc) {
+                  errorTitle = "";
+                } else {
+                  errorTitle = "仓位不一致";
+                  continue;
+                }
+              }
+              //判断是否启用仓位
+              if (element[9]['value']['hide']) {
+                if (element[9]['value']['label'] == '') {
                   errorTitle = "";
                 } else {
                   errorTitle = "仓位不一致";
@@ -1417,7 +1435,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                 divider,
               ]),
             );
-          } else*/
+          } else
           if (j == 6) {
             comList.add(
               _item('调出仓库:', stockList, this.hobby[i][j]['value']['label'],
@@ -1430,7 +1448,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                   this.hobby[i][j],
                   stock: this.hobby[i]),
             );
-          } else if (j == 10) {
+          } else */if (j == 10) {
             comList.add(
               Column(children: [
                 Container(
