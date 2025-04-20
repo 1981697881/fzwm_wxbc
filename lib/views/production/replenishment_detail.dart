@@ -87,7 +87,9 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   var fOrgID;
   var fBarCodeList;
   final controller = TextEditingController();
-
+  final _textNumber2 = TextEditingController();
+  final _textNumber3 = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   _ReplenishmentDetailState(fBillNo, FSeq) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
@@ -108,6 +110,15 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    _focusNode.addListener(() { // 监听焦点变化
+      if (!_focusNode.hasFocus) { // 检查是否失去焦点
+        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
+        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
+          _textNumber3.text = _textNumber3.text + "0";
+        }
+        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
+      }
+    });
     getWorkShop();
     getStockList();
     getBagList();
@@ -168,7 +179,10 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     this._textNumber.dispose();
+    this._textNumber2.dispose();
+    this._textNumber3.dispose();
     super.dispose();
 
     /// 取消监听

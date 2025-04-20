@@ -86,7 +86,8 @@ class _RetrievalDetailState extends State<ShiftDetail> {
   var organizationsName2;
   var organizationsNumber2;
   final controller = TextEditingController();
-
+  final _textNumber3 = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   _RetrievalDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -123,10 +124,19 @@ class _RetrievalDetailState extends State<ShiftDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    _focusNode.addListener(() { // 监听焦点变化
+      if (!_focusNode.hasFocus) { // 检查是否失去焦点
+        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
+        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
+          _textNumber3.text = _textNumber3.text + "0";
+        }
+        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
+      }
+    });
     /*getWorkShop();*/
     // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;17");
     // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;16");
-    // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237878;21");
+     _onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
     EasyLoading.dismiss();
   }
 
@@ -255,6 +265,8 @@ class _RetrievalDetailState extends State<ShiftDetail> {
   @override
   void dispose() {
     this._textNumber.dispose();
+    _focusNode.dispose();
+    this._textNumber3.dispose();
     super.dispose();
 
     /// 取消监听
@@ -1457,40 +1469,69 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
+                      trailing:
+                      Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
-                              onPressed: () {
-                                this._textNumber.text = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                this._FNumber = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                checkItem = 'FLastQty';
-                                this.show = false;
-                                checkData = i;
-                                checkDataChild = j;
-                                scanDialog();
-                                print(this.hobby[i][j]["value"]["label"]);
-                                if (this.hobby[i][j]["value"]["label"] != 0) {
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                    text: this
-                                        .hobby[i][j]["value"]["label"]
-                                        .toString(),
-                                  );
-                                }
-                              },
+                            SizedBox(
+                              width: 100,  // 设置固定宽度
+                              child: TextField(
+                                controller: _textNumber3, // 文本控制器
+                                focusNode: _focusNode,
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  if(value == '' || value == '.'){
+                                    value = "0";
+                                    this._textNumber3.text = "0";
+                                  }else if(value[0]=="0" && value.length>1){
+                                    if(value[value.length - 1]!="."){
+                                      value = value.substring(1);
+                                      this._textNumber3.text = value.substring(1);
+                                    }
+                                  }
+                                  if(value[value.length - 1]!="."){
+                                    if(double.parse(value) <= double.parse(this.hobby[i][j]["value"]['representativeQuantity'])){
+                                      if (this.hobby[i][0]['value']['kingDeeCode'].length > 0) {
+                                        var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1].split("-");
+                                        var realQty = 0.0;
+                                        this.hobby[i][0]['value']['kingDeeCode'].forEach((item) {
+                                          var qty = item.split("-")[1];
+                                          realQty += double.parse(qty);
+                                        });
+                                        realQty = (realQty * 100 - double.parse(this.hobby[i][10]["value"]["label"]) * 100) / 100;
+                                        realQty = (realQty * 100 + double.parse(value) * 100) / 100;
+                                        this.hobby[i][10]["value"]["remainder"] = (Decimal.parse(this.hobby[i][10]["value"]["representativeQuantity"]) - Decimal.parse(value)).toString();
+                                        this.hobby[i][3]["value"]["value"] = realQty.toString();
+                                        this.hobby[i][3]["value"]["label"] = realQty.toString();
+                                        this.hobby[i][j]["value"]["label"] = value;
+                                        this.hobby[i][j]['value']["value"] = value;
+                                        this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
+                                      } else {
+                                        ToastUtil.showInfo('无条码信息，输入失败');
+                                      }
+                                    }else{
+                                      this._textNumber3.text = this.hobby[i][j]["value"]["value"];
+                                      ToastUtil.showInfo('输入数量大于条码可用数量');
+                                    }
+                                  }
+                                  setState(() {
+
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: '请输入',
+                                  contentPadding: EdgeInsets.all(0),
+                                ),
+                              ),
                             ),
                           ])),
                 ),
                 divider,
               ]),
             );
+            if(this._textNumber3.text == null || this._textNumber3.text == ''){
+              this._textNumber3.text = this.hobby[i][j]["value"]["label"];
+            }
           } else if (j == 9) {
             comList.add(
               Visibility(

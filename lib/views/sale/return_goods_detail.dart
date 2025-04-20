@@ -86,6 +86,9 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
+  final _textNumber2 = TextEditingController();
+  final _textNumber3 = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   _ReturnGoodsDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -113,6 +116,24 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    _focusNode.addListener(() { // 监听焦点变化
+      if (!_focusNode.hasFocus) { // 检查是否失去焦点
+        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
+        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
+          _textNumber3.text = _textNumber3.text + "0";
+        }
+        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
+      }
+    });
+    _focusNode.addListener(() { // 监听焦点变化
+      if (!_focusNode.hasFocus) { // 检查是否失去焦点
+        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
+        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
+          _textNumber3.text = _textNumber3.text + "0";
+        }
+        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
+      }
+    });
     /*getWorkShop();*/
     /*getStockList();*/
 
@@ -219,7 +240,10 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     this._textNumber.dispose();
+    this._textNumber2.dispose();
+    this._textNumber3.dispose();
     super.dispose();
 
     /// 取消监听
@@ -1463,7 +1487,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3 || j==5) {
+          if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -1506,16 +1530,52 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
                 divider,
               ]),
             );
+          }else if (j==5) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 150,  // 设置固定宽度
+                              child: TextField(
+                                  controller: _textNumber2, // 文本控制器
+                                  decoration: InputDecoration(
+                                    hintText: '请输入',
+                                    contentPadding: EdgeInsets.all(0),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      this.hobby[i][j]["value"]["label"] = value;
+                                      this.hobby[i][j]['value']["value"] = value;
+                                    });
+                                  }
+                              ),
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+            if(this._textNumber2.text == null || this._textNumber2.text == ''){
+              this._textNumber2.text = this.hobby[i][j]["value"]["label"];
+            }
           } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
             );
-          }else if (j == 11) {
-            comList.add(
-              _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
-            );
-          }else if (j == 1) {
+          // }else if (j == 11) {
+          //   comList.add(
+          //     _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i][j]),
+          //   );
+           }else if (j == 1) {
             comList.add(
               Column(children: [
                 Container(

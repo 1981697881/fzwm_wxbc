@@ -95,6 +95,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
+  final _textNumber2 = TextEditingController();
   _OtherWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -125,7 +126,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getBagList();
     getStockList();
     //getOrganizationsList();
-
+    _onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
 
   }
   //获取部门
@@ -242,6 +243,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   @override
   void dispose() {
     this._textNumber.dispose();
+    this._textNumber2.dispose();
     super.dispose();
     /// 取消监听
     if (_subscription != null) {
@@ -798,38 +800,35 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 Container(
                   color: Colors.white,
                   child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
+                      title: Text(this.hobby[i][j]["title"]),
                       trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: '点击扫描',
-                          onPressed: () {
-                            this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            this._FNumber =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            checkItem = 'FNumber';
-                            this.show = false;
-                            checkData = i;
-                            checkDataChild = j;
-                            scanDialog();
-                            print(this.hobby[i][j]["value"]["label"]);
-                            if (this.hobby[i][j]["value"]["label"] != 0) {
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
-                              );
-                            }
-                          },
-                        ),
-                      ])),
+                      Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 150,  // 设置固定宽度
+                              child: TextField(
+                                controller: _textNumber2, // 文本控制器
+                                decoration: InputDecoration(
+                                  hintText: '请输入',
+                                  contentPadding: EdgeInsets.all(0),
+                                ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      this.hobby[i][j]["value"]["label"] = value;
+                                      this.hobby[i][j]['value']["value"] = value;
+                                    });
+                                }
+                              ),
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
             );
+            if(this._textNumber2.text == null || this._textNumber2.text == ''){
+              this._textNumber2.text = this.hobby[i][j]["value"]["label"];
+            }
           } else if (j == 4) {
             comList.add(
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
