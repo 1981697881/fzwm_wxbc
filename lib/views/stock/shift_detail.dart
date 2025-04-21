@@ -86,8 +86,8 @@ class _RetrievalDetailState extends State<ShiftDetail> {
   var organizationsName2;
   var organizationsNumber2;
   final controller = TextEditingController();
-  final _textNumber3 = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  List<TextEditingController> _textNumber3 = [];
+  List<FocusNode> focusNodes = [];
   _RetrievalDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -124,22 +124,22 @@ class _RetrievalDetailState extends State<ShiftDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    _focusNode.addListener(() { // 监听焦点变化
-      if (!_focusNode.hasFocus) { // 检查是否失去焦点
-        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
-        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
-          _textNumber3.text = _textNumber3.text + "0";
-        }
-        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
-      }
-    });
     /*getWorkShop();*/
     // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;17");
     // _onEvent("32012;AQ50303310N1;2025-03-05;190;MO002794,0926237722;16");
      _onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
     EasyLoading.dismiss();
   }
-
+  void _setupListener(int index) {
+    focusNodes[index].addListener(() {
+      if (!focusNodes[index].hasFocus) { // 检查是否失去焦点
+        print(_textNumber3[index].text[_textNumber3[index].text.length - 1]==".");
+        if(_textNumber3[index].text[_textNumber3[index].text.length - 1]=="."){
+          _textNumber3[index].text = _textNumber3[index].text + "0";
+        }
+      }
+    });
+  }
   //获取仓库
   getStockList() async {
     stockList = [];
@@ -265,8 +265,13 @@ class _RetrievalDetailState extends State<ShiftDetail> {
   @override
   void dispose() {
     this._textNumber.dispose();
-    _focusNode.dispose();
-    this._textNumber3.dispose();
+    // 释放所有 Controller 和 FocusNode
+    for (var controller in _textNumber3) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
     super.dispose();
 
     /// 取消监听
@@ -1409,6 +1414,10 @@ class _RetrievalDetailState extends State<ShiftDetail> {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
+      _textNumber3.add(TextEditingController());
+      focusNodes.add(FocusNode());
+      // 可选：添加监听（需注意内存管理）
+      _setupListener(i);
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
           /* if (j == 3) {
@@ -1476,17 +1485,17 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                             SizedBox(
                               width: 100,  // 设置固定宽度
                               child: TextField(
-                                controller: _textNumber3, // 文本控制器
-                                focusNode: _focusNode,
+                                controller: _textNumber3[i], // 文本控制器
+                                focusNode: focusNodes[i],
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
                                   if(value == '' || value == '.'){
                                     value = "0";
-                                    this._textNumber3.text = "0";
+                                    this._textNumber3[i].text = "0";
                                   }else if(value[0]=="0" && value.length>1){
                                     if(value[value.length - 1]!="."){
                                       value = value.substring(1);
-                                      this._textNumber3.text = value.substring(1);
+                                      this._textNumber3[i].text = value.substring(1);
                                     }
                                   }
                                   if(value[value.length - 1]!="."){
@@ -1507,10 +1516,12 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                                         this.hobby[i][j]['value']["value"] = value;
                                         this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
                                       } else {
+                                        this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
                                         ToastUtil.showInfo('无条码信息，输入失败');
+
                                       }
                                     }else{
-                                      this._textNumber3.text = this.hobby[i][j]["value"]["value"];
+                                      this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
                                       ToastUtil.showInfo('输入数量大于条码可用数量');
                                     }
                                   }
@@ -1529,8 +1540,8 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                 divider,
               ]),
             );
-            if(this._textNumber3.text == null || this._textNumber3.text == ''){
-              this._textNumber3.text = this.hobby[i][j]["value"]["label"];
+            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
+              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
             }
           } else if (j == 9) {
             comList.add(

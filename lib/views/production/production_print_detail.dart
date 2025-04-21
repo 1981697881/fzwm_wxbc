@@ -1172,7 +1172,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
               PartRefreshWidget(globalKey, () {
                 //2、使用 创建一个widget
                 return MyText(
-                    (hobby[7] == ""
+                    (hobby[7]['value']['value'] == ""
                         ? selectData[model]
                         : formatDate(
                         DateFormat('yyyy-MM-dd')
@@ -1205,7 +1205,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
       selectDate: (hobby[7]['value']['label'] == '' || hobby[7]['value']['label'] == null
-          ? PDuration(year: 2021, month: 2, day: 10)
+          ? PDuration.parse(DateTime.now())
           : PDuration.parse(DateTime.parse(hobby[7]['value']['label']))),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),

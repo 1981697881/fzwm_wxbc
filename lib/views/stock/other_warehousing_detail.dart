@@ -95,7 +95,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
-  final _textNumber2 = TextEditingController();
+  List<TextEditingController> _textNumber2 = [];
   _OtherWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -243,7 +243,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   @override
   void dispose() {
     this._textNumber.dispose();
-    this._textNumber2.dispose();
+    // 释放所有 Controller 和 FocusNode
+    for (var controller in _textNumber2) {
+      controller.dispose();
+    }
     super.dispose();
     /// 取消监听
     if (_subscription != null) {
@@ -792,6 +795,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
+      _textNumber2.add(TextEditingController());
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
           if (j==5) {
@@ -808,7 +812,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                             SizedBox(
                               width: 150,  // 设置固定宽度
                               child: TextField(
-                                controller: _textNumber2, // 文本控制器
+                                controller: _textNumber2[i], // 文本控制器
                                 decoration: InputDecoration(
                                   hintText: '请输入',
                                   contentPadding: EdgeInsets.all(0),
@@ -826,8 +830,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 divider,
               ]),
             );
-            if(this._textNumber2.text == null || this._textNumber2.text == ''){
-              this._textNumber2.text = this.hobby[i][j]["value"]["label"];
+            if(this._textNumber2[i].text == null || this._textNumber2[i].text == ''){
+              this._textNumber2[i].text = this.hobby[i][j]["value"]["label"];
             }
           } else if (j == 4) {
             comList.add(

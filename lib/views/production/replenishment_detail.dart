@@ -87,9 +87,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   var fOrgID;
   var fBarCodeList;
   final controller = TextEditingController();
-  final _textNumber2 = TextEditingController();
-  final _textNumber3 = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  List<TextEditingController> _textNumber3 = [];
+  List<FocusNode> focusNodes = [];
   _ReplenishmentDetailState(fBillNo, FSeq) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
@@ -110,21 +109,21 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    _focusNode.addListener(() { // 监听焦点变化
-      if (!_focusNode.hasFocus) { // 检查是否失去焦点
-        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
-        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
-          _textNumber3.text = _textNumber3.text + "0";
-        }
-        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
-      }
-    });
     getWorkShop();
     getStockList();
     getBagList();
     getStatusTypeList();
   }
-
+  void _setupListener(int index) {
+    focusNodes[index].addListener(() {
+      if (!focusNodes[index].hasFocus) { // 检查是否失去焦点
+        print(_textNumber3[index].text[_textNumber3[index].text.length - 1]==".");
+        if(_textNumber3[index].text[_textNumber3[index].text.length - 1]=="."){
+          _textNumber3[index].text = _textNumber3[index].text + "0";
+        }
+      }
+    });
+  }
   //获取库存状态
   getStatusTypeList() async {
     Map<String, dynamic> userMap = Map();
@@ -179,10 +178,13 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     this._textNumber.dispose();
-    this._textNumber2.dispose();
-    this._textNumber3.dispose();
+    for (var controller in _textNumber3) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
     super.dispose();
 
     /// 取消监听
@@ -365,8 +367,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    /*  _onEvent("11059;240515053能投/青途;2024-05-15;950;CGRK02227,1512598138;2");
-    _onEvent("31504;AQ40802203N1;2024-08-02;1080;,1044581817;2");*/
+    _onEvent("11059;250401029能投/能投;2025-04-01;847;CGRK05263,1019112422;2");
   }
 
   void _onEvent(event) async {
@@ -1505,6 +1506,10 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
+      _textNumber3.add(TextEditingController());
+      focusNodes.add(FocusNode());
+      // 可选：添加监听（需注意内存管理）
+      _setupListener(i);
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
           /*if (j == 8 || j == 11) {
@@ -1661,45 +1666,84 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                   color: Colors.white,
                   child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString() +
-                          '剩余(' +
-                          this.hobby[i][j]["value"]["remainder"].toString() +
-                          ')'),
+                          '：'+'剩余('+this.hobby[i][j]["value"]["remainder"].toString()+')'),
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
-                              onPressed: () {
-                                this._textNumber.text = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                this._FNumber = this
-                                    .hobby[i][j]["value"]["label"]
-                                    .toString();
-                                checkItem = 'FLastQty';
-                                this.show = false;
-                                checkData = i;
-                                checkDataChild = j;
-                                scanDialog();
-                                print(this.hobby[i][j]["value"]["label"]);
-                                if (this.hobby[i][j]["value"]["label"] != 0) {
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                    text: this
-                                        .hobby[i][j]["value"]["label"]
-                                        .toString(),
-                                  );
-                                }
-                              },
+                            SizedBox(
+                              width: 100,  // 设置固定宽度
+                              child: TextField(
+                                controller: _textNumber3[i], // 文本控制器
+                                focusNode: focusNodes[i],
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  if(value == '' || value == '.'){
+                                    value = "0";
+                                    this._textNumber3[i].text = "0";
+                                  }else if(value[0]=="0" && value.length>1){
+                                    if(value[value.length - 1]!="."){
+                                      value = value.substring(1);
+                                      this._textNumber3[i].text = value.substring(1);
+                                    }
+                                  }
+                                  if(value[value.length - 1]!="."){
+                                    if(double.parse(value) <= double.parse(this.hobby[i][j]["value"]['representativeQuantity'])){
+                                      if(double.parse(value) <= this.hobby[i][9]["value"]['value']){
+                                        if (this.hobby[i][0]['value']['kingDeeCode'].length > 0) {
+                                          var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1].split("-");
+                                          var realQty = 0.0;
+                                          this.hobby[i][0]['value']['kingDeeCode'].forEach((item) {
+                                            var qty = item.split("-")[1];
+                                            realQty += double.parse(qty);
+                                          });
+                                          realQty = (realQty * 100 - double.parse(this.hobby[i][10]["value"]["label"]) * 100) / 100;
+                                          realQty = (realQty * 100 + double.parse(value) * 100) / 100;
+                                          this.hobby[i][10]["value"]["remainder"] = (Decimal.parse(this.hobby[i][10]["value"]["representativeQuantity"]) - Decimal.parse(value)).toString();
+                                          this.hobby[i][3]["value"]["value"] = realQty.toString();
+                                          this.hobby[i][3]["value"]["label"] = realQty.toString();
+                                          if(this.fBillNo!=""){
+                                            var entryIndex;
+                                            if(this.hobby[i][0]['FEntryID'] == 0){
+                                              entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[i][0]['value']['value']+'-'+this.hobby[i][0]['parseEntryID'].toString()))]['index'];
+                                            }else{
+                                              entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (this.hobby[i][0]['value']['value']+'-'+this.hobby[i][0]['FEntryID'].toString()))]['index'];
+                                            }
+                                            hobby[entryIndex][0]['value']['surplus'] = (hobby[entryIndex][9]['value']['value'] * 100 - double.parse(this.hobby[i][3]['value']['value']) * 100) / 100;
+                                          }
+                                          this.hobby[i][j]["value"]["label"] = value;
+                                          this.hobby[i][j]['value']["value"] = value;
+                                          this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
+                                        } else {
+                                          this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                          ToastUtil.showInfo('无条码信息，输入失败');
+                                        }
+                                      }else{
+                                        this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                        ToastUtil.showInfo('输入数量大于可用数量');
+                                      }
+                                    }else{
+                                      this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                      ToastUtil.showInfo('输入数量大于条码可用数量');
+                                    }
+                                  }
+                                  setState(() {
+
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: '请输入',
+                                  contentPadding: EdgeInsets.all(0),
+                                ),
+                              ),
                             ),
                           ])),
                 ),
                 divider,
               ]),
             );
+            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
+              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
+            }
           } else {
             comList.add(
               Column(children: [

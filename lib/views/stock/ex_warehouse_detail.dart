@@ -41,8 +41,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
 
   final _textNumber = TextEditingController();
-  final _textNumber2 = TextEditingController();
-  final _textNumber3 = TextEditingController();
+
   var checkItem;
   String FBillNo = '';
   String FSaleOrderNo = '';
@@ -103,7 +102,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  List<TextEditingController> _textNumber2 = [];
+  List<TextEditingController> _textNumber3 = [];
+  List<FocusNode> focusNodes = [];
   _ExWarehouseDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
@@ -128,15 +129,6 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    _focusNode.addListener(() { // 监听焦点变化
-      if (!_focusNode.hasFocus) { // 检查是否失去焦点
-        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
-        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
-          _textNumber3.text = _textNumber3.text + "0";
-        }
-        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
-      }
-    });
     /*getWorkShop();*/
    /* getTypeList();*/
     //getOrganizationsList();
@@ -148,6 +140,16 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     //_onEvent("11078;2024-12-25-1华谊/力搏;2024-12-25;30;CGRK04249,1942202935;3");
     //_onEvent("31001;AQ50324305N1;2025-03-24;200;MO002936,1035209536;18");
 
+  }
+  void _setupListener(int index) {
+    focusNodes[index].addListener(() {
+      if (!focusNodes[index].hasFocus) { // 检查是否失去焦点
+        print(_textNumber3[index].text[_textNumber3[index].text.length - 1]==".");
+        if(_textNumber3[index].text[_textNumber3[index].text.length - 1]=="."){
+          _textNumber3[index].text = _textNumber3[index].text + "0";
+        }
+      }
+    });
   }
   //获取包装规格
   getBagList() async {
@@ -275,10 +277,17 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     this._textNumber.dispose();
-    this._textNumber2.dispose();
-    this._textNumber3.dispose();
+    // 释放所有 Controller 和 FocusNode
+    for (var controller in _textNumber2) {
+      controller.dispose();
+    }
+    for (var controller in _textNumber3) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
     super.dispose();
 
     /// 取消监听
@@ -1770,6 +1779,11 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
+      _textNumber2.add(TextEditingController());
+      _textNumber3.add(TextEditingController());
+      focusNodes.add(FocusNode());
+      // 可选：添加监听（需注意内存管理）
+      _setupListener(i);
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
@@ -1810,9 +1824,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 Container(
                   color: Colors.white,
                   child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
+                      title: Text(this.hobby[i][j]["title"]),
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         /*IconButton(
@@ -1839,17 +1851,16 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                         SizedBox(
                           width: 100,  // 设置固定宽度
                           child: TextField(
-
-                            controller: _textNumber2, // 文本控制器
+                            controller: _textNumber2[i], // 文本控制器
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
                               if(value == ''){
-                                this._textNumber2.text = "0";
+                                this._textNumber2[i].text = "0";
                                 value = "0";
-                                this._textNumber2.selection = TextSelection(baseOffset: 0, extentOffset: this._textNumber2.text.length);
+                                this._textNumber2[i].selection = TextSelection(baseOffset: 0, extentOffset: this._textNumber2[i].text.length);
                               }
                               setState(() {
-                                if(this.hobby[i][3]['value'] != '0'){
+                                if(this.hobby[i][3]['value']['value'] != '0'){
                                   var realQty = 0.0;
                                   realQty = double.parse(this.hobby[i][3]["value"]["label"]) / double.parse(value);
                                   this.hobby[i][12]["value"]["value"] = (realQty.ceil()).toString();
@@ -1859,6 +1870,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                   this.hobby[i][j]['value']
                                   ["value"] = value;
                                 }else{
+                                  this._textNumber2[i].text = this.hobby[i][j]["value"]["value"];
                                   ToastUtil.showInfo('请输入出库数量');
                                 }
                               });
@@ -1888,17 +1900,17 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                             SizedBox(
                               width: 100,  // 设置固定宽度
                               child: TextField(
-                                controller: _textNumber3, // 文本控制器
-                                focusNode: _focusNode,
+                                controller: _textNumber3[i], // 文本控制器
+                                focusNode: focusNodes[i],
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
                                   if(value == '' || value == '.'){
                                     value = "0";
-                                    this._textNumber3.text = "0";
+                                    this._textNumber3[i].text = "0";
                                   }else if(value[0]=="0" && value.length>1){
                                     if(value[value.length - 1]!="."){
                                       value = value.substring(1);
-                                      this._textNumber3.text = value.substring(1);
+                                      this._textNumber3[i].text = value.substring(1);
                                     }
                                   }
                                   if(value[value.length - 1]!="."){
@@ -1929,13 +1941,15 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                                           this.hobby[i][j]['value']["value"] = value;
                                           this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
                                         } else {
+                                          this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
                                           ToastUtil.showInfo('无条码信息，输入失败');
                                         }
                                       }else{
+                                        this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
                                         ToastUtil.showInfo('输入数量大于可用数量');
                                       }
                                     }else{
-                                      this._textNumber3.text = this.hobby[i][j]["value"]["value"];
+                                      this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
                                       ToastUtil.showInfo('输入数量大于条码可用数量');
                                     }
                                   }
@@ -1980,8 +1994,8 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
                 divider,
               ]),
             );
-            if(this._textNumber3.text == null || this._textNumber3.text == ''){
-              this._textNumber3.text = this.hobby[i][j]["value"]["label"];
+            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
+              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
             }
           }else if (j == 1) {
             comList.add(

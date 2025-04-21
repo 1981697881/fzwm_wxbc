@@ -95,16 +95,17 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
-  final _textNumber2 = TextEditingController();
-  final _textNumber3 = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  List<TextEditingController> _textNumber2 = [];
+  List<TextEditingController> _textNumber3 = [];
+  List<TextEditingController> _textNumber4 = [];
+  List<FocusNode> focusNodes = [];
   _SimplePickingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
       this.getOrderList();
     }else{
       this.fBillNo = '';
-      //_onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
+      _onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
     }
   }
 
@@ -121,15 +122,6 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    _focusNode.addListener(() { // 监听焦点变化
-      if (!_focusNode.hasFocus) { // 检查是否失去焦点
-        print(_textNumber3.text[_textNumber3.text.length - 1]==".");
-        if(_textNumber3.text[_textNumber3.text.length - 1]=="."){
-          _textNumber3.text = _textNumber3.text + "0";
-        }
-        print('失去焦点时的值: ${_textNumber3.text}'); // 获取值并打印
-      }
-    });
     /*getWorkShop();*/
 
     /* getTypeList();*/
@@ -139,6 +131,16 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
     getStockList();
     getBagList();
     getCommodity();
+  }
+  void _setupListener(int index) {
+    focusNodes[index].addListener(() {
+      if (!focusNodes[index].hasFocus) { // 检查是否失去焦点
+        print(_textNumber3[index].text[_textNumber3[index].text.length - 1]==".");
+        if(_textNumber3[index].text[_textNumber3[index].text.length - 1]=="."){
+          _textNumber3[index].text = _textNumber3[index].text + "0";
+        }
+      }
+    });
   }
   //获取包装规格
   getBagList() async {
@@ -269,10 +271,20 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     this._textNumber.dispose();
-    this._textNumber2.dispose();
-    this._textNumber3.dispose();
+    // 释放所有 Controller 和 FocusNode
+    for (var controller in _textNumber2) {
+      controller.dispose();
+    }
+    for (var controller in _textNumber3) {
+      controller.dispose();
+    }
+    for (var controller in _textNumber4) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
     super.dispose();
 
     /// 取消监听
@@ -1107,6 +1119,12 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
+      _textNumber2.add(TextEditingController());
+      _textNumber3.add(TextEditingController());
+      _textNumber4.add(TextEditingController());
+      focusNodes.add(FocusNode());
+      // 可选：添加监听（需注意内存管理）
+      _setupListener(i);
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
           if (j == 13 ) {
@@ -1115,34 +1133,27 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                 Container(
                   color: Colors.white,
                   child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: '点击扫描',
-                          onPressed: () {
-                            this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            this._FNumber =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            checkItem = 'FNumber';
-                            this.show = false;
-                            checkData = i;
-                            checkDataChild = j;
-                            scanDialog();
-                            print(this.hobby[i][j]["value"]["label"]);
-                            if (this.hobby[i][j]["value"]["label"] != 0) {
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
-                              );
-                            }
-                          },
-                        ),
-                      ])),
+                      title: Text(this.hobby[i][j]["title"]),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 150,  // 设置固定宽度
+                              child: TextField(
+                                  controller: _textNumber4[i], // 文本控制器
+                                  decoration: InputDecoration(
+                                    hintText: '请输入',
+                                    contentPadding: EdgeInsets.all(0),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      this.hobby[i][j]["value"]["label"] = value;
+                                      this.hobby[i][j]['value']["value"] = value;
+                                    });
+                                  }
+                              ),
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
@@ -1182,9 +1193,8 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
-                      trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
+                      trailing:Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        /*IconButton(
                           icon: new Icon(Icons.filter_center_focus),
                           tooltip: '点击扫描',
                           onPressed: () {
@@ -1200,11 +1210,44 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                             print(this.hobby[i][j]["value"]["label"]);
                             if (this.hobby[i][j]["value"]["label"] != 0) {
                               this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
+                                text: this.hobby[i][j]["value"]["label"].toString(),
                               );
                             }
                           },
+                        ),*/
+                        SizedBox(
+                          width: 100,  // 设置固定宽度
+                          child: TextField(
+
+                            controller: _textNumber2[i], // 文本控制器
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              if(value == ''){
+                                this._textNumber2[i].text = "0";
+                                value = "0";
+                                this._textNumber2[i].selection = TextSelection(baseOffset: 0, extentOffset: this._textNumber2[i].text.length);
+                              }
+                              setState(() {
+                                if(this.hobby[i][3]['value']['value'] != '0'){
+                                  var realQty = 0.0;
+                                  realQty = double.parse(this.hobby[i][3]["value"]["label"]) / double.parse(value);
+                                  this.hobby[i][10]["value"]["value"] = (realQty.ceil()).toString();
+                                  this.hobby[i][10]["value"]["label"] = (realQty.ceil()).toString();
+                                  this.hobby[i][j]["value"]
+                                  ["label"] = value;
+                                  this.hobby[i][j]['value']
+                                  ["value"] = value;
+                                }else{
+                                  this._textNumber2[i].text = this.hobby[i][j]["value"]["value"];
+                                  ToastUtil.showInfo('请输入出库数量');
+                                }
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: '请输入',
+                              contentPadding: EdgeInsets.all(0),
+                            ),
+                          ),
                         ),
                       ])),
                 ),
@@ -1306,37 +1349,70 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
                   color: Colors.white,
                   child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: '点击扫描',
-                          onPressed: () {
-                            this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            this._FNumber =
-                                this.hobby[i][j]["value"]["label"].toString();
-                            checkItem = 'FLastQty';
-                            this.show = false;
-                            checkData = i;
-                            checkDataChild = j;
-                            scanDialog();
-                            print(this.hobby[i][j]["value"]["label"]);
-                            if (this.hobby[i][j]["value"]["label"] != 0) {
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text:
-                                this.hobby[i][j]["value"]["label"].toString(),
-                              );
-                            }
-                          },
-                        ),
-                      ])),
+                          '：'+'剩余('+this.hobby[i][j]["value"]["remainder"].toString()+')'),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 100,  // 设置固定宽度
+                              child: TextField(
+                                controller: _textNumber3[i], // 文本控制器
+                                focusNode: focusNodes[i],
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  if(value == '' || value == '.'){
+                                    value = "0";
+                                    this._textNumber3[i].text = "0";
+                                  }else if(value[0]=="0" && value.length>1){
+                                    if(value[value.length - 1]!="."){
+                                      value = value.substring(1);
+                                      this._textNumber3[i].text = value.substring(1);
+                                    }
+                                  }
+                                  if(value[value.length - 1]!="."){
+                                    if(double.parse(value) <= double.parse(this.hobby[i][j]["value"]['representativeQuantity'])){
+                                        if (this.hobby[i][0]['value']['kingDeeCode'].length > 0) {
+                                          var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1].split("-");
+                                          var realQty = 0.0;
+                                          this.hobby[i][0]['value']['kingDeeCode'].forEach((item) {
+                                            var qty = item.split("-")[1];
+                                            realQty += double.parse(qty);
+                                          });
+                                          realQty = (realQty * 100 - double.parse(this.hobby[i][8]["value"]["label"]) * 100) / 100;
+                                          realQty = (realQty * 100 + double.parse(value) * 100) / 100;
+                                          this.hobby[i][8]["value"]["remainder"] = (Decimal.parse(this.hobby[i][8]["value"]["representativeQuantity"]) - Decimal.parse(value)).toString();
+                                          this.hobby[i][3]["value"]["value"] = realQty.toString();
+                                          this.hobby[i][3]["value"]["label"] = realQty.toString();
+                                          this.hobby[i][j]["value"]["label"] = value;
+                                          this.hobby[i][j]['value']["value"] = value;
+                                          this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
+                                        } else {
+                                          this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                          ToastUtil.showInfo('无条码信息，输入失败');
+                                        }
+                                    }else{
+                                      this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                      ToastUtil.showInfo('输入数量大于条码可用数量');
+                                    }
+                                  }
+                                  setState(() {
+
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: '请输入',
+                                  contentPadding: EdgeInsets.all(0),
+                                ),
+                              ),
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
             );
+            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
+              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
+            }
           }else if(j == 6){
             comList.add(
               Visibility(
