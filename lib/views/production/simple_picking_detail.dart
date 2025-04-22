@@ -105,7 +105,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
       this.getOrderList();
     }else{
       this.fBillNo = '';
-      _onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
+      //_onEvent("31001;AQ40711305N1;2024-07-11;200;MO001684,1511255198;2");
     }
   }
 

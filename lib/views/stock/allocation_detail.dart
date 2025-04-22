@@ -126,7 +126,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     /*getWorkShop();*/
    //_onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
-    _onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
+   //_onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
     EasyLoading.dismiss();
   }
   void _setupListener(int index) {

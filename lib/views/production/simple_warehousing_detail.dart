@@ -119,7 +119,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-    _onEvent("31505;AQ41218204N1;2024-12-19;50;,1148432396;3");
+    //_onEvent("31505;AQ41218204N1;2024-12-19;50;,1148432396;3");
     /* getTypeList();*/
     getCustomer();
     getDepartmentList();

@@ -126,7 +126,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getBagList();
     getStockList();
     //getOrganizationsList();
-    _onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
+    //_onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
 
   }
   //获取部门

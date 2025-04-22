@@ -434,7 +434,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
       ToastUtil.showInfo('无数据');
     }
     //_onEvent("0003");
-    _onEvent("31013;AQ50106310N1;2025-01-06;94;MO002556,0850511806;2");
+    //_onEvent("31013;AQ50106310N1;2025-01-06;94;MO002556,0850511806;2");
     getStockList();
 
   }

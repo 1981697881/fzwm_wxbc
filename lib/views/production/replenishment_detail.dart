@@ -367,7 +367,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    _onEvent("11059;250401029能投/能投;2025-04-01;847;CGRK05263,1019112422;2");
+    //_onEvent("11059;250401029能投/能投;2025-04-01;847;CGRK05263,1019112422;2");
   }
 
   void _onEvent(event) async {

@@ -426,7 +426,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-    _onEvent("13020;2803202-1;2025-03-02;6500;CGRK05160,1002536574;2");
+    //_onEvent("13020;2803202-1;2025-03-02;6500;CGRK05160,1002536574;2");
     getStockList();
   }
 

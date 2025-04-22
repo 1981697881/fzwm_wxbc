@@ -1555,7 +1555,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                   ),
                                   onChanged: (value) {
                                     setState(() {
-                                      if(double.parse(value) <= this.hobby[i][9]["value"]['rateValue']){
+                                      if(double.parse(value) <= this.hobby[i][9]["value"]['value']){
                                         this.hobby[i][j]["value"]["label"] = value;
                                         this.hobby[i][j]['value']["value"] = value;
                                       }else{
@@ -1632,7 +1632,7 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                   ),
                                   onChanged: (value) {
                                     setState(() {
-                                      if(double.parse(value) <= this.hobby[i][9]["value"]['rateValue']){
+                                      if(double.parse(value) <= this.hobby[i][9]["value"]['value']){
                                         this.hobby[i][j]["value"]["label"] = value;
                                         this.hobby[i][j]['value']["value"] = value;
                                       }else{
@@ -1735,6 +1735,8 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                     setState(() {
                                       this.hobby[i][j]["value"]["label"] = value;
                                       this.hobby[i][j]['value']["value"] = value;
+                                      this.hobby[i][11]["value"]["value"] = (double.parse(this.hobby[i][13]["value"]["value"]) * double.parse(this.hobby[i][14]["value"]["value"])).toString();
+                                      this.hobby[i][11]["value"]["label"] = this.hobby[i][11]["value"]["value"];
                                     });
                                   }
                               ),
@@ -1766,6 +1768,8 @@ class _ProductionReportDetailState extends State<ProductionReportDetail> {
                                     setState(() {
                                       this.hobby[i][j]["value"]["label"] = value;
                                       this.hobby[i][j]['value']["value"] = value;
+                                      this.hobby[i][11]["value"]["value"] = (double.parse(this.hobby[i][13]["value"]["value"]) * double.parse(this.hobby[i][14]["value"]["value"])).toString();
+                                      this.hobby[i][11]["value"]["label"] = this.hobby[i][11]["value"]["value"];
                                     });
                                   }
                               ),
