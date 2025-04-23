@@ -502,7 +502,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
               if (msg == "") {
                 _code = event;
                 await this.getMaterialList(
-                    barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15],barcodeData[0][16]);
+                    barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15].trim(),barcodeData[0][16]);
                 print("ChannelPage: $event");
               } else {
                 ToastUtil.showInfo(msg);

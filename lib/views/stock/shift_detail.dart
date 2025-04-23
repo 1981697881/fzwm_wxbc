@@ -472,7 +472,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                 barcodeData[0][12].substring(0, 10),
                 barcodeData[0][13].substring(0, 10),
                 barcodeData[0][14],
-                barcodeData[0][17],
+                barcodeData[0][17].trim(),
                 barcodeData[0][18]);
             print("ChannelPage: $event");
           } else {

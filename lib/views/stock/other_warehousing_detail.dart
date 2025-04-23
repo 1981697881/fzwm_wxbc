@@ -380,7 +380,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
           _code = event;
-          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13], barcodeData[0][14]);
+          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].trim(), barcodeData[0][14]);
           print("ChannelPage: $event");
         }else{
           ToastUtil.showInfo('条码不在条码清单中');

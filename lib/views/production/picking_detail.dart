@@ -659,7 +659,7 @@ class _PickingDetailState extends State<PickingDetail> {
               dataStockMap['data'] = stockMap;
               String stockOrder = await CurrencyEntity.polling(dataStockMap);*/
                 this.getMaterialList(
-                    barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13], barcodeData[0][14].substring(0, 10), barcodeData[0][15].substring(0, 10), barcodeData[0][16], barcodeData[0][17]);//jsonDecode(stockOrder)[0][0]
+                    barcodeData, barcodeData[0][10], barcodeData[0][11],barcodeData[0][13], barcodeData[0][14].substring(0, 10), barcodeData[0][15].substring(0, 10), barcodeData[0][16].trim(), barcodeData[0][17]);//jsonDecode(stockOrder)[0][0]
                 print("ChannelPage: $event");
               } else {
                 ToastUtil.showInfo(msg);

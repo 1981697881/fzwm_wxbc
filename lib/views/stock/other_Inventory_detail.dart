@@ -254,7 +254,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
-          this.getMaterialList(barcodeData[0],event,barcodeData[0][15], barcodeData[0][16], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
+          this.getMaterialList(barcodeData[0],event,barcodeData[0][15].trim(), barcodeData[0][16], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
         }else{
           ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
         }

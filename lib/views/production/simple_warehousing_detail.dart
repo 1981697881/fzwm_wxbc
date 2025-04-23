@@ -394,7 +394,7 @@ class _SimpleWarehousingDetailState extends State<SimpleWarehousingDetail> {
         var barcodeData = jsonDecode(order);
         if (barcodeData.length>0) {
           _code = event;
-          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
+          this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15].trim(), barcodeData[0][16]);
           print("ChannelPage: $event");
         }else{
           ToastUtil.showInfo('条码不在条码清单中');

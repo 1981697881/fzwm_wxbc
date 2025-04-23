@@ -421,7 +421,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                 barcodeData[0][10],
                 barcodeData[0][11],
                 barcodeData[0][12].substring(0, 10),
-                barcodeData[0][13].substring(0, 10),barcodeData[0][15],barcodeData[0][16]);
+                barcodeData[0][13].substring(0, 10),barcodeData[0][15].trim(),barcodeData[0][16]);
           } else {
             ToastUtil.showInfo('条码不在条码清单中');
           }

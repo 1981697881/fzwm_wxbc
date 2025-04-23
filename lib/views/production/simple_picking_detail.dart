@@ -411,7 +411,7 @@ class _SimplePickingDetailState extends State<SimplePickingDetail> {
           print(barcodeData);
           if(barcodeData[0][4]>0){
             _code = event;
-            this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
+            this.getMaterialList(barcodeData,barcodeData[0][10], barcodeData[0][11], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10), barcodeData[0][15].trim(), barcodeData[0][16]);
             print("ChannelPage: $event");
           }else{
             ToastUtil.showInfo('该条码已出库或没入库，数量为零');

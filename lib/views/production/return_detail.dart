@@ -450,7 +450,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
             };
             if(msg ==  ""){
               _code = event;
-              this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10), barcodeData[0][15], barcodeData[0][16]);
+              this.getMaterialList(barcodeData, barcodeData[0][10], barcodeData[0][11], barcodeData[0][12].substring(0, 10), barcodeData[0][13].substring(0, 10), barcodeData[0][15].trim(), barcodeData[0][16]);
               print("ChannelPage: $event");
             }else{
               ToastUtil.showInfo(msg);

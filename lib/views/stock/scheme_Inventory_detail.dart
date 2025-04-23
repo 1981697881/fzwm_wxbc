@@ -375,7 +375,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
           setState(() {
             _code = event;
           });
-          this.getMaterialList(barcodeData, _code,barcodeData[0][5], barcodeData[0][6], barcodeData[0][7], barcodeData[0][8].substring(0, 10), barcodeData[0][9].substring(0, 10));
+          this.getMaterialList(barcodeData, _code,barcodeData[0][5].trim(), barcodeData[0][6], barcodeData[0][7], barcodeData[0][8].substring(0, 10), barcodeData[0][9].substring(0, 10));
           print("ChannelPage: $event");
           ToastUtil.showInfo('查询标签成功');
         } else {
