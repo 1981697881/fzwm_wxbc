@@ -113,7 +113,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
     this.isScan = false;
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['Limit'] = '20';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
         'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,FJoinOutQty,FCustomerID.FNumber,FCustomerID.FName,FLinkMan,FHeadLocId.FName,FLinkPhone';
     Map<String, dynamic> dataMap = Map();
