@@ -45,10 +45,9 @@ class _ReturnPageState extends State<ReturnPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now();
-    DateTime newDate = dateTime.add(Duration(days: 4));
-    _dateSelectText =
-        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
      if (_subscription == null) {
@@ -120,7 +119,7 @@ class _ReturnPageState extends State<ReturnPage> {
     }
     this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
         'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();

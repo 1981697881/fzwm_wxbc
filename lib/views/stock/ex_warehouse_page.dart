@@ -99,7 +99,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
       }
     }
     userMap['FormId'] = 'STK_OutStockApply';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeptId.FNumber,FDeptId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FNote,FID';
     Map<String, dynamic> dataMap = Map();

@@ -102,7 +102,7 @@ class _WarehousingPageState extends State<WarehousingPage> {
     this.isScan = false;
     userMap['FormId'] = 'PRD_MORPT';
     userMap['Limit'] = '20';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgId.FNumber,FStockInOrgId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

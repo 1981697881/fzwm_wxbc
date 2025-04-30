@@ -103,7 +103,7 @@ class _PurchaseOutSourcingPageState extends State<PurchaseOutSourcingPage> {
     }
     this.isScan = false;
     userMap['FormId'] = 'PUR_PurchaseOrder';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FPOOrderEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FSrcBillNo,FID';
     Map<String, dynamic> dataMap = Map();

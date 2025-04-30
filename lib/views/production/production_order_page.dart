@@ -125,7 +125,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
     this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
     userMap['Limit'] = '20';
-    userMap['OrderString'] = 'FBillNo DESC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus,FLot.FNumber';
     Map<String, dynamic> dataMap = Map();
@@ -419,68 +419,68 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 0) {
-            comList.add(
-              SizedBox( // 为每个列表项指定宽度
-                width: 200, // 根据内容调整合适宽度
-                child: Column(
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      child: ListTile(
-                        title: Text(this.hobby[i][j]["value"]["label"].toString(),textAlign: TextAlign.center,),trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
-                              onPressed: () {
-
-                              },
-                            ),
-                          ])
-                      ),
-                    ),
-                    divider,
-                  ],
-                ),
-              ),
-            );
-          }else if (j == 5) {
-            comList.add(
-              SizedBox( // 为每个列表项指定宽度
-                width: 200, // 根据内容调整合适宽度
-                child: _item('', [], this.hobby[i][j]['value']['label'],
-                    this.hobby[i][j],stock:this.hobby[i])
-              ),
-            );
-          }else if (j == 6) {
-            comList.add(
-              SizedBox( // 为每个列表项指定宽度
-                width: 200, // 根据内容调整合适宽度
-                child: Column(
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      child: SizedBox(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-
-                          },
-                          decoration: InputDecoration(
-                            hintText: '请输入',
-                            contentPadding: EdgeInsets.all(0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    divider,
-                  ],
-                ),
-              ),
-            );
-          }else{
+          // if (j == 0) {
+          //   comList.add(
+          //     SizedBox( // 为每个列表项指定宽度
+          //       width: 200, // 根据内容调整合适宽度
+          //       child: Column(
+          //         children: [
+          //           Container(
+          //             color: Colors.white,
+          //             child: ListTile(
+          //               title: Text(this.hobby[i][j]["value"]["label"].toString(),textAlign: TextAlign.center,),trailing: Row(
+          //                 mainAxisSize: MainAxisSize.min,
+          //                 children: <Widget>[
+          //                   IconButton(
+          //                     icon: new Icon(Icons.filter_center_focus),
+          //                     tooltip: '点击扫描',
+          //                     onPressed: () {
+          //
+          //                     },
+          //                   ),
+          //                 ])
+          //             ),
+          //           ),
+          //           divider,
+          //         ],
+          //       ),
+          //     ),
+          //   );
+          // }else if (j == 5) {
+          //   comList.add(
+          //     SizedBox( // 为每个列表项指定宽度
+          //       width: 200, // 根据内容调整合适宽度
+          //       child: _item('', [], this.hobby[i][j]['value']['label'],
+          //           this.hobby[i][j],stock:this.hobby[i])
+          //     ),
+          //   );
+          // }else if (j == 6) {
+          //   comList.add(
+          //     SizedBox( // 为每个列表项指定宽度
+          //       width: 200, // 根据内容调整合适宽度
+          //       child: Column(
+          //         children: [
+          //           Container(
+          //             color: Colors.white,
+          //             child: SizedBox(
+          //               child: TextField(
+          //                 keyboardType: TextInputType.number,
+          //                 onChanged: (value) {
+          //
+          //                 },
+          //                 decoration: InputDecoration(
+          //                   hintText: '请输入',
+          //                   contentPadding: EdgeInsets.all(0),
+          //                 ),
+          //               ),
+          //             ),
+          //           ),
+          //           divider,
+          //         ],
+          //       ),
+          //     ),
+          //   );
+          // }else{
             comList.add(
               SizedBox( // 为每个列表项指定宽度
                 width: 200, // 根据内容调整合适宽度
@@ -519,7 +519,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
                 ),
               ),
             );
-          }
+          //}
 
         }
       }

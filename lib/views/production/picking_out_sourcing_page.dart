@@ -117,7 +117,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
     }
     this.isScan = false;
     userMap['FormId'] = 'SUB_SUBREQORDER';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
 
