@@ -6,6 +6,7 @@ import 'package:fzwm_wxbc/model/currency_entity.dart';
 import 'package:fzwm_wxbc/model/submit_entity.dart';
 import 'package:fzwm_wxbc/utils/toast_util.dart';
 import 'package:gbk2utf8/gbk2utf8.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:bluetooth_thermal_printer/bluetooth_thermal_printer.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
@@ -68,13 +69,23 @@ class _PrintPageState extends State<PrintPage> {
   }
 
   Future<void> setConnect(String mac) async {
-    final String? result = await BluetoothThermalPrinter.connect(mac);
-    print("state conneected $result");
-    if (result == "true") {
-      setState(() {
+    try {
+      EasyLoading.show(status: '连接中...');
+      final String? result = await BluetoothThermalPrinter.connect(mac)
+          .timeout(Duration(seconds: 15)); // 设置超时
+
+      if (result?.toLowerCase() == 'success' || result == 'true') {
+        setState(() => connected = true);
         ToastUtil.showInfo('连接成功');
-        connected = true;
-      });
+      } else {
+        ToastUtil.showInfo('连接失败: $result');
+      }
+    } on TimeoutException {
+      ToastUtil.showInfo('连接超时');
+    } catch (e) {
+      ToastUtil.showInfo('连接异常: $e');
+    } finally {
+      EasyLoading.dismiss();
     }
   }
 
@@ -497,8 +508,8 @@ class _PrintPageState extends State<PrintPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return FlutterEasyLoading(
+      child: Scaffold(
         appBar: AppBar(
           title: Text("打印标签"),
           centerTitle: true,
@@ -540,9 +551,6 @@ class _PrintPageState extends State<PrintPage> {
                     );
                   },
                 ),
-              ),
-              SizedBox(
-                height: 30,
               ),
               Padding(
                   padding: EdgeInsets.only(top: 8),
