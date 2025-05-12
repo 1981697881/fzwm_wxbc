@@ -229,11 +229,11 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
   //获取订单信息
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FBillNo='$fBillNo'";
-    userMap['FormId'] = 'PRD_MO';
+    userMap['FilterString'] = "FSrcBillNo='$fBillNo'";
+    userMap['FormId'] = 'QDEP_Cust_BarCodeList';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID0.FNumber,FWorkShopID0.FName,FUnitId.FNumber,FUnitId.FName,FQty,FRptFinishQty,FID,FDocumentStatus,FStockId.FNumber,FStockId.FName,FStockInOrgId.FNumber,FMaterialId.FIsBatchManage,FAuxPropId.FF100002.FNumber,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FOwnerId.FNumber,FBaseUnitId.FNumber,FOwnerTypeId,FLot.FNumber';
+    'FSrcBillNo,FStockOrgID.FNumber,FStockOrgID.FName,FCreateDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerID.FNumber,FOwnerID.FName,FUnitID.FNumber,FUnitID.FName,FBarCodeQty,FRemainQty,FID,FDocumentStatus,FStockID.FNumber,FStockID.FName,FStockOrgID.FNumber,FMATERIALID.FIsBatchManage,FPackageSpec,FMATERIALID.FIsKFPeriod,FMATERIALID.FExpPeriod,FOwnerID.FNumber,FUnitID.FNumber,FBarCode,FBatchNo';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -258,6 +258,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
+          "isChecked": false,
           "value": {
             "label": value[6] + "- (" + value[5] + ")",
             "value": value[5],
@@ -271,7 +272,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
           "title": "包装规格",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": value[20], "value": value[20]}
         });
         arr.add({
           "title": "单位",
@@ -1409,7 +1410,32 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 3) {
+          if (j == 0) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Checkbox(
+                              value: this.hobby[i][j]['isChecked'],
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  this.hobby[i][j]['isChecked'] = value!;
+                                });
+                              },
+                            )
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+          } else if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -1450,7 +1476,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
             );
-          }else if (j == 1) {
+          }/*else if (j == 1) {
             comList.add(
               Column(children: [
                 Container(
@@ -1478,7 +1504,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
                 divider,
               ]),
             );
-          }else if(j == 6){
+          }*/else if(j == 6){
             comList.add(
               Visibility(
                 maintainSize: false,
@@ -1522,11 +1548,11 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
                 ]),
               ),
             );
-          } else if (j == 7) {
+          } /*else if (j == 7) {
             comList.add(
               _dateChildItem('生产日期：', DateMode.YMD, this.hobby[i]),
             );
-          } else {
+          }*/ else {
             comList.add(
               Column(children: [
                 Container(
@@ -1840,7 +1866,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
         }
       }
       this.hobby.forEach((element) {
-        if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' ) {
+        if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[0]['isChecked']) {
           var entryIndex;
           Map<String, dynamic> FEntityItem = Map();
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
@@ -1872,7 +1898,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
       });
       if(FEntity.length==0){
         this.isSubmit = false;
-        ToastUtil.showInfo('条码数量为空');
+        ToastUtil.showInfo('请选择打印条码');
         return;
       }
       Model['FEntity'] = FEntity;
@@ -1880,6 +1906,10 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
       dataMap['data'] = orderMap;
       var datass = jsonEncode(dataMap);
       this.printData = dataMap;
+      printData['type'] = "PRD_MO";
+      this.printData['type'] = "PRD_MO";
+      this.printData['printType'] = false;
+      this.printData['FBillNo'] = fBillNo;
       setState(() {
         this.isSubmit = false;
       });

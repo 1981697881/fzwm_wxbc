@@ -209,99 +209,106 @@ class _PrintPageState extends State<PrintPage> {
                     "B QR 450 170 M 3 U 6\n MA,${codeCont}\nENDQR\n" +
                     "FORM\n" +
                     "PRINT\n";*/
-              Map<String, dynamic> dataCodeMap = Map();
-              dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
-              Map<String, dynamic> orderCodeMap = Map();
-              orderCodeMap['NeedReturnFields'] = [];
-              orderCodeMap['IsDeleteEntry'] = false;
-              Map<String, dynamic> codeModel = Map();
-              codeModel['FID'] = 0;
-              codeModel['FMATERIALID'] = {
-                "FNUMBER": value['FMaterialId']['FNumber']
-              };
-              codeModel['FBatchNo'] = value['FLot']['FNumber'];
-              codeModel['FSrcBillNo'] = printData['type'];
-              codeModel['FBarCode'] = codeCont;
-              codeModel['FBarCodeEn'] = codeCont;
-              codeModel['FSourceBill'] = printData['FBillNo'];
-              codeModel['FOrder'] = barcodeNum;
-              codeModel['FProduceDate'] = value['FProduceDate'];
-              codeModel['FExpiryDate'] = value['FExpiryDate'];
-              codeModel['FPackageSpec'] = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
-              codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
-              codeModel['FStockOrgID'] = {
-                "FNUMBER": value['FOwnerId']['FNumber']
-              };
-              codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
-              Map<String, dynamic> codeFEntityItem = Map();
-              codeFEntityItem['FEntryStockID'] = {
-                "FNUMBER": value['FStockId']['FNumber']
-              };
-              if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
-                Map<String, dynamic> stockMap = Map();
+              if(printData['printType']){
+                Map<String, dynamic> dataCodeMap = Map();
+                dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                Map<String, dynamic> orderCodeMap = Map();
+                orderCodeMap['NeedReturnFields'] = [];
+                orderCodeMap['IsDeleteEntry'] = false;
+                Map<String, dynamic> codeModel = Map();
+                codeModel['FID'] = 0;
+                codeModel['FMATERIALID'] = {
+                  "FNUMBER": value['FMaterialId']['FNumber']
+                };
+                codeModel['FBatchNo'] = value['FLot']['FNumber'];
+                codeModel['FSrcBillNo'] = printData['FBillNo'];
+                codeModel['FBarCode'] = codeCont;
+                codeModel['FBarCodeEn'] = codeCont;
+                codeModel['FSourceBill'] = printData['type'];
+                codeModel['FOrder'] = barcodeNum;
+                codeModel['FProduceDate'] = value['FProduceDate'];
+                codeModel['FExpiryDate'] = value['FExpiryDate'];
+                codeModel['FUnitID'] = {"FNUMBER": value['FUnitId']['FNumber']};
+                codeModel['FPackageSpec'] = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
+                codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
+                codeModel['FStockOrgID'] = {
+                  "FNUMBER": value['FOwnerId']['FNumber']
+                };
+                codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
+                Map<String, dynamic> codeFEntityItem = Map();
+                codeFEntityItem['FEntryStockID'] = {
+                  "FNUMBER": value['FStockId']['FNumber']
+                };
+                if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
+                  Map<String, dynamic> stockMap = Map();
 
-                stockMap['FormId'] = 'BD_STOCK';
-                stockMap['FieldKeys'] =
-                'FFlexNumber';
-                stockMap['FilterString'] = "FNumber = '" +
-                    value['FStockId']['FNumber'] +
-                    "'";
-                Map<String, dynamic> stockDataMap = Map();
-                stockDataMap['data'] = stockMap;
-                String res = await CurrencyEntity.polling(stockDataMap);
-                var stockRes = jsonDecode(res);
-                if (stockRes.length > 0) {
-                  codeModel['FStockLocIDH'] = {};
-                  codeFEntityItem['FStockLocID'] = {};
-                  var positionNumber = [];
-                  for(var dimension in stockRes){
-                    codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
-                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
-                    };
-                    positionNumber.add(value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]);
-                    codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
-                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
-                    };
+                  stockMap['FormId'] = 'BD_STOCK';
+                  stockMap['FieldKeys'] =
+                  'FFlexNumber';
+                  stockMap['FilterString'] = "FNumber = '" +
+                      value['FStockId']['FNumber'] +
+                      "'";
+                  Map<String, dynamic> stockDataMap = Map();
+                  stockDataMap['data'] = stockMap;
+                  String res = await CurrencyEntity.polling(stockDataMap);
+                  var stockRes = jsonDecode(res);
+                  if (stockRes.length > 0) {
+                    codeModel['FStockLocIDH'] = {};
+                    codeFEntityItem['FStockLocID'] = {};
+                    var positionNumber = [];
+                    for(var dimension in stockRes){
+                      codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
+                        "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                      };
+                      positionNumber.add(value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]);
+                      codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
+                        "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                      };
+                    }
+                    codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
+                    codeModel['FStockLocNumberH'] = positionNumber.join(".");
                   }
-                  codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
-                  codeModel['FStockLocNumberH'] = positionNumber.join(".");
                 }
-              }
-              codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
-                yyyy,
-                "-",
-                mm,
-                "-",
-                dd,
-              ]);
-              codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
+                codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
+                  yyyy,
+                  "-",
+                  mm,
+                  "-",
+                  dd,
+                ]);
+                codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
 
-              var codeFEntity = [codeFEntityItem];
-              codeModel['FEntity'] = codeFEntity;
-              orderCodeMap['Model'] = codeModel;
-              dataCodeMap['data'] = orderCodeMap;
-              print(dataCodeMap);
-              var paramsData= jsonEncode(dataCodeMap);
-              String codeRes = await SubmitEntity.save(dataCodeMap);
-              var res = jsonDecode(codeRes);
-              if (res['Result']['ResponseStatus']['IsSuccess']) {
+                var codeFEntity = [codeFEntityItem];
+                codeModel['FEntity'] = codeFEntity;
+                orderCodeMap['Model'] = codeModel;
+                dataCodeMap['data'] = orderCodeMap;
+                print(dataCodeMap);
+                var paramsData= jsonEncode(dataCodeMap);
+                String codeRes = await SubmitEntity.save(dataCodeMap);
+                var res = jsonDecode(codeRes);
+                if (res['Result']['ResponseStatus']['IsSuccess']) {
+                  barcodeNum++;
+                  remainingQuantity = remainingQuantity - int.parse(packing);
+                  await this.printGraphics(gbk.encode(println));
+                } else {
+                  setState(() {
+                    ToastUtil.errorDialog(context,
+                        res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                  });
+                }
+              }else{
                 barcodeNum++;
                 remainingQuantity = remainingQuantity - int.parse(packing);
                 await this.printGraphics(gbk.encode(println));
-              } else {
-                setState(() {
-                  ToastUtil.errorDialog(context,
-                      res['Result']['ResponseStatus']['Errors'][0]['Message']);
-                });
               }
             }
           } else {
@@ -402,98 +409,105 @@ class _PrintPageState extends State<PrintPage> {
                     "B QR 450 170 M 3 U 6\n MA,${codeCont}\nENDQR\n" +
                     "FORM\n" +
                     "PRINT\n";*/
-              Map<String, dynamic> dataCodeMap = Map();
-              dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
-              Map<String, dynamic> orderCodeMap = Map();
-              orderCodeMap['NeedReturnFields'] = [];
-              orderCodeMap['IsDeleteEntry'] = false;
-              Map<String, dynamic> codeModel = Map();
-              codeModel['FID'] = 0;
-              codeModel['FMATERIALID'] = {
-                "FNUMBER": value['FMaterialId']['FNumber']
-              };
-              codeModel['FBatchNo'] = value['FLot']['FNumber'];
-              codeModel['FSrcBillNo'] = printData['type'];
-              codeModel['FBarCode'] = codeCont;
-              codeModel['FBarCodeEn'] = codeCont;
-              codeModel['FSourceBill'] = printData['FBillNo'];
-              codeModel['FOrder'] = barcodeNum;
-              codeModel['FProduceDate'] = value['FProduceDate'];
-              codeModel['FExpiryDate'] = value['FExpiryDate'];
-              codeModel['FPackageSpec'] = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
-              codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
-              codeModel['FStockOrgID'] = {
-                "FNUMBER": value['FOwnerId']['FNumber']
-              };
-              codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
-              Map<String, dynamic> codeFEntityItem = Map();
-              codeFEntityItem['FEntryStockID'] = {
-                "FNUMBER": value['FStockId']['FNumber']
-              };
-              print(value['FStockLocId']);
-              if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
-                Map<String, dynamic> stockMap = Map();
-                stockMap['FormId'] = 'BD_STOCK';
-                stockMap['FieldKeys'] =
-                'FFlexNumber';
-                stockMap['FilterString'] = "FNumber = '" +
-                    value['FStockId']['FNumber'] +
-                    "'";
-                Map<String, dynamic> stockDataMap = Map();
-                stockDataMap['data'] = stockMap;
-                String res = await CurrencyEntity.polling(stockDataMap);
-                var stockRes = jsonDecode(res);
-                if (stockRes.length > 0) {
-                  codeModel['FStockLocIDH'] = {};
-                  codeFEntityItem['FStockLocID'] = {};
-                  var positionNumber = [];
-                  for(var dimension in stockRes){
-                    codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
-                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
-                    };
-                    positionNumber.add(value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]);
-                    codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
-                      "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
-                    };
+              if(printData['printType']){
+                Map<String, dynamic> dataCodeMap = Map();
+                dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
+                Map<String, dynamic> orderCodeMap = Map();
+                orderCodeMap['NeedReturnFields'] = [];
+                orderCodeMap['IsDeleteEntry'] = false;
+                Map<String, dynamic> codeModel = Map();
+                codeModel['FID'] = 0;
+                codeModel['FMATERIALID'] = {
+                  "FNUMBER": value['FMaterialId']['FNumber']
+                };
+                codeModel['FBatchNo'] = value['FLot']['FNumber'];
+                codeModel['FSrcBillNo'] = printData['FBillNo'];
+                codeModel['FBarCode'] = codeCont;
+                codeModel['FBarCodeEn'] = codeCont;
+                codeModel['FSourceBill'] = printData['type'];
+                codeModel['FOrder'] = barcodeNum;
+                codeModel['FProduceDate'] = value['FProduceDate'];
+                codeModel['FUnitID'] = {"FNUMBER": value['FUnitID']['FNumber']};
+                codeModel['FExpiryDate'] = value['FExpiryDate'];
+                codeModel['FPackageSpec'] = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
+                codeModel['FBarCodeQty'] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeModel['FRemainQty '] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeModel['FOwnerID'] = {"FNUMBER": value['FOwnerId']['FNumber']};
+                codeModel['FStockOrgID'] = {
+                  "FNUMBER": value['FOwnerId']['FNumber']
+                };
+                codeModel['FStockID'] = {"FNUMBER": value['FStockId']['FNumber']};
+                Map<String, dynamic> codeFEntityItem = Map();
+                codeFEntityItem['FEntryStockID'] = {
+                  "FNUMBER": value['FStockId']['FNumber']
+                };
+                print(value['FStockLocId']);
+                if (value['FStockLocId'] !=null && !value['FStockLocId'].isEmpty) {
+                  Map<String, dynamic> stockMap = Map();
+                  stockMap['FormId'] = 'BD_STOCK';
+                  stockMap['FieldKeys'] =
+                  'FFlexNumber';
+                  stockMap['FilterString'] = "FNumber = '" +
+                      value['FStockId']['FNumber'] +
+                      "'";
+                  Map<String, dynamic> stockDataMap = Map();
+                  stockDataMap['data'] = stockMap;
+                  String res = await CurrencyEntity.polling(stockDataMap);
+                  var stockRes = jsonDecode(res);
+                  if (stockRes.length > 0) {
+                    codeModel['FStockLocIDH'] = {};
+                    codeFEntityItem['FStockLocID'] = {};
+                    var positionNumber = [];
+                    for(var dimension in stockRes){
+                      codeModel['FStockLocIDH']["FSTOCKLOCIDH__" + dimension[0]] = {
+                        "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                      };
+                      positionNumber.add(value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]);
+                      codeFEntityItem['FStockLocID']["FSTOCKLOCID__" + dimension[0]] = {
+                        "FNumber": value['FStockLocId']["FSTOCKLOCID__" + dimension[0]]["FNumber"]
+                      };
+                    }
+                    codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
+                    codeModel['FStockLocNumberH'] = positionNumber.join(".");
                   }
-                  codeFEntityItem['FStockLocNumber'] = positionNumber.join(".");
-                  codeModel['FStockLocNumberH'] = positionNumber.join(".");
                 }
-              }
-              codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
-                yyyy,
-                "-",
-                mm,
-                "-",
-                dd,
-              ]);
-              codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
-                  ? packing
-                  : remainingQuantity;
-              codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
+                codeFEntityItem['FBillDate'] = formatDate(DateTime.now(), [
+                  yyyy,
+                  "-",
+                  mm,
+                  "-",
+                  dd,
+                ]);
+                codeFEntityItem['FInQty'] = remainingQuantity >= int.parse(packing)
+                    ? packing
+                    : remainingQuantity;
+                codeFEntityItem['FEntryBillNo'] = printData['FBillNo'];
 
-              var codeFEntity = [codeFEntityItem];
-              codeModel['FEntity'] = codeFEntity;
-              orderCodeMap['Model'] = codeModel;
-              dataCodeMap['data'] = orderCodeMap;
-              print(dataCodeMap);
-              String codeRes = await SubmitEntity.save(dataCodeMap);
-              var res = jsonDecode(codeRes);
-              if (res['Result']['ResponseStatus']['IsSuccess']) {
+                var codeFEntity = [codeFEntityItem];
+                codeModel['FEntity'] = codeFEntity;
+                orderCodeMap['Model'] = codeModel;
+                dataCodeMap['data'] = orderCodeMap;
+                print(dataCodeMap);
+                String codeRes = await SubmitEntity.save(dataCodeMap);
+                var res = jsonDecode(codeRes);
+                if (res['Result']['ResponseStatus']['IsSuccess']) {
+                  barcodeNum++;
+                  remainingQuantity = remainingQuantity - int.parse(packing);
+                  await this.printGraphics(gbk.encode(println));
+                } else {
+                  setState(() {
+                    ToastUtil.errorDialog(context,
+                        res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                  });
+                }
+              }else{
                 barcodeNum++;
                 remainingQuantity = remainingQuantity - int.parse(packing);
                 await this.printGraphics(gbk.encode(println));
-              } else {
-                setState(() {
-                  ToastUtil.errorDialog(context,
-                      res['Result']['ResponseStatus']['Errors'][0]['Message']);
-                });
               }
             }
           } else {
@@ -586,6 +600,7 @@ class _PrintPageState extends State<PrintPage> {
                         color: this.connected
                             ? Theme.of(context).primaryColor
                             : Colors.grey,
+                        //onPressed: getGraphicsTicket,
                         onPressed: connected ?getGraphicsTicket: null,
                       ),
                     ),

@@ -1889,6 +1889,9 @@ class _ProductionOrderDetailState extends State<ProductionOrderDetail> {
       saveDataMap['data'] = saveOrderMap;
       var datass = jsonEncode(dataMap);
       this.printData = dataMap;
+      this.printData['type'] = "PRD_MO";
+      this.printData['FBillNo'] = fBillNo;
+      this.printData['printType'] = true;
       String order = await SubmitEntity.save(saveDataMap);
       var res = jsonDecode(order);
       print(res);

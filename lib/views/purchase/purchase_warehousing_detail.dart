@@ -2457,6 +2457,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           }
           printData['FBillNo'] = returnData[0]['FBillNo'];
           printData['type'] = "STK_InStock";
+          printData['printType'] = true;
           submitMap = {
             "formid": "STK_InStock",
             "data": {
