@@ -407,7 +407,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           barcodeList = [[event]];
         }else{
           Map<String, dynamic> barcodeMap = Map();
-          barcodeMap['FilterString'] = "FPackageNo='" + event + "'";
+          barcodeMap['FilterString'] = "FPackageNo='" + event + "' and FBarCodeEn!='" + event + "'";
           barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
           barcodeMap['FieldKeys'] =
           'FBarCodeEn';

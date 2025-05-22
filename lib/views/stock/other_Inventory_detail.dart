@@ -244,20 +244,42 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
       fBarCodeList = menuList['FBarCodeList'];
       if (fBarCodeList == 1) {
-        Map<String, dynamic> barcodeMap = Map();
-        barcodeMap['FilterString'] = "FBarCodeEn='"+event+"' and FStockID.FNumber= '"+stockNumber+"'";
-        barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
-        barcodeMap['FieldKeys'] =
-        'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation,FBatchNo';
-        Map<String, dynamic> dataMap = Map();
-        dataMap['data'] = barcodeMap;
-        String order = await CurrencyEntity.polling(dataMap);
-        var barcodeData = jsonDecode(order);
-        if (barcodeData.length>0) {
-          this.getMaterialList(barcodeData[0],event,barcodeData[0][15].trim(), barcodeData[0][16], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
+        var barcodeList = [];
+        if(event.split(';').length>1){
+          barcodeList = [[event]];
         }else{
-          ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
+          Map<String, dynamic> barcodeMap = Map();
+          barcodeMap['FilterString'] = "FPackageNo='" + event + "' and FBarCodeEn!='" + event + "'";
+          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+          barcodeMap['FieldKeys'] =
+          'FBarCodeEn';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = barcodeMap;
+          String order = await CurrencyEntity.polling(dataMap);
+          var barcodeData = jsonDecode(order);
+          if (barcodeData.length > 0) {
+            barcodeList = barcodeData;
+          } else {
+            barcodeList = [[event]];
+          }
         }
+        for(var item in barcodeList){
+          Map<String, dynamic> barcodeMap = Map();
+          barcodeMap['FilterString'] = "FBarCodeEn='"+item[0]+"' and FStockID.FNumber= '"+stockNumber+"'";
+          barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+          barcodeMap['FieldKeys'] =
+          'FID,FInQtyTotal,FOutQtyTotal,FEntity_FEntryId,FRemainQty,FBarCodeQty,FStockID.FName,FStockID.FNumber,FMATERIALID.FNUMBER,FOwnerID.FNumber,FBarCode,FSN,FPackageSpec,FProduceDate,FExpiryDate,FStockLocNumberH,FStockID.FIsOpenLocation,FBatchNo';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = barcodeMap;
+          String order = await CurrencyEntity.polling(dataMap);
+          var barcodeData = jsonDecode(order);
+          if (barcodeData.length>0) {
+            this.getMaterialList(barcodeData[0],event,barcodeData[0][15].trim(), barcodeData[0][16], barcodeData[0][12], barcodeData[0][13].substring(0, 10), barcodeData[0][14].substring(0, 10));
+          }else{
+            ToastUtil.showInfo('条码不在条码清单中或与盘点仓库不一致');
+          }
+        }
+
       }else{
         EasyLoading.show(status: 'loading...');
         this.getMaterialList("0",_code,"",false,"","","");
