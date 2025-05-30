@@ -1441,6 +1441,11 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       },
     );
   }
+  void _moveCursorToEnd(controller) {
+    controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: controller.text.length),
+    );
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -1468,7 +1473,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               width: 150,  // 设置固定宽度
                               child: TextField(
                                   controller: _textNumber3[i], // 文本控制器
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')), // 允许小数和数字
+                                  ],
                                   focusNode: focusNodes[i],
                                   decoration: InputDecoration(
                                     hintText: '请输入',
@@ -1481,6 +1489,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                         this.hobby[i][j]['value']["value"] = value;
                                       }else{
                                         this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                        // 移动光标到末尾
+                                        _moveCursorToEnd(this._textNumber3[i]);
                                         ToastUtil.showInfo('输入数量大于可用数量');
                                       }
                                     });
@@ -1492,9 +1502,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 divider,
               ]),
             );
-            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
-              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
-            }
           }else if (j==5) {
             comList.add(
               Column(children: [

@@ -233,7 +233,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
     userMap['FormId'] = 'QDEP_Cust_BarCodeList';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FSrcBillNo,FStockOrgID.FNumber,FStockOrgID.FName,FCreateDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerID.FNumber,FOwnerID.FName,FUnitID.FNumber,FUnitID.FName,FBarCodeQty,FRemainQty,FID,FDocumentStatus,FStockID.FNumber,FStockID.FName,FStockOrgID.FNumber,FMATERIALID.FIsBatchManage,FPackageSpec,FMATERIALID.FIsKFPeriod,FMATERIALID.FExpPeriod,FOwnerID.FNumber,FUnitID.FNumber,FBarCode,FBatchNo';
+    'FSrcBillNo,FStockOrgID.FNumber,FStockOrgID.FName,FCreateDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerID.FNumber,FOwnerID.FName,FUnitID.FNumber,FUnitID.FName,FBarCodeQty,FRemainQty,FID,FDocumentStatus,FStockID.FNumber,FStockID.FName,FStockOrgID.FNumber,FMATERIALID.FIsBatchManage,FPackageSpec,FMATERIALID.FIsKFPeriod,FMATERIALID.FExpPeriod,FOwnerID.FNumber,FUnitID.FNumber,FBarCode,FBatchNo,FOrder';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -1876,6 +1876,7 @@ class _ProductionPrintDetailState extends State<ProductionPrintDetail> {
           FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
           FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
           FEntityItem['FQty'] = element[3]['value']['value'];
+          FEntityItem['FOrder'] = orderDate[hobbyIndex][27];
 
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
 

@@ -115,7 +115,7 @@ class _PrintPageState extends State<PrintPage> {
     }
     for (var value in data) {
       if(printData['type'] == "STK_InStock"){
-        var barcodeNum = 1.0;
+        var barcodeNum = 1;
         var fRealQty = value['FRealQty'];
         var packing = value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber'];
         //获取条码流水号
@@ -130,9 +130,12 @@ class _PrintPageState extends State<PrintPage> {
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length > 0) {
-          barcodeNum = barcodeData[0][1] + 1.0;
+          if (barcodeData[0][1] % 1 == 0) {
+            barcodeData[0][1] = barcodeData[0][1].toInt();
+          }
+          barcodeNum = barcodeData[0][1] + 1;
         } else {
-          barcodeNum = 1.0;
+          barcodeNum = 1;
         }
         //判断规格重量
         if (cnIsNumber(packing) == true) {
@@ -163,23 +166,23 @@ class _PrintPageState extends State<PrintPage> {
                   'BAR 130, 380, 375, 1\r\n' +
                   'BAR 100, 440, 425, 1\r\n' +
                   'BAR 130, 500, 375, 1\r\n' +
-                  'TEXT 15,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
-                  'TEXT 15,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
-                  'TEXT 15,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
-                  'TEXT 15,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
-                  'TEXT 15,280,"TSS24.BF2",0,1,1,"到货日期:"\r\n' +
-                  'TEXT 15,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
-                  'TEXT 15,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
-                  'TEXT 15,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
-                  'TEXT 110,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
-                  'TEXT 110,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
-                  'TEXT 110,160,"TSS24.BF2",0,1,1,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                  'TEXT 190,220,"TSS24.BF2",0,1,1,"合格"\r\n' +
-                  'TEXT 190,280,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 160,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 110,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
-                  'TEXT 160,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
-                  'QRCODE 560,140,M,5,A,0,"${codeCont}"\r\n' +
+                  'TEXT 25,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
+                  'TEXT 25,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
+                  'TEXT 25,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
+                  'TEXT 25,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
+                  'TEXT 25,280,"TSS24.BF2",0,1,1,"到货日期:"\r\n' +
+                  'TEXT 25,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
+                  'TEXT 25,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
+                  'TEXT 25,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
+                  'TEXT 120,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 120,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 120,160,"TSS24.BF2",0,1,1,"${value['FAuxPropId']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 200,220,"TSS24.BF2",0,1,1,"合格"\r\n' +
+                  'TEXT 200,280,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 170,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 120,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
+                  'TEXT 170,460,"TSS24.BF2",0,1,1,"${printData['printType']?barcodeNum:value['FOrder']}"\r\n' +
+                  'QRCODE 570,140,M,5,A,0,"${codeCont}"\r\n' +
                   'PRINT 1,${sheetNum}\r\n';
              /* println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +
@@ -316,7 +319,7 @@ class _PrintPageState extends State<PrintPage> {
           }
         }
       }else{
-        var barcodeNum = 1.0;
+        var barcodeNum = 1;
         var fRealQty = value['FQty'].toString();
         var packing = value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber'];
         //获取条码流水号
@@ -331,9 +334,12 @@ class _PrintPageState extends State<PrintPage> {
         String order = await CurrencyEntity.polling(dataMap);
         var barcodeData = jsonDecode(order);
         if (barcodeData.length > 0) {
-          barcodeNum = barcodeData[0][1] + 1.0;
+          if (barcodeData[0][1] % 1 == 0) {
+            barcodeData[0][1] = barcodeData[0][1].toInt();
+          }
+          barcodeNum = barcodeData[0][1] + 1;
         } else {
-          barcodeNum = 1.0;
+          barcodeNum = 1;
         }
         //判断规格重量
         if (cnIsNumber(packing) == true) {
@@ -363,23 +369,23 @@ class _PrintPageState extends State<PrintPage> {
                   'BAR 130, 380, 375, 1\r\n' +
                   'BAR 100, 440, 425, 1\r\n' +
                   'BAR 130, 500, 375, 1\r\n' +
-                  'TEXT 15,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
-                  'TEXT 15,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
-                  'TEXT 15,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
-                  'TEXT 15,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
-                  'TEXT 15,280,"TSS24.BF2",0,1,1,"生产日期:"\r\n' +
-                  'TEXT 15,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
-                  'TEXT 15,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
-                  'TEXT 15,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
-                  'TEXT 110,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
-                  'TEXT 110,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
-                  'TEXT 110,160,"TSS24.BF2",0,1,1,"${value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
-                  'TEXT 190,220,"TSS24.BF2",0,1,1,"合格"\r\n' +
-                  'TEXT 190,280,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 160,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
-                  'TEXT 110,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
-                  'TEXT 160,460,"TSS24.BF2",0,1,1,"${barcodeNum}"\r\n' +
-                  'QRCODE 560,140,M,5,A,0,"${codeCont}"\r\n' +
+                  'TEXT 25,40,"TSS24.BF2",0,1,1,"品名:"\r\n' +
+                  'TEXT 25,100,"TSS24.BF2",0,1,1,"批号:"\r\n' +
+                  'TEXT 25,160,"TSS24.BF2",0,1,1,"净重:"\r\n' +
+                  'TEXT 25,220,"TSS24.BF2",0,1,1,"检验状态:"\r\n' +
+                  'TEXT 25,280,"TSS24.BF2",0,1,1,"生产日期:"\r\n' +
+                  'TEXT 25,340,"TSS24.BF2",0,1,1,"有效期:"\r\n' +
+                  'TEXT 25,400,"TSS24.BF2",0,1,1,"备注:"\r\n' +
+                  'TEXT 25,460,"TSS24.BF2",0,1,1,"流水号:"\r\n' +
+                  'TEXT 120,40,"TSS24.BF2",0,1,1,"${value['FMaterialName']}"\r\n' +
+                  'TEXT 120,100,"TSS24.BF2",0,1,1,"${value['FLot']['FNumber']}"\r\n' +
+                  'TEXT 120,160,"TSS24.BF2",0,1,1,"${value['FAuxPropID']['FAUXPROPID__FF100002']['FNumber']}"\r\n' +
+                  'TEXT 200,220,"TSS24.BF2",0,1,1,"合格"\r\n' +
+                  'TEXT 200,280,"TSS24.BF2",0,1,1,"${value['FProduceDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 170,340,"TSS24.BF2",0,1,1,"${value['FExpiryDate'].substring(0, 10)}"\r\n' +
+                  'TEXT 120,400,"TSS24.BF2",0,1,1,"${value['FNote']==null?'':value['FNote']}"\r\n' +
+                  'TEXT 170,460,"TSS24.BF2",0,1,1,"${printData['printType']?barcodeNum:value['FOrder']}"\r\n' +
+                  'QRCODE 570,140,M,5,A,0,"${codeCont}"\r\n' +
                   'PRINT 1,${sheetNum}\r\n';
                 /*println = "! 0 200 200 580 1\n" +
                     "PAGE-WIDTH 750\n" +

@@ -1430,7 +1430,11 @@ class _RetrievalDetailState extends State<ShiftDetail> {
       },
     );
   }
-
+  void _moveCursorToEnd(controller) {
+    controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: controller.text.length),
+    );
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -1508,18 +1512,24 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                               child: TextField(
                                 controller: _textNumber3[i], // 文本控制器
                                 focusNode: focusNodes[i],
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')), // 允许小数和数字
+                                ],
                                 onChanged: (value) {
-                                  if(value == '' || value == '.'){
-                                    value = "0";
-                                    this._textNumber3[i].text = "0";
-                                  }else if(value[0]=="0" && value.length>1){
-                                    if(value[value.length - 1]!="."){
+                                  if(value[0]=="0" && value.length>1){
+                                    if(!value.contains('.')){
                                       value = value.substring(1);
-                                      this._textNumber3[i].text = value.substring(1);
+                                      this._textNumber3[i].text = value;
+                                      // 移动光标到末尾
+                                      _moveCursorToEnd(this._textNumber3[i]);
                                     }
                                   }
-                                  if(value[value.length - 1]!="."){
+                                  // 提交前检查并处理
+                                  if (value.endsWith('.')) {
+                                    value = value.substring(0, value.length - 1);
+                                  }
+
                                     if(double.parse(value) <= double.parse(this.hobby[i][j]["value"]['representativeQuantity'])){
                                       if (this.hobby[i][0]['value']['kingDeeCode'].length > 0) {
                                         var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1].split("-");
@@ -1538,14 +1548,18 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                                         this.hobby[i][0]['value']['kingDeeCode'][this.hobby[i][0]['value']['kingDeeCode'].length - 1] = kingDeeCode[0] + "-" + value + "-" + kingDeeCode[2];
                                       } else {
                                         this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                        // 移动光标到末尾
+                                        _moveCursorToEnd(this._textNumber3[i]);
                                         ToastUtil.showInfo('无条码信息，输入失败');
 
                                       }
                                     }else{
                                       this._textNumber3[i].text = this.hobby[i][j]["value"]["value"];
+                                      // 移动光标到末尾
+                                      _moveCursorToEnd(this._textNumber3[i]);
                                       ToastUtil.showInfo('输入数量大于条码可用数量');
                                     }
-                                  }
+
                                   setState(() {
 
                                   });
@@ -1561,9 +1575,7 @@ class _RetrievalDetailState extends State<ShiftDetail> {
                 divider,
               ]),
             );
-            if(this._textNumber3[i].text == null || this._textNumber3[i].text == ''){
-              this._textNumber3[i].text = this.hobby[i][j]["value"]["label"];
-            }
+
           } else if (j == 9) {
             comList.add(
               Visibility(
